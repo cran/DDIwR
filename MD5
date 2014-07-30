@@ -1,0 +1,13 @@
+d904c6fb95ee2937bafe410728ae97c5 *DESCRIPTION
+aae15c2bb717c17555f2169affb96f5c *NAMESPACE
+6c475a0b03927b71db8f69f9c4cf8bdd *R/getEnter.R
+6ac38ff1aec77fe09228d73677a8daba *R/getFiles.R
+e4045dd731b8e5eff965aa4e750d912e *R/getMetadata.R
+087f389bcb9b3a8025826660977514f5 *R/setupfile.R
+00eed01142ebf09ceaf9e4c08fb344ae *R/splitrows.R
+7575d74344bd719ee5f860f06fa2b9cc *R/treatPath.R
+f7adbcc9dd97d7ec61237deb21d9157b *inst/ChangeLog
+3532d3216a1cbdb9aaaf813928666280 *man/DDIwR-internal.Rd
+df5df91cf4eeaa5136e3f3fe7f178b5b *man/DDIwR.package.Rd
+e6ecebb23368245aa4ccf8b7190a862e *man/getMetadata.Rd
+755a8982c8752b2bf38fa3e013f8fb7b *man/setupfile.Rd
