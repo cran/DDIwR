@@ -23,14 +23,17 @@ getFiles <- function(dirpath = ".", type="", currdir) {
     
     # get the file extensions
     fileext <- unlist(lapply(filesplit, function(x) {
-        # we want the last part of the split
-        return(x[length(x)])
+        # we want the last part(s) of the split
+        return(paste(x[-1], collapse="."))
     }))
     
     
     if (type != "*") {
         # check if there is any file with the right extension
         fileidxs <- which(toupper(fileext) == toupper(type))
+        if (toupper(type) == "CSV" & any(toupper(fileext) == "CSV.GZ")) {
+            fileidxs <- which(toupper(fileext) %in% c("CSV", "CSV.GZ"))
+        }
         
         if (length(fileidxs) == 0) {
             return(paste("There is no .", type, " type file in the directory \"", dirpath, "\"\n\n", sep=""))
@@ -48,12 +51,12 @@ getFiles <- function(dirpath = ".", type="", currdir) {
     # e.g. test.1.R
     filenames <- unlist(lapply(filesplit, function(x) {
         # we want all parts except the last, to restore the original filename
-        return(paste(x[-length(x)], collapse="."))
+        return(paste(x[1], collapse="."))
     }))
     
     # get the file extensions again
     fileext <- unlist(lapply(filesplit, function(x) {
-        return(x[length(x)])
+        paste(x[-1], collapse=".")
     }))
     
     return(list(files=files, filenames=filenames, fileext=fileext))

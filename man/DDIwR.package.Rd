@@ -11,8 +11,6 @@ Useful functions for various DDI (Data Documentation Initiative) related outputs
 }
 
 \description{
-DDIwR stands for "DDI with R".
-
 This package provides various functions to read DDI based metadata documentation,
 and write dedicated setup files for R, SPSS, Stata and SAS to read an associated
 .csv file containing the raw data, apply labels for variables and values and
@@ -27,8 +25,8 @@ Seventh Framework Programme (FP7/2007-2013) under grant agreement no. 262608
     \tabular{ll}{
     Package: \tab DDIwR\cr
     Type:    \tab Package\cr
-    Version: \tab 0.1-0\cr
-    Date:    \tab 2014-07-30\cr
+    Version: \tab 0.2-0\cr
+    Date:    \tab 2014-10-02\cr
     License: \tab GPL (>= 2)\cr
     }
 }

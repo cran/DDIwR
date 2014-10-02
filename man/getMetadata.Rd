@@ -21,10 +21,10 @@ getMetadata(xmlpath, OS = "windows", saveFile = FALSE, ...)
 }
 
 \details{
-The argument \code{OS} can be either:
-"windows" (default), or "Windows", "Win", "win"
-"MacOS", "Darwin", "Apple", "Mac", "mac"
-"Linux", "linux"
+The argument \code{OS} can be either:\cr
+\code{"windows"} (default), or \code{"Windows"}, \code{"Win"}, \code{"win"},\cr
+\code{"MacOS"}, \code{"Darwin"}, \code{"Apple"}, \code{"Mac"}, \code{"mac"},\cr
+\code{"Linux"}, \code{"linux"}.\cr
 
 The end of line separator changes only when the target OS is different from the
 running OS.

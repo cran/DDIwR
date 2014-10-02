@@ -1,9 +1,11 @@
 \name{DDIwR-internal}
 
 \alias{treatPath}
+\alias{getDelimiter}
 \alias{getFiles}
 \alias{getEnter}
 \alias{splitrows}
+\alias{test}
 
 \title{Internal Functions}
 

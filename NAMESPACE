@@ -1,6 +1,7 @@
 export(setupfile,
        splitrows,
        treatPath,
+       getDelimiter,
        getFiles,
        getMetadata,
        getEnter)

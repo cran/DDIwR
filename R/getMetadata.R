@@ -14,21 +14,16 @@ getMetadata <- function(xmlpath, OS = "windows", saveFile=FALSE, ...) {
     
     tp <- treatPath(xmlpath, type="XML")
     
-    ### !!! ###
-    # NEVER use getNodeSet() it's toooooo slooooow!!!
-    # use instead xmlElementsByTagName()
-    
     currdir <- getwd()
-    if (saveFile) {
+    # if (saveFile) {
         setwd(tp$completePath)
-    }
+    # }
     
     singlefile <- length(tp$files) == 1
     
     if (!fromsetupfile) {
         cat("Processing:\n")
     }
-    
     
     for (ff in seq(length(tp$files))) {
         if (!fromsetupfile) {
@@ -40,6 +35,12 @@ getMetadata <- function(xmlpath, OS = "windows", saveFile=FALSE, ...) {
         }
         
         dd <- xmlTreeParse(tp$files[ff])$doc$children$codeBook
+        
+        
+        #### !!! ####
+        # NEVER use getNodeSet() it's toooooo slooooow!!!
+        # use instead xmlElementsByTagName()
+    
         dd <- xmlElementsByTagName(dd, "dataDscr")[[1]]
         dd <- xmlElementsByTagName(dd, "var")
               
@@ -132,8 +133,9 @@ getMetadata <- function(xmlpath, OS = "windows", saveFile=FALSE, ...) {
             }
             cat(enter)
         }
-    
-        sink()
+        if (saveFile) {
+            sink()
+        }
     }
     
     setwd(currdir)

@@ -48,7 +48,7 @@ treatPath <- function(intrnpath, type = "R") {
         
     if (!file.exists(file.path(pathname, lastpart))) {
         filesplit <- unlist(strsplit(lastpart, split="\\."))
-        if (length(filesplit) == 2) {
+        if (length(filesplit) >= 2) {
             if (filesplit[1] == "*") {
                 allfiles <- TRUE
             }
@@ -90,8 +90,8 @@ treatPath <- function(intrnpath, type = "R") {
         else {
             files <- lastpart
             filesplit <- unlist(strsplit(lastpart, split="\\."))
-            filenames <- paste(filesplit[-length(filesplit)], collapse=".")
-            fileext <- toupper(filesplit[length(filesplit)])
+            filenames <- filesplit[1]
+            fileext <- toupper(paste(filesplit[seq(2, length(filesplit))], collapse="."))
         }
     }
     
