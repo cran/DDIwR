@@ -9,99 +9,71 @@ This function creates a setup file, based on a list of variable and value labels
 }
 
 \usage{
-setupfile(lbls = "", type = "all", csv = "", miss, trymiss = FALSE, uniqueid = "",
-          SD = "", delimiter = ",", OS = "windows", outfile = "", ...)
+setupfile(codeBook, file = "", type = "all", csv = "", OS = "", ...)
 }
 
+
 \arguments{
-  \item{lbls}{The list object containing the variable and value labels as separate
-              components, or a path to the directory where these objects are located,
-              for batch processing.}
+  \item{codeBook}{A list object containing the metadata, or a path to a directory where
+        these objects are located, for batch processing}
+  \item{file}{Character, the (path to the) setup file to be created}
   \item{type}{The type of setup file, can be: "SPSS", "Stata", "SAS", "R",
-              or "all" (default).}
-  \item{csv}{The original dataset, on the basis of which the SPSS setup file
-             commands are created, or a path to the directory where the .csv files
-             are located, for batch processing.}
-  \item{miss}{A vector of missing values, or missing labels.}
-  \item{trymiss}{Boolean, if TRUE it will try hard to find common missing values
-                 (e.g. "DK", or "NA" etc.)}
-  \item{uniqueid}{Character, the name of the unique identifier variable}
-  \item{SD}{The row delimiter for the Stata commands, can be for example "" or ";"}
-  \item{delimiter}{The column delimiter to be used for reading the .csv file,
-                   default is ","}
-  \item{OS}{The target operating system, for the eol - end of line separator.}
-  \item{outfile}{Character, the name of the setup file being created.}
-  \item{...}{Other arguments (not used in this function).}
+        or "all" (default)}
+  \item{csv}{The original dataset, used to create the setup file commands, or a path
+        to the directory where the .csv files are located, for batch processing}
+  \item{OS}{The target operating system, for the eol - end of line character(s)}
+  \item{...}{Other arguments, see Details below}
 }
 
 \details{
-If \verb{type} = "all", it will produce once setup file for each supported type.
-All created setup files will be saved in a directory called "Setup Files" which
-(if not already found) will be created in the user's current working directory.
+When the a path to a metadata directory is specified for the argument \bold{\code{codebook}},
+then next argument \bold{\code{file}} is silently ignored and all created setup files are
+saved in a directory called "Setup Files" that (if not already found) is created in the
+working directory.
 
-The argument \verb{miss} expects either:\cr
-- a vector of missing values (e.g. -1, -2, -3), or\cr
-- a vector of missing labels
+The argument \bold{\code{file}} expects the name of the final setup file being
+saved on the disk. If not specified, the name of the object provided for the
+\bold{\code{codebook}} argument will be used as a filename.
 
-If this is not provided, but \verb{trymiss} is set to TRUE, then it searches all
-value labels for these common missing categories:\cr
-\verb{"DK/NA"}, \verb{"DK/NO"}, \verb{"DK"}, \verb{"NA"}, \verb{"N/A"}, \verb{"Not answered"},\cr
-\verb{"Don't know"}, \verb{"(Don't know)"}, \verb{"No answer"}, \verb{"No opinion"},\cr
-\verb{"Not applicable"}, \verb{"Not relevant"}, \verb{"Refused"}, \verb{"(Refused)"},\cr
-\verb{"Refused / no answer"}, \verb{"(Refused / no answer)"},\cr
-\verb{"Can't say"}, \verb{"Don't know / Can't say"}.
+If \bold{\code{file}} is specified, the argument \bold{\code{type}} is automatically
+determined from the file's extension, otherwise when \bold{\code{type = "all"}}, the
+function produces one setup file for each supported type.
+
+Missing values are expected to be supplied with the information object \bold{\code{obj}},
+otherwise the argument\bold{ \code{missing}} expects either:\cr
+- a vector of missing values (e.g. -1, -2, -3, if such values refer to
+missings throughout the entire dataset), or\cr
+- a vector of labels that should be interpreted as missings
 
 If batch processing multiple files, the function will inspect all files in the
-provided directory, and retain only those with the extension  \verb{.R} or \verb{.r}
-or DDI versions with the extension \verb{.xml} or \verb{.XML} (it will
+provided directory, and retain only those with the extension  \code{.R} or \code{.r}
+or DDI versions with the extension \code{.xml} or \code{.XML} (it will
 subsequently generate an error if the .R files do not contain an object list,
-or if the \verb{.xml} files do not contain a DDI structured metadata file).
+or if the \code{.xml} files do not contain a DDI structured metadata file).
 
-If the metadata directory contains a subdirectory called \verb{"data"} or
-\verb{"Data"}, it will match the name of the metadata file with the name of the
-\verb{.csv} file (their names have to be *exactly* the same, irrespective of
+If the metadata directory contains a subdirectory called \code{"data"} or
+\code{"Data"}, it will match the name of the metadata file with the name of the
+\code{.csv} file (their names have to be *exactly* the same, irrespective of
 their extension).
 
-The \verb{csv} argument can provide a data.frame object produced by reading the
-\verb{.csv} file, or a path to the directory where the \verb{.csv} files are located.
+The \bold{\code{csv}} argument can provide a data frame object produced by reading the
+\code{.csv} file, or a path to the directory where the \code{.csv} files are located.
 If the user doesn't provide something for this argument, the function will check
-the existence of a subdirectory called \verb{data} in the directory where the metadata
+the existence of a subdirectory called \code{data} in the directory where the metadata
 files are located.
 
-The \verb{uniqueid} argument is only relevant if \verb{type = "R"}. It is necessary
-to identify missing observations in different variables, based on the unique case
-identifiers found in the variable provided via this argument. It will generate an
-"attr"ibute called \verb{"missing types"}, which is essentially a list whose components
-are variable names, and each component is a list itself containing a vector of
-values for each missing category (type) plus the identifiers of the cases where
-missing values are found (and replaced with NA).
-It will also generate an attribute called \verb{"unique id"}, which points to the same
-name of the variable containing the unique case identifiers.
+In batch mode, the code starts with the argument \bold{\code{delim = ","}}, but if the
+\code{.csv} file is delimited differently it will also try hard to find other delimiters
+that will match the variable names in the metadata file. At the initial version 0.1-0,
+the automatically detected delimiters include \code{";"} and \code{"\t"}.
 
-The argument \verb{SD} only makes sense when \verb{type = "Stata"} or \verb{type = "all"},
-(when Stata setup files will also be generated).
+The argument \code{OS} (case insensitive) can be either:\cr
+\code{"Windows"} (default), or \code{"Win"},\cr
+\code{"MacOS"}, \code{"Darwin"}, \code{"Apple"}, \code{"Mac"},\cr
+\code{"Linux"}.\cr
 
-In batch mode, the code starts with the argument \verb{delimiter = ","}, but if the
-\verb{.csv} file is delimited differently it will also try hard to find other delimiters
-which will match the variable names in the metadata file. At the initial version 0.1-0,
-the automatically detected delimiters include \verb{";"} and \verb{"\t"}.
-
-The argument \verb{OS} can be either:\cr
-\verb{"windows"} (default), or \verb{"Windows"}, \verb{"Win"}, \verb{"win"},\cr
-\verb{"MacOS"}, \verb{"Darwin"}, \verb{"Apple"}, \verb{"Mac"}, \verb{"mac"},\cr
-\verb{"Linux"}, \verb{"linux"}.
-
-The end of line separator changes only when the target OS is different from the
+The end of line character(s) changes only when the target OS is different from the
 running OS.
-
-The argument \verb{outfile} expects the name of the final setup file being saved
-on the disk. If nothing is provided, the name of the object provided for the
-\verb{lbls} argument will be used as a filename.
-
-There is also an undocumented, boolean argument called \verb{saveFile}, which if
-set to TRUE it will save an R version if the metadata was read from a DDI \verb{.xml}
-file, in the same directory. This function uses \verb{\link{getMetadata}}, where that
-argument is a formal one.
 }
 
 \value{
@@ -110,72 +82,86 @@ A setup file to complement the imported raw dataset.
 
 
 \examples{
-test <- list()
 
-test$varlab <- list(
-"ID" = "Questionnaire ID",
-"V1" = "Label for the first variable",
-"V2" = "Label for the second variable",
-"V3" = "Label for the third variable"
-)
+codeBook <- list(dataDscr = list(
+ID = list(
+    label = "Questionnaire ID",
+    type = "num",
+    measurement = "interval"
+),
+V1 = list(
+    label = "Label for the first variable",
+    values = c(
+        "No"             =  0, 
+        "Yes"            =  1,
+        "Not applicable" = -7,
+        "Not answered"   = -9),
+    missing = c(-9, -7),
+    type = "cat",
+    measurement = "nominal"
+),
+V2 = list(
+    label = "Label for the second variable",
+    values = c(
+        "Very little"    =  1, 
+        "Little"         =  2,
+        "So, so"         =  3,
+        "Much"           =  4,
+        "Very much"      =  5,
+        "Don't know"     = -8),
+    missing = c(-8),
+    type = "cat",
+    measurement = "ordinal"
+),
+V3 = list(
+    label = "Label for the third variable",
+    values = c(
+        "First answer"   = "A", 
+        "Second answer"  = "B",
+        "Don't know"     = -8),
+    missing = c(-8),
+    type = "cat",
+    measurement = "nominal"
+),
+V4 = list(
+    label = "Number of children",
+    values = c(
+        "Don't know"     = -8,
+        "Not answered"   = -9),
+    missing = c(-9, -8),
+    type = "numcat",
+    measurement = "ratio"
+)))
 
 
-test$vallab$V1 <- c(
-"No"             =  0, 
-"Yes"            =  1,
-"Not answered"   = -1
-)
-
-
-test$vallab$V2 <- c(
-"Verry little"   =  1, 
-"Little"         =  2,
-"So, so"         =  3,
-"Much"           =  4,
-"Very much"      =  5,
-"Not applicable" = -7,
-"Don't know"     = -8,
-"Not answered"   = -9
-)
-
-
-test$vallab$V3 <- c(
-"No"             =  0, 
-"Yes"            =  1,
-"Not answered"   = -1
-)
-
-
-# 
-###   IMPORTANT:
-##### make sure to set the working directory to a directory with read/write permissions
-###
+\dontrun{
+# IMPORTANT:
+# make sure to set the working directory to a directory with read/write permissions
 # setwd("/path/to/read/write/directory")
 
-
-##### then run these commands
-###
 # path.to.csv <- file.path(system.file(package = "DDIwR"), "data", "test.csv.gz")
-# setupfile(test, trymiss = TRUE, csv = path.to.csv, uniqueid = "ID")
 
 
-# setupfile(test, csv = path.to.csv, type="Stata", SD=";")
+setupfile(codeBook)
 
 
-##### other types of possible utilizations, using paths to specific files
-###
-# setupfile("/path/to/the/metadata/file.xml", csv="/path/to/csv/file.csv")
+# if the csv data file is available
+setupfile(codeBook, csv="/path/to/csv/file.csv")
 
 
-##### if the metadata is saved to an .R file containing a list
-###
-# setupfile("/path/to/the/metadata/file.R", csv="/path/to/csv/file.csv")
+# generating a specific type of setup file
+setupfile(codeBook, file = "codeBook.do") # type = "Stata" is unnecessary
 
 
-##### or in batch mode, specifying entire directories
-###
-# setupfile("/path/to/the/metadata/directory", csv="/path/to/csv/directory")
+# other types of possible utilizations, using paths to specific files
+# an XML file containing a DDI metadata object
 
+setupfile("/path/to/the/metadata/file.xml", csv="/path/to/csv/file.csv")
+
+
+# or in batch mode, specifying entire directories
+setupfile("/path/to/the/metadata/directory", csv="/path/to/csv/directory")
+}
 }
 
 \keyword{functions}

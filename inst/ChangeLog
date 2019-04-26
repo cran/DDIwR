@@ -1,4 +1,17 @@
-Version 0.2-0
+Version 0.3
+    o new function convert(), to convert from one statistical package to another
+    o new function exportDDI(), for DDI codebook version 2.5
+    o new function getMetadata(), to extract metadata information from statistical package
+      files (such as SPSS or Stata)
+    o replaced package XML with package xml2 (thanks to Ruben Arslan for the suggestion)
+    o changed the design of the R setup file, employing tibble as a standard metadata carrier
+    o R package haven is now used to deal with missing values and missing ranges
+    o removed formal arguments "delim", "miss", "trymiss", "uniqueid" and "SD" from function
+      setupfile()
+    o improved code for the SAS setup files
+    o various bug fixes in function setupfile()
+    
+Version 0.2
     o better arrangement of missing types in the R commands
     o some improvements in the R code generation
     o improved SAS setup file (thanks to Alexandre Kych)
@@ -8,9 +21,9 @@ Version 0.2-0
       in SPSS
     o fixed a bug dealing with missing values for SPSS setup files
 
-Version 0.1-0
+Version 0.1
     o R and SAS versions are now produced, in addition to SPSS and Stata
-    o additional argument "saveFile" to both getMetadata() and setupfile()
+    o additional argument "saveFile" to function getMetadata()
     
 Version 0.0-7
     o fixed a small bug in setupfile()
@@ -39,9 +52,8 @@ Version 0.0-2
     o Reading .csv files now automatically detects three different delimiters: "," or
       ";" or tab separated files.
     o There is additional information for the user, indicating which variables in the
-      csv file
-       don't have any metadata information, or if there is metadata for variables not
-       existing in the .csv file.
+      csv file do not have any metadata information, or if there is metadata for
+      variables not existing in the .csv file.
     o A warning is given if there is no header first row in the .csv file
     o The "." sign to represent a missing is now detected and a NOTE is printed on the
       screen.
