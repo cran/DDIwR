@@ -1,3 +1,28 @@
+# Copyright (c) 2019, Adrian Dusa
+# All rights reserved.
+# 
+# Redistribution and use in source and binary forms, with or without
+# modification, in whole or in part, are permitted provided that the
+# following conditions are met:
+#     * Redistributions of source code must retain the above copyright
+#       notice, this list of conditions and the following disclaimer.
+#     * Redistributions in binary form must reproduce the above copyright
+#       notice, this list of conditions and the following disclaimer in the
+#       documentation and/or other materials provided with the distribution.
+#     * The names of its contributors may NOT be used to endorse or promote products
+#       derived from this software without specific prior written permission.
+# 
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+# ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+# WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+# DISCLAIMED. IN NO EVENT SHALL ADRIAN DUSA BE LIABLE FOR ANY
+# DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+# (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+# LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+# ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+# (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+# SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
 setupfile <- function(codeBook, file = "", type = "all", csv = "", OS = "", ...) {
     
     # TO DO: when codeBook is a path to a file or directory, it should be (only) XML and not R anymore
@@ -79,7 +104,6 @@ setupfile <- function(codeBook, file = "", type = "all", csv = "", OS = "", ...)
         })
     }
     
-    
     if (missing(codeBook)) {
         cat("\n")
         stop("The argument <codeBook> is missing, with no default.\n\n", call. = FALSE)
@@ -115,12 +139,9 @@ setupfile <- function(codeBook, file = "", type = "all", csv = "", OS = "", ...)
         
         csvdatadir <- FALSE # by default
         
-        
         # now trying to assess what the csv argument is
         # it can be an object containing csv data, or
         # it can be a string containing a path to the data
-        
-        
         
         if (all(is.character(csv))) {
             if (csv != "") {
@@ -155,7 +176,6 @@ setupfile <- function(codeBook, file = "", type = "all", csv = "", OS = "", ...)
                 }
             }
         }
-        
         
         if (csvdatadir) {
             csvfiles <- csvlist$files
@@ -202,7 +222,6 @@ setupfile <- function(codeBook, file = "", type = "all", csv = "", OS = "", ...)
                     cat(labelist$filenames[i], "\n")
                     position <- match(labelist$filenames[i], csvnames)
                     
-                    
                     for (j in seq(length(position))) {
                         
                         if (is.element(csvext[position[j]], c("CSV", "CSV.GZ"))) {
@@ -219,7 +238,6 @@ setupfile <- function(codeBook, file = "", type = "all", csv = "", OS = "", ...)
                                 
                                 csvreadfile <- read.csv(file.path(datadir, csvfiles[position[j]]), sep = delim, header = TRUE, as.is = TRUE)
                             }
-                            
                             
                             if (!xmlfiles) {
                                 dataDscrObject <- get(setdiff(bb, aa))
@@ -316,7 +334,6 @@ setupfile <- function(codeBook, file = "", type = "all", csv = "", OS = "", ...)
         return(is.element("missing", names(x)) | is.element("missing", names(x)))
     })))
     
-    
     csvlist <- NULL # initialization
     if (all(is.character(csv))) {
         if (all(csv != "")) {
@@ -349,7 +366,6 @@ setupfile <- function(codeBook, file = "", type = "all", csv = "", OS = "", ...)
             return(FALSE)
         })))
     }
-    
     
     if (is.null(names(dataDscr)) | !checkvarlab(dataDscr)) {
         cat("\n")
@@ -433,7 +449,6 @@ setupfile <- function(codeBook, file = "", type = "all", csv = "", OS = "", ...)
             }
         }
         
-        
         plusnames <- setdiff(varnames, csvnames)
         if (length(plusnames) > 0) {
             cat("    There is metadata information for the following variables, but *not* in the .csv file:\n")
@@ -452,7 +467,6 @@ setupfile <- function(codeBook, file = "", type = "all", csv = "", OS = "", ...)
         
         nrowscsv <- nrow(csv)
 
-        
         if (gofurther) {
             
             # filter the variable labels
@@ -490,7 +504,6 @@ setupfile <- function(codeBook, file = "", type = "all", csv = "", OS = "", ...)
                         }
                     }
                 }
-                
                 
                 ####
                 # the following code is needed just in case there are multibyte characters somewhere
@@ -582,8 +595,6 @@ setupfile <- function(codeBook, file = "", type = "all", csv = "", OS = "", ...)
         ## TO check if any of the existing metadata variables is not found in the CSV data file
     }
     
-    
-    
     stringvars <- lapply(dataDscr, function(x) {
         charvar <- FALSE
         if (is.element("values", names(x))) {
@@ -592,7 +603,6 @@ setupfile <- function(codeBook, file = "", type = "all", csv = "", OS = "", ...)
         return(charvar)
     })
 
-    
     if (outdir) {
         file <- dataDscr_objname
     }
@@ -639,10 +649,8 @@ setupfile <- function(codeBook, file = "", type = "all", csv = "", OS = "", ...)
         }
     }
     
-    
     haslabels <- unlist(lapply(dataDscr, function(x) is.element("values", names(x))))
     uniquevals <- unique(lapply(dataDscr[haslabels], function(x) return(x[["values"]])))
-    
     
     uniqueList <- lapply(uniquevals, function(uniques) {
         vars <- sapply(dataDscr[haslabels],
@@ -651,7 +659,6 @@ setupfile <- function(codeBook, file = "", type = "all", csv = "", OS = "", ...)
                     })
         return(names(vars[vars]))
     })
-    
     
     # initiate an empty list
     numerical_with_strings <- list()
@@ -682,8 +689,6 @@ setupfile <- function(codeBook, file = "", type = "all", csv = "", OS = "", ...)
         }
     }
     
-    
-
     if (type == "SPSS" | type == "all") {
         dataDscr2 <- dataDscr
         printMISSING <- FALSE
@@ -701,10 +706,8 @@ setupfile <- function(codeBook, file = "", type = "all", csv = "", OS = "", ...)
             setwd(file.path("Setup files", "SPSS"))
         }
         
-        
         sink(ifelse(grepl("\\.sps", file), file, paste(file, ".sps", sep = "")))
 
-        
         if (script) {
             to <- treatPath(other.args$to, check = FALSE)
             cat("GET FILE = \"",  file.path(to$completePath, to$files[1]), "\" .", enter, enter, sep = "")
@@ -729,7 +732,6 @@ setupfile <- function(codeBook, file = "", type = "all", csv = "", OS = "", ...)
                 "* There should be nothing to change below this line", enter,                                                            
                 "* ------------------------------------------------------------------------------", enter, enter, enter, enter, sep = "")
        
-
             if (formats) {
                 cat("* -------------- Start Definition Macro --------------", enter, enter,
                     "SET LOCALE = \"English\" .", enter,
@@ -761,7 +763,6 @@ setupfile <- function(codeBook, file = "", type = "all", csv = "", OS = "", ...)
                 cat("GET FILE = savfile .", enter, enter, enter, sep = "")
             }
             
-            
             if (any(unlist(stringvars))) {
                 cat("* --- Recode string variables which have labels, to numeric variables ---", enter, enter, enter)
                 stringvars <- stringvars[unlist(stringvars)]
@@ -784,7 +785,6 @@ setupfile <- function(codeBook, file = "", type = "all", csv = "", OS = "", ...)
                             }
                         }
                     }
-                    
                     
                     if (csv_is_df | csv_is_path) {
                         if (emptyvars[[i]]) {
@@ -832,8 +832,6 @@ setupfile <- function(codeBook, file = "", type = "all", csv = "", OS = "", ...)
                 cat(enter, enter, sep = "")
             }
             
-            
-            
             if (length(numerical_with_strings) > 0) {
                 cat("* --- Force variables as numeric --- ", enter, enter, sep = "")
                 
@@ -855,8 +853,6 @@ setupfile <- function(codeBook, file = "", type = "all", csv = "", OS = "", ...)
                 cat(enter)
             }
             
-            
-            
             cat("* --- Add variable labels --- ", enter, enter,
                 "VARIABLE LABELS", enter, sep = "")
             
@@ -871,7 +867,6 @@ setupfile <- function(codeBook, file = "", type = "all", csv = "", OS = "", ...)
             
             cat("* --- Add value labels --- ", enter, enter,
                 "VALUE LABELS", enter, sep = "")
-            
             
             for (i in seq(length(uniqueList))) {
                 n <- uniqueList[[i]][1]
@@ -893,11 +888,8 @@ setupfile <- function(codeBook, file = "", type = "all", csv = "", OS = "", ...)
             }
             cat(enter, enter, sep = "")
                 
-       
-       
         }
 
-        
         if (anymissing) {
 
             missvaRs <- getmissvaRs(dataDscr2)
@@ -995,7 +987,6 @@ setupfile <- function(codeBook, file = "", type = "all", csv = "", OS = "", ...)
             }
             cat(enter, enter, sep = "")
             
-            
         }
 
         outfile <- ifelse(script, paste("\"", file.path(to$completePath, to$files[1]), "\"", sep = ""), "savfile")
@@ -1003,7 +994,6 @@ setupfile <- function(codeBook, file = "", type = "all", csv = "", OS = "", ...)
         cat("* --- Save the .sav file --- ", enter, enter,
             "SAVE OUTFILE=", outfile, enter, "/KEEP", enter, sep = "")
             
-        
         if (formats) {
             for (n in csvnames) {
                 cat(toupper(n), enter, sep = "")
@@ -1029,7 +1019,6 @@ setupfile <- function(codeBook, file = "", type = "all", csv = "", OS = "", ...)
         setwd(currentdir)
         
     }
-    
     
     if (type == "Stata" | type == "all") {
         
@@ -1123,8 +1112,6 @@ setupfile <- function(codeBook, file = "", type = "all", csv = "", OS = "", ...)
             }
         }
         
-        
-        
         if (any(unlist(stringvars))) {
             cat("* Recode string variables which have labels, to numeric variables", enter, enter, sep = "")
             stringvars <- stringvars[unlist(stringvars)]
@@ -1139,7 +1126,6 @@ setupfile <- function(codeBook, file = "", type = "all", csv = "", OS = "", ...)
                 newvalues <- suppressWarnings(as.numeric(as.character(oldvalues)))
                 newvalues[is.na(newvalues)] <- setdiff(seq(1000), newvalues)[seq(sum(is.na(newvalues)))]
                 names(newvalues) <- names(oldvalues)
-
 
                 # the recode command cannot be used because it only allows numeric variables
                 cat("generate TEMPVAR = .", enter, sep = "")
@@ -1180,7 +1166,6 @@ setupfile <- function(codeBook, file = "", type = "all", csv = "", OS = "", ...)
             cat(enter)
         }
 
-        
         if (anymissing) {
 
             missvaRs <- getmissvaRs(dataDscr2)
@@ -1217,8 +1202,6 @@ setupfile <- function(codeBook, file = "", type = "all", csv = "", OS = "", ...)
             cat(enter, enter)
 
         }
-        
-        
         
         maxchars <- max(nchar(names(dataDscr2)))
         
@@ -1269,7 +1252,6 @@ setupfile <- function(codeBook, file = "", type = "all", csv = "", OS = "", ...)
         sink()
         setwd(currentdir)
     }
-    
     
     if (type == "SAS" | type == "all") {
         dataDscr2 <- dataDscr
@@ -1365,7 +1347,6 @@ setupfile <- function(codeBook, file = "", type = "all", csv = "", OS = "", ...)
                     newvalues[is.na(newvalues)] <- setdiff(seq(1000), newvalues)[seq(sum(is.na(newvalues)))]
                     names(newvalues) <- names(oldvalues)
                     
-                    
                     cat("DATA ", sasimport, ";", enter, enter,
                         "    SET ", sasimport, ";", enter, enter,
                         "    TEMPVAR = INPUT(", i, ", ?? best.);", enter, enter, sep = "")
@@ -1389,7 +1370,6 @@ setupfile <- function(codeBook, file = "", type = "all", csv = "", OS = "", ...)
             }
         }
         
-        
         if (length(numerical_with_strings) > 0) {
             
             cat("* --- Force variables as numeric --- ;", enter, enter, sep = "")
@@ -1412,7 +1392,6 @@ setupfile <- function(codeBook, file = "", type = "all", csv = "", OS = "", ...)
             # cat("* ------------------------------------------------------------------------------ ;", enter, enter, enter, sep = "")
         }
         
-        
         if (any(unlist(stringvars)) | length(numerical_with_strings) > 0) {
             cat("* --- Reorder the variables in their original positions --- ;", enter, enter,
                 "DATA ", sasimport, ";", enter, enter,
@@ -1423,7 +1402,6 @@ setupfile <- function(codeBook, file = "", type = "all", csv = "", OS = "", ...)
             #     "RETAIN ", gsub(",", "", splitrows(toupper(names(dataDscr2)), enter, 70, "           ")), ";", enter, enter, sep = "")
                 # "* ------------------------------------------------------------------------------ ;", enter, enter, enter, sep = "")
         }
-
 
         if (anymissing) {
             missvaRs <- getmissvaRs(dataDscr2)
@@ -1461,7 +1439,6 @@ setupfile <- function(codeBook, file = "", type = "all", csv = "", OS = "", ...)
                 
             dataDscr2 <- dataDscr3
         }
-        
         
         if (!script) {
             cat("* --- Add variable labels --- ;", enter, enter,
@@ -1512,12 +1489,10 @@ setupfile <- function(codeBook, file = "", type = "all", csv = "", OS = "", ...)
                 "RUN;", enter, sep = "")
         }
 
-        
         sink()
         setwd(currentdir)
     }
 
-    
     if (type == "R" | type == "all") {
         printMISSING <- FALSE
         currentdir <- getwd()
@@ -1533,7 +1508,6 @@ setupfile <- function(codeBook, file = "", type = "all", csv = "", OS = "", ...)
 
             setwd(file.path("Setup files", "R"))
         }
-        
         
         sink(ifelse(grepl("\\.R", file), file, paste(file, ".R", sep = "")))
         
@@ -1552,7 +1526,6 @@ setupfile <- function(codeBook, file = "", type = "all", csv = "", OS = "", ...)
             "# Change RDATA_PATH to your filename, below:", enter, enter,
             "rdatapath <- \"RDATA_PATH\"", enter, enter, enter, sep = "")
         
-                  
         # if (formats) {
             cat("# --- Read the raw data ---", enter, enter,
                 "# package readr should be installed", enter,
@@ -1568,7 +1541,6 @@ setupfile <- function(codeBook, file = "", type = "all", csv = "", OS = "", ...)
         cat("# --- CONFIGURATION SECTION -  END  ---", enter, enter,
             "# There should be nothing to change below this line", enter,                                                            
             "# ------------------------------------------------------------------------------", enter, enter, enter, enter, sep = "")
-        
         
         if (length(numerical_with_strings) > 0) {
             
@@ -1606,8 +1578,6 @@ setupfile <- function(codeBook, file = "", type = "all", csv = "", OS = "", ...)
         
         cat(")", enter, sep = "")
         
-        
-        
         # finish writing and close the .R file
         sink()
         
@@ -1615,5 +1585,4 @@ setupfile <- function(codeBook, file = "", type = "all", csv = "", OS = "", ...)
         
     }
 }
-
 

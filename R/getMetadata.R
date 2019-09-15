@@ -1,9 +1,33 @@
+# Copyright (c) 2019, Adrian Dusa
+# All rights reserved.
+# 
+# Redistribution and use in source and binary forms, with or without
+# modification, in whole or in part, are permitted provided that the
+# following conditions are met:
+#     * Redistributions of source code must retain the above copyright
+#       notice, this list of conditions and the following disclaimer.
+#     * Redistributions in binary form must reproduce the above copyright
+#       notice, this list of conditions and the following disclaimer in the
+#       documentation and/or other materials provided with the distribution.
+#     * The names of its contributors may NOT be used to endorse or promote products
+#       derived from this software without specific prior written permission.
+# 
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+# ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+# WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+# DISCLAIMED. IN NO EVENT SHALL ADRIAN DUSA BE LIABLE FOR ANY
+# DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+# (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+# LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+# ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+# (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+# SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
 `getMetadata` <- 
 function(x, save = FALSE, OS = "Windows", ...) {
     
     # TODO: detect DDI version or ask the version through a dedicated argument
     # http://www.ddialliance.org/Specification/DDI-Codebook/2.5/XMLSchema/field_level_documentation.html
-    
     
     `cleanup` <- function(x, cdata = TRUE) {
 
@@ -82,7 +106,6 @@ function(x, save = FALSE, OS = "Windows", ...) {
         stop("The input does not contain any metadata.\n\n", call. = FALSE)
     }
 
-
     other.args <- list(...)
     
     enter <- getEnter(OS)
@@ -118,7 +141,6 @@ function(x, save = FALSE, OS = "Windows", ...) {
             codeBook <- list()
 
             xml <- getXML(file.path(tp$completePath, tp$files[ff]))
-            
             
             # lapply(xml_find_all(xml, "/d1:codeBook/d1:dataDscr/d1:var"), function(x) {
             #     list(label = admisc::trimstr(xml_text(xml_find_first(x, "d1:labl"))))
@@ -198,7 +220,6 @@ function(x, save = FALSE, OS = "Windows", ...) {
                     names(codeBook$dataDscr[[i]]$values) <- labl
                 }
                 
-                
                 if (length(missng) > 0) {
                     if (admisc::possibleNumeric(missng)) {
                         missng <- admisc::asNumeric(missng)
@@ -244,7 +265,7 @@ function(x, save = FALSE, OS = "Windows", ...) {
 
                 if (identical(type, "character")) {
                     xpath <- sprintf("%stxt", dns)
-                    txt <- cleanup(xml_text(xml_find_first(vars[i], xpath)))
+                    txt <- cleanup(xml2::xml_text(xml2::xml_find_first(vars[i], xpath)))
                     if (!is.na(txt)) {
                         codeBook$dataDscr[[i]]$txt <- txt
                     }
@@ -271,7 +292,6 @@ function(x, save = FALSE, OS = "Windows", ...) {
             codeBook <- extract(data)
         }
         
-        
         if (save) {
             currentdir <- getwd()
             setwd(tp$completePath)
@@ -291,13 +311,13 @@ function(x, save = FALSE, OS = "Windows", ...) {
     }
     
     if (singlefile) {
-        
         if (!is.na(notes)) {
             if (grepl("# start data #", notes)) {
+                spss <- ifelse(is.element("spss", names(other.args)), other.args$spss, TRUE)
                 notes <- unlist(strsplit(notes, split = "\\n"))
                 data <- notes[seq(which(grepl("# start data #", notes)) + 1, which(grepl("# end data #", notes)) - 1)]
                 data <- read.csv(text = paste(data, collapse = "\n"), as.is = TRUE)
-                data <- convertibble(tibble::as_tibble(data), codeBook$dataDscr)
+                data <- convertibble(tibble::as_tibble(data), codeBook$dataDscr, spss = spss)
                 embed <- TRUE
                 # data <- suppressMessages(readr::read_csv(paste(data, collapse = "\n")))
             }

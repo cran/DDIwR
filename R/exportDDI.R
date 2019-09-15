@@ -1,3 +1,28 @@
+# Copyright (c) 2019, Adrian Dusa
+# All rights reserved.
+# 
+# Redistribution and use in source and binary forms, with or without
+# modification, in whole or in part, are permitted provided that the
+# following conditions are met:
+#     * Redistributions of source code must retain the above copyright
+#       notice, this list of conditions and the following disclaimer.
+#     * Redistributions in binary form must reproduce the above copyright
+#       notice, this list of conditions and the following disclaimer in the
+#       documentation and/or other materials provided with the distribution.
+#     * The names of its contributors may NOT be used to endorse or promote products
+#       derived from this software without specific prior written permission.
+# 
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+# ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+# WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+# DISCLAIMED. IN NO EVENT SHALL ADRIAN DUSA BE LIABLE FOR ANY
+# DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+# (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+# LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+# ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+# (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+# SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
 `exportDDI` <- function(codebook, file = "", embed = TRUE, OS = "", indent = 4) {
     
     # http://www.ddialliance.org/Specification/DDI-Codebook/2.5/XMLSchema/field_level_documentation.html
@@ -17,6 +42,13 @@
     `repeatSpace` <- function(times) {
         paste(rep(" ", times*indent), collapse="")
     }
+
+    s0 <- repeatSpace(0)
+    s1 <- repeatSpace(1)
+    s2 <- repeatSpace(2)
+    s3 <- repeatSpace(3)
+    s4 <- repeatSpace(4)
+    s5 <- repeatSpace(5)
 
     `catText` <- function(x, ...) {
         cat(repeatSpace(x), paste(unlist(list(...)), collapse = ""), enter, sep = "")
@@ -45,33 +77,33 @@
     version <- as.character(packageVersion("DDIwR"))
 
     varnames <- names(obj)
-    catText(0, "<?xml version=\"1.0\" encoding=\"UTF-8\"?>")
-    catText(0, "<codeBook", enter,
+    cat(s0, "<?xml version=\"1.0\" encoding=\"UTF-8\"?>", enter, sep = "")
+    cat(s0, "<codeBook", enter,
         "version=\"2.5\"", enter,
         "xmlns=\"ddi:codebook:2_5\"", enter,
         "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"", enter, 
-        "xsi:schemaLocation=\"http://www.ddialliance.org/Specification/DDI-Codebook/2.5/XMLSchema/codebook.xsd\">")
-    catText(1, "<docDscr>")
-    catText(2, "<citation>")
-    catText(3, "<titlStmt>")
-    catText(4, "<titl>Generic title</titl>")
-    catText(3, "</titlStmt>")
-    catText(3, "<prodStmt>")
-    catText(4, "<prodDate date=\"", prodDate, "\">", prodDate, "</prodDate>")
-    catText(4, "<software version=\"", version,"\">R package DDIwR</software>")
-    catText(3, "</prodStmt>")
-    catText(2, "</citation>")
-    catText(1, "</docDscr>")
+        "xsi:schemaLocation=\"http://www.ddialliance.org/Specification/DDI-Codebook/2.5/XMLSchema/codebook.xsd\">", enter, sep = "")
+    cat(s1, "<docDscr>", enter, sep = "")
+    cat(s2, "<citation>", enter, sep = "")
+    cat(s3, "<titlStmt>", enter, sep = "")
+    cat(s4, "<titl>Generic title</titl>", enter, sep = "")
+    cat(s3, "</titlStmt>", enter, sep = "")
+    cat(s3, "<prodStmt>", enter, sep = "")
+    cat(s4, "<prodDate date=\"", prodDate, "\">", prodDate, "</prodDate>", enter, sep = "")
+    cat(s4, "<software version=\"", version,"\">R package DDIwR</software>", enter, sep = "")
+    cat(s3, "</prodStmt>", enter, sep = "")
+    cat(s2, "</citation>", enter, sep = "")
+    cat(s1, "</docDscr>", enter, sep = "")
 
-    catText(1, "<stdyDscr>")
-    catText(2, "<citation>")
-    catText(3, "<titlStmt>")
-    catText(4, "<titl>Generic title</titl>")
-    catText(3, "</titlStmt>")
-    catText(2, "</citation>")
-    catText(1, "</stdyDscr>")
+    cat(s1, "<stdyDscr>", enter, sep = "")
+    cat(s2, "<citation>", enter, sep = "")
+    cat(s3, "<titlStmt>", enter, sep = "")
+    cat(s4, "<titl>Generic title</titl>", enter, sep = "")
+    cat(s3, "</titlStmt>", enter, sep = "")
+    cat(s2, "</citation>", enter, sep = "")
+    cat(s1, "</stdyDscr>", enter, sep = "")
     
-    catText(1, "<fileDscr ID=\"", uuid[length(uuid)], "\">")
+    cat(s1, "<fileDscr ID=\"", uuid[length(uuid)], "\">", enter, sep = "")
 
     if (!is.null(data)) {
         if (!is.data.frame(data)) {
@@ -83,32 +115,36 @@
             stop("Variables in the data do not match the variables in the data description.\n\n", call. = FALSE)
         }
 
-        catText(2, "<fileTxt>")
-        catText(3, "<dimensns>")
-        catText(4, "<caseQnty>", nrow(data), "</caseQnty>")
-        catText(4, "<varQnty>", ncol(data), "</varQnty>")
-        catText(3, "</dimensns>")
-        catText(2, "</fileTxt>")
+        cat(s2, "<fileTxt>", enter, sep = "")
+        cat(s3, "<dimensns>", enter, sep = "")
+        cat(s4, "<caseQnty>", nrow(data), "</caseQnty>", enter, sep = "")
+        cat(s4, "<varQnty>", ncol(data), "</varQnty>", enter, sep = "")
+        cat(s3, "</dimensns>", enter, sep = "")
+        cat(s2, "</fileTxt>", enter, sep = "")
 
         if (embed) {
-            catText(2, "<notes>")
-            catText(0, "<![CDATA[# start data #\n",
+            cat(s2, "<notes>", enter, sep = "")
+            cat(s0, "<![CDATA[# start data #", enter,
                 readr::format_csv(data, na = ""),
-                "# end data #\n]]>")
-            catText(2, "</notes>")
+                "# end data #", enter, "]]>", enter, sep = "")
+            cat(s2, "</notes>", enter, sep = "")
         }
+
+        pN <- unlist(lapply(data[names(obj)], function(x) admisc::possibleNumeric(x)))
+        aN <- lapply(data[, names(pN)[pN]], function(x) admisc::asNumeric(x))
+
     }
 
-    catText(1, "</fileDscr>")
+    cat(s1, "</fileDscr>", enter, sep = "")
 
-    catText(1, "<dataDscr>")
+    cat(s1, "<dataDscr>", enter, sep = "")
 
     for (i in seq(length(obj))) {
         
         dcml <- ""
         if (!is.null(data)) {
             dcml <- c(" dcml=\"",
-                      ifelse(admisc::possibleNumeric(data[[i]]), getDecimals(admisc::asNumeric(na.omit(data[[i]]))),  0),
+                      ifelse(pN[names(obj)[i]], getDecimals(na.omit(aN[[names(obj)[i]]])),  0),
                       "\"")
         }
         
@@ -117,16 +153,14 @@
             nature <- c(" nature=\"", obj[[i]]$measurement, "\"")
         }
                          
-        
-        catText(2, "<var ID=\"", uuid[i], "\" name=\"", varnames[i], "\" files=\"", uuid[length(uuid)], "\"", dcml, nature, ">")
+        cat(s2, "<var ID=\"", uuid[i], "\" name=\"", varnames[i], "\" files=\"", uuid[length(uuid)], "\"", dcml, nature, ">", enter, sep = "")
         
         if (!is.null(obj[[i]]$label)) {
             if (!is.na(obj[[i]]$label)) {
-                catText(3, "<labl>", obj[[i]]$label, "</labl>")
+                cat(s3, "<labl>", obj[[i]]$label, "</labl>", enter, sep = "")
             }
         }
         
-
         missing <- NULL
         if (is.element("missing", names(obj[[i]]))) {
             missing <- obj[[i]]$missing
@@ -137,32 +171,30 @@
             missrange <- obj[[i]]$missrange
         }
 
-        
         if (length(missrange) > 0) {
-            catText(3, "<invalrng>")
+            cat(s3, "<invalrng>", enter, sep = "")
 
             if (any(is.element(missrange, c(-Inf, Inf)))) {
                 if (identical(missrange[1], -Inf)) {
-                    catText(4, sprintf("<range UNITS=\"INT\" max=\"%s\"/>", missrange[2]))
+                    cat(s4, sprintf("<range UNITS=\"INT\" max=\"%s\"/>", missrange[2]), enter, sep = "")
                 }
                 else {
-                    catText(4, sprintf("<range UNITS=\"INT\" min=\"%s\"/>", missrange[1]))
+                    cat(s4, sprintf("<range UNITS=\"INT\" min=\"%s\"/>", missrange[1]), enter, sep = "")
                 }
             }
             else {
-                catText(4, sprintf("<range UNITS=\"INT\" min=\"%s\" max=\"%s\"/>", missrange[1], missrange[2]))
+                cat(s4, sprintf("<range UNITS=\"INT\" min=\"%s\" max=\"%s\"/>", missrange[1], missrange[2]), enter, sep = "")
             }
                 
-            catText(3, "</invalrng>")
+            cat(s3, "</invalrng>", enter, sep = "")
         }
 
         lbls <- obj[[i]]$values
         type <- obj[[i]]$type
         
         if (!is.null(data)) {
-            vals <- data[[names(obj)[i]]]
-            if (admisc::possibleNumeric(vals)) {
-                vals <- admisc::asNumeric(vals)
+            if (pN[i]) {
+                vals <- aN[[names(obj)[i]]]
 
                 if (!is.null(lbls)) {
                     ismiss <- is.element(lbls, missing)
@@ -176,11 +208,11 @@
                 if (!is.null(type)) printnum <- printnum | grepl("num", type)
                 
                 if (printnum) { # numeric variable
-                    catText(3, "<sumStat type=\"min\">", format(min(vals, na.rm = TRUE), scientific = FALSE), "</sumStat>")
-                    catText(3, "<sumStat type=\"max\">", format(max(vals, na.rm = TRUE), scientific = FALSE), "</sumStat>")
-                    catText(3, "<sumStat type=\"mean\">", format(mean(vals, na.rm = TRUE), scientific = FALSE), "</sumStat>")
-                    catText(3, "<sumStat type=\"medn\">", format(median(vals, na.rm = TRUE), scientific = FALSE), "</sumStat>")
-                    catText(3, "<sumStat type=\"stdev\">", format(sd(vals, na.rm = TRUE), scientific = FALSE), "</sumStat>")
+                    cat(s3, "<sumStat type=\"min\">", format(min(vals, na.rm = TRUE), scientific = FALSE), "</sumStat>", enter, sep = "")
+                    cat(s3, "<sumStat type=\"max\">", format(max(vals, na.rm = TRUE), scientific = FALSE), "</sumStat>", enter, sep = "")
+                    cat(s3, "<sumStat type=\"mean\">", format(mean(vals, na.rm = TRUE), scientific = FALSE), "</sumStat>", enter, sep = "")
+                    cat(s3, "<sumStat type=\"medn\">", format(median(vals, na.rm = TRUE), scientific = FALSE), "</sumStat>", enter, sep = "")
+                    cat(s3, "<sumStat type=\"stdev\">", format(sd(vals, na.rm = TRUE), scientific = FALSE), "</sumStat>", enter, sep = "")
                 }
             }
         }
@@ -196,36 +228,36 @@
                     ismiss <- ismiss | (lbls[v] >= missrange[1] & lbls[v] <= missrange[2])
                 }
 
-                catText(3, "<catgry", ifelse(ismiss, " missing=\"Y\"", ""), ">")
-                catText(4, "<catValu>",  lbls[v],  "</catValu>")
-                catText(4, "<labl>",  names(lbls)[v],  "</labl>")
+                cat(s3, "<catgry", ifelse(ismiss, " missing=\"Y\"", ""), ">", enter, sep = "")
+                cat(s4, "<catValu>",  lbls[v],  "</catValu>", enter, sep = "")
+                cat(s4, "<labl>",  names(lbls)[v],  "</labl>", enter, sep = "")
                 
                 if (!is.null(data)) {
                     freq <- tbl[match(lbls[v], names(tbl))]
-                    catText(4, "<catStat type=\"freq\">", 
+                    cat(s4, "<catStat type=\"freq\">", 
                             ifelse(is.na(freq), 0, format(freq, scientific = FALSE)), 
-                            "</catStat>")
+                            "</catStat>", enter, sep = "")
                 }
 
-                catText(3, "</catgry>")
+                cat(s3, "</catgry>", enter, sep = "")
             }
         }
 
         if (any(grepl("type", names(obj[[i]])))) {
-            catText(3, "<varFormat type=\"", ifelse(grepl("char", obj[[i]]$type), "character", "numeric"), "\"/>")
+            cat(s3, "<varFormat type=\"", ifelse(grepl("char", obj[[i]]$type), "character", "numeric"), "\"/>", enter, sep = "")
         }
         
         if (any(grepl("txt", names(obj[[i]])))) {
-            catText(3, "<txt>")
-            catText(0, "<![CDATA[", obj[[i]]$txt, "]]>")
-            catText(3, "</txt>")
+            cat(s3, "<txt>", enter, sep = "")
+            cat(s0, "<![CDATA[", obj[[i]]$txt, "]]>", enter, sep = "")
+            cat(s3, "</txt>", enter, sep = "")
         }
         
-        catText(2, "</var>")
+        cat(s2, "</var>", enter, sep = "")
     }
     
-    catText(1, "</dataDscr>")
-    catText(0, "</codeBook>")
+    cat(s1, "</dataDscr>", enter, sep = "")
+    cat(s0, "</codeBook>", enter, sep = "")
     
     if (!identical(file, "")) {
         sink()
