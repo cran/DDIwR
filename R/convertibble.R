@@ -1,4 +1,4 @@
-# Copyright (c) 2019, Adrian Dusa
+# Copyright (c) 2021, Adrian Dusa
 # All rights reserved.
 # 
 # Redistribution and use in source and binary forms, with or without
@@ -50,6 +50,9 @@
             }
             else {
                 var <- as.character(var)
+                labels <- unlist(lapply(labels, as.character))
+                na_values <- unlist(lapply(na_values, as.character))
+                na_range <- unlist(lapply(na_range, as.character))
             }
             
             x[[i]] <- haven::labelled_spss(var, labels, na_values, na_range)

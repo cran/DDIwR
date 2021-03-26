@@ -1,4 +1,4 @@
-# Copyright (c) 2019, Adrian Dusa
+# Copyright (c) 2021, Adrian Dusa
 # All rights reserved.
 # 
 # Redistribution and use in source and binary forms, with or without
@@ -57,6 +57,7 @@ function(x, save = FALSE, OS = "Windows", ...) {
 
         codeBook <- list()
         codeBook$dataDscr <- lapply(data, function(x) {
+            
             toreturn <- list(label = attr(x, "label"))
             labels <- attr(x, "labels")
             if (!is.null(labels)) {
