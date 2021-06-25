@@ -25,7 +25,7 @@
 
 `exportDDI` <- function(codebook, file = "", embed = TRUE, OS = "", indent = 4) {
     
-    # http://www.ddialliance.org/Specification/DDI-Codebook/2.5/XMLSchema/field_level_documentation.html
+    # https://ddialliance.org/Specification/DDI-Codebook/2.5/XMLSchema/field_level_documentation.html
 
     `generateUUID` <- function(x) {
         toreturn <- rep(NA, x)
@@ -41,6 +41,13 @@
     
     `repeatSpace` <- function(times) {
         paste(rep(" ", times*indent), collapse="")
+    }
+
+    `replaceChars` <- function(x) {
+        x <- gsub("&", "&amp;", x)
+        x <- gsub("<", "&lt;", x)
+        x <- gsub(">", "&gt;", x)
+        return(x)
     }
 
     s0 <- repeatSpace(0)
@@ -71,8 +78,8 @@
     
     if (!identical(file, "")) {
         sink(file)
+        on.exit(sink())
     }
-
     prodDate <- as.character(Sys.time())
     version <- as.character(packageVersion("DDIwR"))
 
@@ -82,7 +89,7 @@
         "version=\"2.5\"", enter,
         "xmlns=\"ddi:codebook:2_5\"", enter,
         "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"", enter, 
-        "xsi:schemaLocation=\"http://www.ddialliance.org/Specification/DDI-Codebook/2.5/XMLSchema/codebook.xsd\">", enter, sep = "")
+        "xsi:schemaLocation=\"https://ddialliance.org/Specification/DDI-Codebook/2.5/XMLSchema/codebook.xsd\">", enter, sep = "")
     cat(s1, "<docDscr>", enter, sep = "")
     cat(s2, "<citation>", enter, sep = "")
     cat(s3, "<titlStmt>", enter, sep = "")
@@ -130,8 +137,8 @@
             cat(s2, "</notes>", enter, sep = "")
         }
 
-        pN <- unlist(lapply(data[names(obj)], function(x) admisc::possibleNumeric(x)))
-        aN <- lapply(data[, names(pN)[pN]], function(x) admisc::asNumeric(x))
+        pN <- unlist(lapply(data[names(obj)], function(x) admisc::possibleNumeric(unclass(x))))
+        aN <- lapply(data[, names(pN)[pN]], function(x) admisc::asNumeric(unclass(x)))
 
     }
 
@@ -155,41 +162,41 @@
                          
         cat(s2, "<var ID=\"", uuid[i], "\" name=\"", varnames[i], "\" files=\"", uuid[length(uuid)], "\"", dcml, nature, ">", enter, sep = "")
         
-        if (!is.null(obj[[i]]$label)) {
-            if (!is.na(obj[[i]]$label)) {
-                cat(s3, "<labl>", obj[[i]]$label, "</labl>", enter, sep = "")
+        if (!is.null(obj[[i]][["label"]])) {
+            if (!is.na(obj[[i]][["label"]])) {
+                cat(s3, "<labl>", replaceChars(obj[[i]][["label"]]), "</labl>", enter, sep = "")
             }
         }
         
-        missing <- NULL
-        if (is.element("missing", names(obj[[i]]))) {
-            missing <- obj[[i]]$missing
+        na_values <- NULL
+        if (is.element("na_values", names(obj[[i]]))) {
+            na_values <- obj[[i]]$na_values
         }
 
-        missrange <- NULL
-        if (is.element("missrange", names(obj[[i]]))) {
-            missrange <- obj[[i]]$missrange
+        na_range <- NULL
+        if (is.element("na_range", names(obj[[i]]))) {
+            na_range <- obj[[i]]$na_range
         }
 
-        if (length(missrange) > 0) {
+        if (length(na_range) > 0) {
             cat(s3, "<invalrng>", enter, sep = "")
 
-            if (any(is.element(missrange, c(-Inf, Inf)))) {
-                if (identical(missrange[1], -Inf)) {
-                    cat(s4, sprintf("<range UNITS=\"INT\" max=\"%s\"/>", missrange[2]), enter, sep = "")
+            if (any(is.element(na_range, c(-Inf, Inf)))) {
+                if (identical(na_range[1], -Inf)) {
+                    cat(s4, sprintf("<range UNITS=\"INT\" max=\"%s\"/>", na_range[2]), enter, sep = "")
                 }
                 else {
-                    cat(s4, sprintf("<range UNITS=\"INT\" min=\"%s\"/>", missrange[1]), enter, sep = "")
+                    cat(s4, sprintf("<range UNITS=\"INT\" min=\"%s\"/>", na_range[1]), enter, sep = "")
                 }
             }
             else {
-                cat(s4, sprintf("<range UNITS=\"INT\" min=\"%s\" max=\"%s\"/>", missrange[1], missrange[2]), enter, sep = "")
+                cat(s4, sprintf("<range UNITS=\"INT\" min=\"%s\" max=\"%s\"/>", na_range[1], na_range[2]), enter, sep = "")
             }
                 
             cat(s3, "</invalrng>", enter, sep = "")
         }
 
-        lbls <- obj[[i]]$values
+        lbls <- obj[[i]][["labels"]]
         type <- obj[[i]]$type
         
         if (!is.null(data)) {
@@ -197,9 +204,9 @@
                 vals <- aN[[names(obj)[i]]]
 
                 if (!is.null(lbls)) {
-                    ismiss <- is.element(lbls, missing)
-                    if (length(missrange) > 0) {
-                        ismiss <- ismiss | (lbls >= missrange[1] & lbls <= missrange[2])
+                    ismiss <- is.element(lbls, na_values)
+                    if (length(na_range) > 0) {
+                        ismiss <- ismiss | (lbls >= na_range[1] & lbls <= na_range[2])
                     }
                     vals[is.element(vals, lbls[ismiss])] <- NA
                 }
@@ -217,20 +224,20 @@
             }
         }
         
-        if (any(grepl("values", names(obj[[i]])))) {
+        if (any(grepl("labels", names(obj[[i]])))) {
 
             tbl <- table(data[[names(obj)[i]]])
             
             for (v in seq(length(lbls))) {
                 
-                ismiss <- is.element(lbls[v], missing)
-                if (length(missrange) > 0) {
-                    ismiss <- ismiss | (lbls[v] >= missrange[1] & lbls[v] <= missrange[2])
+                ismiss <- is.element(lbls[v], na_values)
+                if (length(na_range) > 0) {
+                    ismiss <- ismiss | (lbls[v] >= na_range[1] & lbls[v] <= na_range[2])
                 }
 
                 cat(s3, "<catgry", ifelse(ismiss, " missing=\"Y\"", ""), ">", enter, sep = "")
-                cat(s4, "<catValu>",  lbls[v],  "</catValu>", enter, sep = "")
-                cat(s4, "<labl>",  names(lbls)[v],  "</labl>", enter, sep = "")
+                cat(s4, "<catValu>", replaceChars(lbls[v]),  "</catValu>", enter, sep = "")
+                cat(s4, "<labl>",  replaceChars(names(lbls)[v]),  "</labl>", enter, sep = "")
                 
                 if (!is.null(data)) {
                     freq <- tbl[match(lbls[v], names(tbl))]
@@ -259,7 +266,4 @@
     cat(s1, "</dataDscr>", enter, sep = "")
     cat(s0, "</codeBook>", enter, sep = "")
     
-    if (!identical(file, "")) {
-        sink()
-    }
 }

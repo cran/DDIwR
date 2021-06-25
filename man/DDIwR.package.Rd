@@ -18,8 +18,9 @@ also deal with the treatment of missing values.
 
 It can also generate a DDI metadata file out of an R information object, which can be
 used to export directly to the standard statistical packages files (such as SPSS, Stata
-and SAS), using the versatile package \bold{\pkg{haven}}. For R, the default object to
-store data and matadata is a \bold{\code{tibble}}.
+and SAS, or even Excel), using the versatile package \bold{\pkg{haven}}. For R, the default
+object to store data and metadata is a \bold{\code{data.frame}}, and labelled data are
+automatically coerced to class \code{declared}.
 
 The research leading to the initial functions in this package has received funding from
 the European Union's Seventh Framework Programme (FP7/2007-2013) under grant agreement no.
@@ -30,8 +31,8 @@ the European Union's Seventh Framework Programme (FP7/2007-2013) under grant agr
     \tabular{ll}{
     Package: \tab DDIwR\cr
     Type:    \tab Package\cr
-    Version: \tab 0.5\cr
-    Date:    \tab 2021-03-24\cr
+    Version: \tab 0.6\cr
+    Date:    \tab 2021-06-25\cr
     License: \tab GPL (>= 2)\cr
     }
 }
@@ -49,4 +50,3 @@ Adrian Dusa
 }
 
 \keyword{package}
-

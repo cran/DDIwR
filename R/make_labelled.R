@@ -23,18 +23,39 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-`getXML` <- function(path) {
-    xml <- tryCatch(xml2::read_xml(path), error = identity, warning = identity)
-            
-    if (any(class(xml) == "error")) {
-        xml <- readLines(path)
+`make_labelled` <- function(x, dataDscr, ...) {
+
+    pN <- unlist(lapply(x, function(x) admisc::possibleNumeric(x)))
+    
+    for (i in names(x)) {
+        #------------------------------------------------------------------
+        # attrx$label, if not existing, takes from attrx$labels
+        # attrx[["label"]] is something like attr(x, "label", exact = TRUE)
+        label <- dataDscr[[i]][["label"]]
+        labels <- dataDscr[[i]][["labels"]]
+        #------------------------------------------------------------------
+
+        na_values <- dataDscr[[i]][["na_values"]]
+        na_range <- dataDscr[[i]][["na_range"]]
+
+        v <- unname(unlist(unclass(x[, i])))
+        if (pN[i]) {
+            v <- admisc::asNumeric(v)
+        }
         
-        nms <- grepl("xmlns", xml[which(grepl("codeBook", xml))[1]])
-        error <- "Unable to read the XML file"
-        
-        cat("\n")
-        stop(error, call. = FALSE)
+        x[[i]] <- declared::declared(v, labels, na_values, na_range, label)
+
     }
 
-    return(xml)
+    other.args <- list(...)
+    if (is.element("spss", names(other.args))) {
+        if (other.args$spss) {
+            x[] <- lapply(x, function(x) {
+                attr(x, "format.spss") <- getFormat(x)
+                return(x)
+            })
+        }
+    }
+
+    return(x)
 }

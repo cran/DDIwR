@@ -23,54 +23,41 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-`convertibble` <- function(x, dataDscr, ...) {
-
-    pN <- unlist(lapply(x, function(x) admisc::possibleNumeric(x)))
+.onAttach <- function(...) {
+    core <- c("haven", "admisc", "declared")
     
-    for (i in names(x)) {
-        
-        if (is.element("values", names(dataDscr[[i]]))) {
-
-            na_values <- NULL
-            if (is.element("missing", names(dataDscr[[i]]))) {
-                na_values <- dataDscr[[i]]$missing
-            }
-
-            na_range <- NULL
-            if (is.element("missrange", names(dataDscr[[i]]))) {
-                na_range <- dataDscr[[i]]$missrange
-            }
-
-            labels <- dataDscr[[i]]$values
-            
-            var <- unname(unlist(unclass(x[, i])))
-
-            if (pN[i]) {
-                var <- admisc::asNumeric(var)
-            }
-            else {
-                var <- as.character(var)
-                labels <- unlist(lapply(labels, as.character))
-                na_values <- unlist(lapply(na_values, as.character))
-                na_range <- unlist(lapply(na_range, as.character))
-            }
-            
-            x[[i]] <- haven::labelled_spss(var, labels, na_values, na_range)
-        }
-
-        attr(x[[i]], "label") <- dataDscr[[i]]$label
-
-    }
-
-    other.args <- list(...)
-    if (is.element("spss", names(other.args))) {
-        if (other.args$spss) {
-            x[] <- lapply(x, function(x) {
-                attr(x, "format.spss") <- getFormat(x)
-                return(x)
-            })
+    # code borrowed from package tidyverse
+    
+    # Attach the package from the same package library it was
+    # loaded from before. https://github.com/tidyverse/tidyverse/issues/171
+    same_library <- function(pkg) {
+        if (pkg %in% loadedNamespaces() && !is.element(pkg, .packages())) {
+            loc <- dirname(getNamespaceInfo(pkg, "path"))
+            do.call(
+                "library",
+                list(pkg, lib.loc = loc, character.only = TRUE, warn.conflicts = FALSE)
+            )
         }
     }
 
-    return(x)
+    core_unloaded <- function() {
+        search <- paste0("package:", core)
+        core[!search %in% search()]
+    }
+    
+    to_load <- core_unloaded()
+    if (length(to_load) == 0) {
+        return(invisible())
+    }
+
+    packageStartupMessage(
+        paste("Also attaching packages:", paste(to_load, collapse = ", "))
+    )
+
+    suppressPackageStartupMessages(
+        lapply(to_load, same_library)
+    )
+
+    return(invisible())
+
 }

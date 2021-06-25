@@ -14,7 +14,7 @@ getMetadata(x, save = FALSE, OS = "Windows", ...)
 }
 
 \arguments{
-  \item{x}{A path to a file, or a tibble object}
+  \item{x}{A path to a file, or a data frame object}
   \item{save}{Boolean, save an .R file in the same directory}
   \item{OS}{The target operating system, for the eol - end of line separator,
             if saving the file}
@@ -23,11 +23,8 @@ getMetadata(x, save = FALSE, OS = "Windows", ...)
 
 \details{
 This function reads an XML file containing a DDI codebook version 2.5, or an
-SPSS file and returns a list containing the variable labels, value labels,
+SPSS or Stata file and returns a list containing the variable labels, value labels,
 plus some other useful information.
-
-It is also possible to extract a limited information from a Stata file, but
-especially the missing values are not yet imported by package \bold{\pkg{haven}}.
 
 
 It additionally attempts to automatically detect a type for each variable:

@@ -1,22 +1,30 @@
-export( checkType,
-        convert,
-        convertibble,
-        exportDDI,
-        setupfile,
-        splitrows,
-        treatPath,
-        getDecimals,
-        getDelimiter,
-        getEnter,
-        getFiles,
-        getFormat,
-        getMetadata,
-        getXML,
-        tibbleMetadata,
-        writeRlist)
+export(
+    .onAttach,
+    checkType,
+    cleanup,
+    collectMetadata,
+    convert,
+    exportDDI,
+    setupfile,
+    splitrows,
+    treatPath,
+    getDecimals,
+    getDelimiter,
+    getEnter,
+    getFiles,
+    getFormat,
+    getMetadata,
+    getXML,
+    make_labelled,
+    recodeMissing,
+    writeMetadata,
+    writeRlist
+)
 import(xml2)
 import(haven)
-importFrom("tibble", "as_tibble")
+import(declared)
+import(readxl)
+import(writexl)
 importFrom("readr", "read_csv", "write_csv", "format_csv")
 importFrom("utils", "capture.output", "file_test", "read.csv", "write.csv", "packageVersion")
 importFrom("stats", "median", "sd", "na.omit")

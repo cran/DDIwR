@@ -29,96 +29,44 @@ function(x, save = FALSE, OS = "Windows", ...) {
     # TODO: detect DDI version or ask the version through a dedicated argument
     # http://www.ddialliance.org/Specification/DDI-Codebook/2.5/XMLSchema/field_level_documentation.html
     
-    `cleanup` <- function(x, cdata = TRUE) {
-
-        x <- gsub("^[[:space:]]+|[[:space:]]+$", "", x)
-        x <- gsub("\"", "'", x)
-        for (l in letters) {
-            x <- gsub(sprintf("\\\\+%s", l), sprintf("/%s", l), x)
-        }
-        x <- gsub("\\\\", "/", x)
-        if (cdata) {
-            x <- gsub("<\\!\\[CDATA\\[|\\]\\]>", "", x)
-        }
-        return(x)
-    }
-
-    `extract` <- function(data) {
-        if (is.data.frame(data)) {
-            if (!is.element("tbl_df", class(data))) {
-                cat("\n")
-                stop("The data file should be a tibble.\n\n", call. = FALSE)
-            }
-        }
-        else {
-            cat("\n")
-            stop("The data file does not contain any metadata.\n\n", call. = FALSE)
-        }
-
-        codeBook <- list()
-        codeBook$dataDscr <- lapply(data, function(x) {
-            
-            toreturn <- list(label = attr(x, "label"))
-            labels <- attr(x, "labels")
-            if (!is.null(labels)) {
-                labels <- labels[!is.na(labels)]
-                if (length(labels) > 0) {
-                    toreturn$values <- labels
-                }
-            }
-            
-            missing <- attr(x, "na_values")
-            if (!is.null(missing)) {
-                missing <- missing[!is.na(missing)]
-                if (length(missing) > 0) {
-                    toreturn$missing <- sort(missing)
-                }
-            }
-            
-            missrange <- attr(x, "na_range")
-            if (!is.null(missrange)) {
-                toreturn$missrange <- missrange
-            }
-            
-            toreturn$type <- DDIwR::checkType(x, labels, admisc::possibleNumeric(x))
-
-            return(toreturn)
-        })
-
-        return(codeBook)
-    }
-
-    error <- FALSE
+    dots <- list(...)
     
     if (is.data.frame(x)) {
-        if (is.element("tbl_df", class(x))) {
-            return(invisible(extract(x)))
+        error <- TRUE
+        i <- 1
+        while (i <= ncol(x) & error) {
+            attrx <- attributes(x[[i]])
+            if (any(is.element(c("label", "labels", "na_value", "na_range"), names(attrx)))) {
+                error <- FALSE
+            }
+            i <- i + 1
+        }
+
+        if (error) {
+            if (is.element("error_null", names(dots))) {
+                return(NULL)
+            }
+
+            cat("\n")
+            stop("The input does not seem to contain any metadata.\n\n", call. = FALSE)
         }
         else {
-            error <- TRUE
+            codeBook <- list()
+            codeBook$dataDscr <- collectMetadata(x)
+            return(invisible(codeBook))
         }
     }
-    else if (!is.character(x)) {
-        error <- TRUE
-    }
-
-    if (error) {
-        cat("\n")
-        stop("The input does not contain any metadata.\n\n", call. = FALSE)
-    }
-
-    other.args <- list(...)
     
     enter <- getEnter(OS)
     
     fromsetupfile <- FALSE
-    if (is.element("fromsetupfile", names(other.args))) {
-        fromsetupfile <- other.args$fromsetupfile
+    if (is.element("fromsetupfile", names(dots))) {
+        fromsetupfile <- dots$fromsetupfile
     }
     
     embed <- FALSE
-    if (is.element("embed", names(other.args))) {
-        embed <- other.args$embed
+    if (is.element("embed", names(dots))) {
+        embed <- dots$embed
     }
     
     tp <- DDIwR::treatPath(x, type = "*")
@@ -140,7 +88,6 @@ function(x, save = FALSE, OS = "Windows", ...) {
         if (tp$fileext[ff] == "XML") {
 
             codeBook <- list()
-
             xml <- getXML(file.path(tp$completePath, tp$files[ff]))
             
             # lapply(xml_find_all(xml, "/d1:codeBook/d1:dataDscr/d1:var"), function(x) {
@@ -179,17 +126,17 @@ function(x, save = FALSE, OS = "Windows", ...) {
                 # vars_i <- xml2::xml_find_first(xml, xpath)
 
                 measurement <- xml2::xml_attr(vars[i], "nature")
-                missng <- NULL
-                missrange <- NULL
+                na_values <- NULL
+                na_range <- NULL
                 xpath <- sprintf("%sinvalrng/%srange", dns, dns)
-                missrange[1] <- admisc::asNumeric(xml2::xml_attr(xml2::xml_find_first(vars[i], xpath), "min"))
-                missrange[2] <- admisc::asNumeric(xml2::xml_attr(xml2::xml_find_first(vars[i], xpath), "max"))
-                if (all(is.na(missrange))) {
-                    missrange <- NULL
+                na_range[1] <- admisc::asNumeric(xml2::xml_attr(xml2::xml_find_first(vars[i], xpath), "min"))
+                na_range[2] <- admisc::asNumeric(xml2::xml_attr(xml2::xml_find_first(vars[i], xpath), "max"))
+                if (all(is.na(na_range))) {
+                    na_range <- NULL
                 }
                 else {
-                    if (is.na(missrange[1])) missrange[1] <- -Inf
-                    if (is.na(missrange[2])) missrange[2] <- Inf
+                    if (is.na(na_range[1])) na_range[1] <- -Inf
+                    if (is.na(na_range[2])) na_range[2] <- Inf
                 }
                 
                 xpath <- sprintf("%scatgry/%scatValu", dns, dns)
@@ -202,7 +149,7 @@ function(x, save = FALSE, OS = "Windows", ...) {
                     
                     catgry <- xml2::xml_find_all(vars[i], sprintf("%scatgry", dns))
                     
-                    missng <- c(missng, values[unlist(lapply(catgry, function(x) {
+                    na_values <- c(na_values, values[unlist(lapply(catgry, function(x) {
                         grepl("Y", xml2::xml_attr(x, "missing"))
                     }))])
                     
@@ -217,23 +164,23 @@ function(x, save = FALSE, OS = "Windows", ...) {
                         values <- admisc::asNumeric(values)
                     }
                     
-                    codeBook$dataDscr[[i]]$values <- values
-                    names(codeBook$dataDscr[[i]]$values) <- labl
+                    codeBook$dataDscr[[i]][["labels"]] <- values
+                    names(codeBook$dataDscr[[i]][["labels"]]) <- labl
                 }
                 
-                if (length(missng) > 0) {
-                    if (admisc::possibleNumeric(missng)) {
-                        missng <- admisc::asNumeric(missng)
+                if (length(na_values) > 0) {
+                    if (admisc::possibleNumeric(na_values)) {
+                        na_values <- admisc::asNumeric(na_values)
                     }
-                    missng <- sort(unique(missng))
+                    na_values <- sort(unique(na_values))
 
-                    missng <- missng[missng < missrange[1] | missng > missrange[2]]
+                    na_values <- na_values[na_values < na_range[1] | na_values > na_range[2]]
 
-                    if (length(missng) > 0) codeBook$dataDscr[[i]]$missing <- missng
+                    if (length(na_values) > 0) codeBook$dataDscr[[i]]$na_values <- na_values
                 }
 
-                if (!is.null(missrange)) {
-                    codeBook$dataDscr[[i]]$missrange <- missrange
+                if (!is.null(na_range)) {
+                    codeBook$dataDscr[[i]]$na_range <- na_range
                 }
 
                 if (!is.na(measurement)) {
@@ -257,7 +204,7 @@ function(x, save = FALSE, OS = "Windows", ...) {
                             codeBook$dataDscr[[i]]$type <- "char"
                         }
                         else if (length(values) > 0) {
-                            if (length(setdiff(values, missng)) > 0) {
+                            if (length(setdiff(values, na_values)) > 0) {
                                 codeBook$dataDscr[[i]]$type <- "cat"
                             }
                         }
@@ -286,41 +233,42 @@ function(x, save = FALSE, OS = "Windows", ...) {
             else if (tp$fileext[ff] == "RDS") {
                 data <- readr::read_rds(file.path(tp$completePath, tp$files[ff]))
             }
+            # not sure about SAS, as far as I understand the metadata is not embedded in the datafile
+            # sometimes it might sit into a separate, catalog file or something (need to investigate)
             # else if (tp$fileext[ff] == "SAS7BDAT") {
             #     data <- haven::read_sas(file.path(tp$completePath, tp$files[ff]))
             # }
-
-            codeBook <- extract(data)
+            
+            codeBook <- list()
+            codeBook$dataDscr <- collectMetadata(x)
         }
         
         if (save) {
-            currentdir <- getwd()
-            setwd(tp$completePath)
             
             indent <- 4
-            if (is.element("indent", names(other.args))) {
-                indent <- other.args$indent
+            if (is.element("indent", names(dots))) {
+                indent <- dots$indent
             }
             
-            sink(paste(tp$filenames[ff], "R", sep = "."))
-            cat("codeBook <- list(dataDscr = list(", enter)
-            writeRlist(codeBook$dataDscr, OS = OS, indent = indent)
-            cat("))", enter)
-            sink()
-            setwd(currentdir)
+            writeRlist(codeBook$dataDscr, OS = OS, indent = indent, dirpath = tp$completePath, filename = tp$filenames[ff])
+            
         }
     }
     
     if (singlefile) {
         if (!is.na(notes)) {
             if (grepl("# start data #", notes)) {
-                spss <- ifelse(is.element("spss", names(other.args)), other.args$spss, TRUE)
+                spss <- ifelse(is.element("spss", names(dots)), dots$spss, TRUE)
                 notes <- unlist(strsplit(notes, split = "\\n"))
                 data <- notes[seq(which(grepl("# start data #", notes)) + 1, which(grepl("# end data #", notes)) - 1)]
-                data <- read.csv(text = paste(data, collapse = "\n"), as.is = TRUE)
-                data <- convertibble(tibble::as_tibble(data), codeBook$dataDscr, spss = spss)
-                embed <- TRUE
+                #----------------
+                # don't remember why read_csv was not working
                 # data <- suppressMessages(readr::read_csv(paste(data, collapse = "\n")))
+                # and instead:
+                data <- read.csv(text = paste(data, collapse = "\n"), as.is = TRUE)
+                data <- make_labelled(data, codeBook$dataDscr, spss = spss)
+                #----------------
+                embed <- TRUE
             }
         }
 
@@ -331,4 +279,3 @@ function(x, save = FALSE, OS = "Windows", ...) {
         return(invisible(codeBook))
     }
 }
-

@@ -23,18 +23,24 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-`getXML` <- function(path) {
-    xml <- tryCatch(xml2::read_xml(path), error = identity, warning = identity)
-            
-    if (any(class(xml) == "error")) {
-        xml <- readLines(path)
-        
-        nms <- grepl("xmlns", xml[which(grepl("codeBook", xml))[1]])
-        error <- "Unable to read the XML file"
-        
-        cat("\n")
-        stop(error, call. = FALSE)
+`cleanup` <- function(x, cdata = TRUE) {
+
+    x <- gsub("&amp;", "&", x)
+    x <- gsub("&lt;", "<", x)
+    x <- gsub("&gt;", ">", x)
+    x <- gsub("^[[:space:]]+|[[:space:]]+$", "", x)
+    x <- gsub("\"", "'", x)
+    for (l in letters) {
+        x <- gsub(sprintf("\\\\+%s", l), sprintf("/%s", l), x)
+    }
+    x <- gsub("\\\\", "/", x)
+    if (cdata) {
+        x <- gsub("<\\!\\[CDATA\\[|\\]\\]>", "", x)
     }
 
-    return(xml)
+    irv <- c(194, 180)
+    tick <- unlist(strsplit(rawToChar(as.raw(irv)), split = ""))
+    x <- gsub(paste(tick, collapse = "|"), "'", x)
+    
+    return(x)
 }
