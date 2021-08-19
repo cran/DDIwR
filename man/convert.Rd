@@ -54,10 +54,6 @@ commands manually.
 
 When converting from SPSS to R, the result is a data frame containing declared labelled variables, as
 defined in package \pkg{declared}.
-
-IMPORTANT: due to a still unresolved bug in package \pkg{haven}, converting to SPSS drops the
-information about missing values. A temporary workaround, until this will eventually be fixed,
-is to produce a setup file to be run by SPSS.
 }
 
 
