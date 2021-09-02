@@ -23,7 +23,7 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-`convert` <- function(from, to = NULL, embed = FALSE, ...) {
+`convert` <- function(from, to = NULL, declared = TRUE, embed = TRUE, ...) {
     if (missing(from)) {
         admisc::stopError("Argument 'from' is missing.")
     }
@@ -51,7 +51,7 @@
     else if (is.element("data.frame", class(from))) {
         Robject <- TRUE
         tp_from <- list(
-            completePath = ".",
+            completePath = normalizePath("~"),
             filenames = as.character(substitute(from)),
             fileext = "RDS"
         )
@@ -168,7 +168,11 @@
 
             if (ncol(data) == length(codeBook$dataDscr) + 1) {
                 rownames(data) <- data[, 1]
-                data <- data[, -1, drop = FALSE]
+                data <- subset(
+                    data,
+                    select = seq(2, ncol(data))
+                )
+                # data <- data[, -1, drop = FALSE]
             }
             # return(list(data = data, codeBook = codeBook))
             data <- make_labelled(
@@ -228,36 +232,38 @@
 
     # The current OS might not always be the same with the target OS aboe
     currentOS <- Sys.info()[["sysname"]]
-
+    
     if (!is.null(to)) {
         if (tp_to$fileext == "XML") {
+
             if (is.null(codeBook)) {
                 admisc::stopError(
                     "The input does not seem to contain any metadata."
                 )
             }
+
             codeBook$fileDscr$datafile <- data
 
             if (!embed) {
-                file <- file.path(
-                    tp_from$completePath,
-                    paste(
-                        tp_to$filenames[1],
-                        "csv",
-                        sep = "."
-                    )
-                )
-
                 write.csv(
+                    file = file.path(
+                        tp_to$completePath,
+                        paste(tp_to$filenames[1], "csv", sep = ".")
+                    ),
                     x = data,
-                    file = as.character(file),
                     row.names = FALSE
                 )
-                # return(file)
-                # readr::write_csv(data, file.path(tp_from$completePath, paste(tp_to$filenames[1], "csv", sep = ".")))
+                
+                # readr::write_csv(
+                #     data,
+                #     file.path(
+                #         tp_to$completePath,
+                #         paste(tp_to$filenames[1], "csv", sep = ".")
+                #     )
+                # )
             }
-
             # return(list(codeBook = codeBook, file = to, embed = embed, OS = targetOS))
+            
             exportDDI(codeBook, to, embed = embed, OS = targetOS)
         }
         else if (identical(tp_to$fileext, "SAV")) {
@@ -325,23 +331,29 @@
             # }
         }
         else if (identical(tp_to$fileext, "RDS")) {
-            readr::write_rds(declared::as_declared(data), to)
+            if (declared) {
+                readr::write_rds(declared::as_declared(data), to)
+            }
+            else {
+                readr::write_rds(data, to)
+            }
         }
         else if (identical(tp_to$fileext, "SAS7BDAT")) {
 
-            haven::write_sas(data, to)
+            haven::write_sas(declared::as_haven(data), to)
 
             #     # perhaps ask https://github.com/rogerjdeangelis
         }
         else if (identical(tp_to$fileext, "XLSX")) {
             writexl::write_xlsx(data, to)
         }
-
     }
+    else {
 
-    return(
-        invisible(
-            as.data.frame(declared::as_declared(data))
-        )
-    )
+        if (declared) {
+            return(invisible(declared::as_declared(data)))
+        }
+
+        return(invisible(data))
+    }
 }

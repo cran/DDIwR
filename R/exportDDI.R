@@ -88,9 +88,9 @@
         sink(file)
         on.exit(sink())
     }
+
     prodDate <- as.character(Sys.time())
     version <- as.character(packageVersion("DDIwR"))
-
     varnames <- names(obj)
     cat(paste(
         s0, "<?xml version=\"1.0\" encoding=\"UTF-8\"?>",
@@ -113,6 +113,7 @@
         enter,
         sep = ""
     ))
+    
     cat(paste(s1, "<docDscr>", enter, sep = ""))
     cat(paste(s2, "<citation>", enter, sep = ""))
     cat(paste(s3, "<titlStmt>", enter, sep = ""))
@@ -160,6 +161,8 @@
             )
         }
 
+        datas <- undeclare(data)
+
         cat(paste(s2, "<fileTxt>", enter, sep = ""))
         cat(paste(s3, "<dimensns>", enter, sep = ""))
         cat(paste(s4, "<caseQnty>", nrow(data), "</caseQnty>", enter, sep = ""))
@@ -186,7 +189,14 @@
         ))
 
         aN <- lapply(
-            data[, names(pN)[pN]],
+            subset(
+                data,
+                select = is.element(
+                    names(data),
+                    names(pN)[pN]
+                )
+            ),
+            # data[, names(pN)[pN], drop = FALSE],
             function(x) admisc::asNumeric(unclass(x))
         )
 
@@ -194,28 +204,31 @@
 
     cat(paste(s1, "</fileDscr>", enter, sep = ""))
     cat(paste(s1, "<dataDscr>", enter, sep = ""))
-
     for (i in seq(length(obj))) {
-        
         dcml <- ""
         if (!is.null(data)) {
-            dcml <- c(" dcml=\"",
-                      ifelse(pN[names(obj)[i]], getDecimals(na.omit(aN[[names(obj)[i]]])),  0),
-                      "\"")
+            dcml <- paste0(
+                " dcml=\"",
+                ifelse(
+                    pN[[names(obj)[i]]],
+                    getDecimals(na.omit(aN[[names(obj)[i]]])),
+                    0
+                ),
+                "\""
+            )
         }
         
         nature <- ""
         if(any(grepl("measurement", names(obj[[i]])))) {
-            nature <- c(" nature=\"", obj[[i]]$measurement, "\"")
+            nature <- paste0(" nature=\"", obj[[i]]$measurement, "\"")
         }
                          
-        cat(paste(
-            s2, "<var ID=\"", uuid[i],
-            "\" name=\"", varnames[i],
-            "\" files=\"", uuid[length(uuid)],
-            "\"", dcml, nature, ">",
-            enter,
-            sep = ""
+        cat(paste0(
+            s2, "<var ID=\"", uuid[i], "\"",
+            " name=\"", varnames[i], "\"",
+            " files=\"", uuid[length(uuid)], "\"",
+            dcml, nature, ">",
+            enter
         ))
         
         if (!is.null(obj[[i]][["label"]])) {

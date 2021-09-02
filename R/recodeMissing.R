@@ -23,12 +23,7 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-`recodeMissing` <- 
-function(
-    dataset,
-    to = c("SPSS", "Stata"),
-    dictionary = NULL,
-    ...) {
+`recodeMissing` <- function(dataset, to = c("SPSS", "Stata"), dictionary = NULL, ...) {
 
     to <- toupper(match.arg(to))
 

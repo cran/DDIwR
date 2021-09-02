@@ -23,14 +23,17 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-`setupfile` <- function(codeBook, file = "", type = "all", csv = "", OS = "", ...) {
+`setupfile` <- function(
+    codeBook, file = "", type = "all", csv = "", OS = "", ...
+) {
 
-    # TO DO: when codeBook is a path to a file or directory, it should be (only) XML and not R anymore
+    # TO DO: when codeBook is a path to a file or directory,
+    # it should be (only) XML and not R anymore
     on.exit(suppressWarnings(sink()))
 
     dots <- list(...)
 
-    outdir <- identical(file, "")
+    outdir <- identical(file, "") # internal, logical argument
     if (is.element("outdir", names(dots))) {
         outdir <- dots$outdir
     }
@@ -126,7 +129,7 @@
         if (length(codeBook) > 1) {
             admisc::stopError(
                 paste(
-                    "The \"codeBook\" argument should contain",
+                    "The argument <codeBook> should contain",
                     "a single path to the list object."
                 )
             )
@@ -164,7 +167,7 @@
                 if (length(csv) > 1) {
                     admisc::stopError(
                         paste(
-                            "The \"csv\" argument should contain",
+                            "The argument <csv> should contain",
                             "a single path to the .csv file."
                         )
                     )
@@ -552,7 +555,7 @@
             if (length(csv) > 1) {
                 admisc::stopError(
                     paste(
-                        "The \"csv\" argument should contain",
+                        "The argument <csv> should contain",
                         "a single path to the .csv file."
                     )
                 )
@@ -590,7 +593,7 @@
     if (is.null(names(dataDscr)) | !checkvarlab(dataDscr)) {
         admisc::stopError(
             paste(
-                "The argument \"codeBook\" does not",
+                "The argument <codeBook> does not",
                 "contain variables and / or labels."
             )
         )
@@ -1002,12 +1005,13 @@
 
             # test which values are not numbers in the respective variables
 
-            # has_strings  <- lapply(csv[, which_numerical, drop = FALSE], function(x) {
+            # has_strings  <- lapply(subset(csv, select = which_numerical), function(x) {
             #    grep("^-?[0-9]+([.]?[0-9]+)?$", x, perl=TRUE, invert=TRUE)
             # })
 
             has_strings  <- lapply(
-                csv[, which_numerical, drop = FALSE],
+                subset(csv, select = which_numerical),
+                # csv[, which_numerical, drop = FALSE],
                 function(x) {
                     # as.character() is useful if the variable is an R factor
                     which(

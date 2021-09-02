@@ -31,8 +31,8 @@ the European Union's Seventh Framework Programme (FP7/2007-2013) under grant agr
     \tabular{ll}{
     Package: \tab DDIwR\cr
     Type:    \tab Package\cr
-    Version: \tab 0.7\cr
-    Date:    \tab 2021-08-19\cr
+    Version: \tab 0.8\cr
+    Date:    \tab 2021-09-02\cr
     License: \tab GPL (>= 2)\cr
     }
 }
