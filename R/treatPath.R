@@ -84,6 +84,7 @@ treatPath <- function(path, type = "*", single = FALSE, check = TRUE) {
         }
 
         if (!allfiles & check) {
+            
             admisc::stopError(
                 paste(
                     "There is no \"",
@@ -116,9 +117,17 @@ treatPath <- function(path, type = "*", single = FALSE, check = TRUE) {
                     "A file name should be provided, not a directory."
                 )
             }
-        }
 
-        fileobj <- getFiles(path = file.path(pathname, lastpart), type = type)
+            fileobj <- getFiles(path = file.path(pathname, lastpart), type = type)
+        }
+        else {
+
+            if (type != "*" && type != toupper(tools::file_ext(file.path(pathname, lastpart)))) {
+                return(paste0("Wrong file type, it should be ", type, "."))
+            }
+            
+            fileobj <- getFiles(path = file.path(pathname, lastpart), type = type)
+        }
 
     }
 

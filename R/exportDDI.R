@@ -108,7 +108,7 @@
         "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"",
         enter, 
         "xsi:schemaLocation=\"",
-        "https://ddialliance.org/Specification/DDI-Codebook/2.5/XMLSchema/codebook.xsd",
+        "ddi:codebook:2_5 https://ddialliance.org/Specification/DDI-Codebook/2.5/XMLSchema/codebook.xsd",
         "\">",
         enter,
         sep = ""
@@ -141,6 +141,7 @@
     cat(paste(s4, "<titl>Generic title</titl>", enter, sep = ""))
     cat(paste(s3, "</titlStmt>", enter, sep = ""))
     cat(paste(s2, "</citation>", enter, sep = ""))
+    
     cat(paste(s1, "</stdyDscr>", enter, sep = ""))
     
     cat(paste(
@@ -164,6 +165,9 @@
         datas <- undeclare(data)
 
         cat(paste(s2, "<fileTxt>", enter, sep = ""))
+        if (!is.null(fileName <- codebook[["fileDscr"]][["fileName"]])) {
+            cat(paste(s3, "<fileName>", fileName, "</fileName>", enter, sep = ""))
+        }
         cat(paste(s3, "<dimensns>", enter, sep = ""))
         cat(paste(s4, "<caseQnty>", nrow(data), "</caseQnty>", enter, sep = ""))
         cat(paste(s4, "<varQnty>", ncol(data), "</varQnty>", enter, sep = ""))
@@ -462,6 +466,7 @@
     }
     
     cat(paste(s1, "</dataDscr>", enter, sep = ""))
+    cat(paste(s1, "<otherMat></otherMat>", enter, sep = ""))
     cat(paste(s0, "</codeBook>", enter, sep = ""))
     
 }
