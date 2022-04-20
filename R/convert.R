@@ -1,4 +1,4 @@
-# Copyright (c) 2021, Adrian Dusa
+# Copyright (c) 2022, Adrian Dusa
 # All rights reserved.
 # 
 # Redistribution and use in source and binary forms, with or without
@@ -24,7 +24,7 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 `convert` <- function(
-    from, to = NULL, declared = TRUE, recode = TRUE, embed = TRUE, ...
+    from, to = NULL, declared = TRUE, recode = TRUE, ...
 ) {
     if (missing(from)) {
         admisc::stopError("Argument 'from' is missing.")
@@ -44,6 +44,14 @@
         user_na <- dots$user_na
     }
 
+    embed <- TRUE # embed the data in the XML file
+    if (
+        is.element("embed", names(dots)) && is.atomic(dots$embed) && 
+        length(dots$embed) == 1 && is.logical(dots$embed)
+    ) {
+        embed <- dots$embed
+    }
+
     encoding <- "latin1"
     if (
         is.element("encoding", names(dots)) && is.atomic(dots$encoding) && 
@@ -58,11 +66,6 @@
         length(dots$chartonum) == 1 && is.logical(dots$chartonum)
     ) {
         chartonum <- dots$chartonum
-    }
-
-    targetOS <- "" # for the XML file output of function exportDDI()
-    if (is.element("OS", names(dots))) {
-        targetOS <- dots$OS
     }
 
     dictionary <- NULL
@@ -293,9 +296,6 @@
         codeBook <- getMetadata(data, error_null = FALSE)
         codeBook$fileDscr$fileName <- tp_from$filenames
     }
-
-    # The current OS might not always be the same with the target OS aboe
-    currentOS <- Sys.info()[["sysname"]]
     
     if (!is.null(to)) {
         if (tp_to$fileext == "XML") {
@@ -326,9 +326,9 @@
                 #     )
                 # )
             }
-            # return(list(codeBook = codeBook, file = to, embed = embed, OS = targetOS))
+            # return(list(codeBook = codeBook, file = to))
             
-            exportDDI(codeBook, to, embed = embed, OS = targetOS)
+            exportDDI(codeBook, to, ... = ...)
         }
         else if (identical(tp_to$fileext, "SAV")) {
             data[] <- lapply(data, function(x) {
@@ -337,7 +337,7 @@
                 return(x)
             })
             
-            haven::write_sav(declared::as_haven(data), to)
+            haven::write_sav(declared::as.haven(data), to)
         }
         else if (identical(tp_to$fileext, "DTA")) {
             colnms <- colnames(data)
@@ -400,7 +400,9 @@
         }
         else if (identical(tp_to$fileext, "RDS")) {
             if (declared) {
-                readr::write_rds(declared::as_declared(data), to)
+                data <- declared::as.declared(data)
+                class(data) <- "data.frame"
+                readr::write_rds(data, to)
             }
             else {
                 readr::write_rds(data, to)
@@ -408,7 +410,7 @@
         }
         else if (identical(tp_to$fileext, "SAS7BDAT")) {
 
-            haven::write_sas(declared::as_haven(data), to)
+            haven::write_sas(declared::as.haven(data), to)
 
             #     # perhaps ask https://github.com/rogerjdeangelis
         }
@@ -419,7 +421,9 @@
     else {
 
         if (declared) {
-            return(invisible(declared::as_declared(data)))
+            data <- declared::as.declared(data)
+            class(data) <- "data.frame"
+            return(invisible(data))
         }
 
         return(invisible(data))

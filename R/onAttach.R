@@ -1,4 +1,4 @@
-# Copyright (c) 2021, Adrian Dusa
+# Copyright (c) 2022, Adrian Dusa
 # All rights reserved.
 # 
 # Redistribution and use in source and binary forms, with or without
