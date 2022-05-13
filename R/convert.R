@@ -52,12 +52,17 @@
         embed <- dots$embed
     }
 
-    encoding <- "latin1"
+    encoding <- "UTF-8"
+
     if (
-        is.element("encoding", names(dots)) && is.atomic(dots$encoding) && 
-        length(dots$encoding) == 1 && is.character(dots$encoding)
+        is.element("encoding", names(dots)) && is.atomic(dots$encoding)
     ) {
-        encoding <- dots$encoding
+        if (is.null(dots$encoding)) {
+            encoding <- NULL
+        }
+        else if (length(dots$encoding) == 1 && is.character(dots$encoding)) {
+            encoding <- dots$encoding
+        }
     }
 
     chartonum <- TRUE
@@ -189,7 +194,6 @@
                 admisc::stopError("Datafile not found.")
             }
 
-            # data <- suppressMessages(readr::read_csv(file.path(tp_from$completePath, csvfile)))
             data <- read.csv(
                 file.path(tp_from$completePath, csvfile),
                 as.is = TRUE
@@ -287,14 +291,20 @@
 
         }
         else if (tp_from$fileext == "RDS" & !Robject) {
-            data <- readr::read_rds(from)
+            data <- readRDS(from)
         }
         else {
             data <- from
         }
 
         codeBook <- getMetadata(data, error_null = FALSE)
-        codeBook$fileDscr$fileName <- tp_from$filenames
+        
+        codeBook$fileDscr$fileName <- tp_from$files
+
+        filetypes <- c("SPSS", "SPSS", "Stata", "SAS", "R", "DDI", "Excel", "Excel")
+        fileexts <- c("SAV", "POR", "DTA", "SAS7BDAT", "RDS", "XML", "XLS", "XLSX")
+
+        codeBook$fileDscr$fileType <- filetypes[which(fileexts == tp_from$fileext)]
     }
     
     if (!is.null(to)) {
@@ -310,24 +320,16 @@
 
             if (!embed) {
                 write.csv(
+                    x = data,
                     file = file.path(
                         tp_to$completePath,
                         paste(tp_to$filenames[1], "csv", sep = ".")
                     ),
-                    x = data,
-                    row.names = FALSE
+                    row.names = FALSE,
+                    na = ""
                 )
-                
-                # readr::write_csv(
-                #     data,
-                #     file.path(
-                #         tp_to$completePath,
-                #         paste(tp_to$filenames[1], "csv", sep = ".")
-                #     )
-                # )
             }
             # return(list(codeBook = codeBook, file = to))
-            
             exportDDI(codeBook, to, ... = ...)
         }
         else if (identical(tp_to$fileext, "SAV")) {
@@ -402,10 +404,10 @@
             if (declared) {
                 data <- declared::as.declared(data)
                 class(data) <- "data.frame"
-                readr::write_rds(data, to)
+                saveRDS(data, to)
             }
             else {
-                readr::write_rds(data, to)
+                saveRDS(data, to)
             }
         }
         else if (identical(tp_to$fileext, "SAS7BDAT")) {

@@ -23,22 +23,13 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-`cleanup` <- function(x, cdata = TRUE) {
-
-    x <- gsub("&amp;", "&", x)
-    x <- gsub("&lt;", "<", x)
-    x <- gsub("&gt;", ">", x)
-    x <- gsub("^[[:space:]]+|[[:space:]]+$", "", x)
-    x <- gsub("\"", "'", x)
-    for (l in letters) {
-        x <- gsub(sprintf("\\\\+%s", l), sprintf("/%s", l), x)
-    }
-    x <- gsub("\\\\", "/", x)
-    if (cdata) {
-        x <- gsub("<\\!\\[CDATA\\[|\\]\\]>", "", x)
-    }
-
-    x <- replaceTicks(x)
-    
+`replaceTicks` <- function(x) {
+    # weird A character sometimes from encoding a single tick quote
+    achar <- rawToChar(as.raw(c(195, 130)))
+    # forward and back ticks
+    irv <- c(194, 180, 96)
+    tick <- unlist(strsplit(rawToChar(as.raw(irv)), split = ""))
+    tick <- c(paste0(achar, "'"), paste0(achar, tick), tick)
+    x <- gsub(paste(tick, collapse = "|"), "'", x)
     return(x)
 }

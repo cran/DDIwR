@@ -68,7 +68,8 @@ function(x, save = FALSE, OS = "Windows", ...) {
         else {
             codeBook <- list()
             codeBook$dataDscr <- collectMetadata(x)
-            return(invisible(codeBook))
+            
+            return(codeBook)
         }
     }
     
@@ -94,8 +95,10 @@ function(x, save = FALSE, OS = "Windows", ...) {
     }
 
     data <- NULL
+
+    result <- vector(mode = "list", length = length(tp$files))
     
-    for (ff in seq(length(tp$files))) {
+    for (ff in seq(length(result))) {
         if (!fromsetupfile & !singlefile) {
             cat(tp$files[ff], "\n")
         }
@@ -110,11 +113,20 @@ function(x, save = FALSE, OS = "Windows", ...) {
             # })
             
             xmlns <- xml2::xml_ns(xml)
-            # d1  <-> http://www.icpsr.umich.edu/DDI
+            # d1  <-> ddi:codebook:2_5"
             # xsi <-> http://www.w3.org/2001/XMLSchema-instance
-            
+            # xsd <-> http://www.w3.org/2001/XMLSchema
+            wns <- which(xmlns == "ddi:codebook:2_5")
+            if (length(wns) == 0) {
+                admisc::stopError("The XML document does not contain a DDI namespace.")
+            }
+
             # <d>efault <n>ame <s>pace
-            dns <- ifelse(is.element("d1", names(xmlns)), "d1:", "")
+            dns <- names(xmlns)[wns[1]]
+            if (dns != "d1") {
+                codeBook$xmlns <- dns
+            }
+            dns <- paste0(dns, ":")
             
             ### Unfortunately this does not work because some variables don't always have labels
             ### and we'll end up having a vector of labels that is shorter than the number of variables
@@ -265,7 +277,7 @@ function(x, save = FALSE, OS = "Windows", ...) {
                 data <- do.call(haven::read_dta, arglist)
             }
             else if (tp$fileext[ff] == "RDS") {
-                data <- readr::read_rds(file.path(tp$completePath, tp$files[ff]))
+                data <- readRDS(file.path(tp$completePath, tp$files[ff]))
             }
             # not sure about SAS, as far as I understand the metadata is not embedded in the datafile
             # sometimes it might sit into a separate, catalog file or something (need to investigate)
@@ -276,6 +288,15 @@ function(x, save = FALSE, OS = "Windows", ...) {
             codeBook <- list()
             codeBook$dataDscr <- collectMetadata(data)
         }
+        
+        codeBook$fileDscr$fileName <- tp$files[ff]
+
+        filetypes <- c("SPSS", "SPSS", "Stata", "SAS", "R", "DDI", "Excel", "Excel")
+        fileexts <- c("SAV", "POR", "DTA", "SAS7BDAT", "RDS", "XML", "XLS", "XLSX")
+
+        codeBook$fileDscr$fileType <- filetypes[which(fileexts == tp$fileext[ff])]
+
+        result[[ff]] <- codeBook
         
         if (save) {
             
@@ -288,6 +309,8 @@ function(x, save = FALSE, OS = "Windows", ...) {
             
         }
     }
+
+    names(result) <- tp$filenames
     
     if (singlefile) {
         if (!is.na(notes)) {
@@ -295,23 +318,19 @@ function(x, save = FALSE, OS = "Windows", ...) {
                 spss <- ifelse(is.element("spss", names(dots)), dots$spss, TRUE)
                 notes <- unlist(strsplit(notes, split = "\\n"))
                 data <- notes[seq(which(grepl("# start data #", notes)) + 1, which(grepl("# end data #", notes)) - 1)]
-                #----------------
-                # don't remember why read_csv was not working
-                # data <- suppressMessages(readr::read_csv(paste(data, collapse = "\n")))
-                # and instead:
                 data <- read.csv(text = paste(data, collapse = "\n"), as.is = TRUE)
                 data <- make_labelled(data, codeBook$dataDscr, spss = spss)
-                #----------------
                 embed <- TRUE
             }
         }
-
-        codeBook$fileDscr$fileName <- tp$filenames
-
+        
         if (embed & !is.null(data)) {
             codeBook$fileDscr$datafile <- data
         }
         
-        return(invisible(codeBook))
+        return(codeBook)
+    }
+    else {
+        return(result)
     }
 }

@@ -301,7 +301,7 @@
         for (i in seq(length(labelist$files))) {
 
             if (pathtofiles) {
-                obj <- DDIwR::getMetadata(
+                obj <- getMetadata(
                     file.path(
                         labelist$completePath,
                         labelist$files[i]
@@ -2739,9 +2739,9 @@
 
         # if (formats) {
             cat(paste(
-                "# The following command should contain the complete path and",
+                "# The following command should contain the complete path to",
                 enter,
-                "# name of the .csv file to be read (e.g. \"C:/CIS 2008/Data/ALL.csv\")",
+                "# the .csv file to be read (e.g. \"C:/CIS 2008/Data/file.csv\")",
                 enter,
                 "# Change CSV_DATA_PATH to your filename, below:",
                 enter, enter,
@@ -2752,13 +2752,13 @@
         # }
         
         cat(paste(
-            "# The following command should contain the complete path and",
+            "# The following command should contain the complete path to",
             enter,
-            "# name of the .Rdata file to be saved (e.g. \"C:/CIS 2008/Data/ALL.Rdata\")",
+            "# the .rds file to be saved (e.g. \"C:/CIS 2008/Data/file.rds\")",
             enter,
-            "# Change RDATA_PATH to your filename, below:",
+            "# Change RDS_PATH to your filename, below:",
             enter, enter,
-            "rdatapath <- \"RDATA_PATH\"",
+            "rdspath <- \"RDS_PATH\"",
             enter, enter, enter,
             sep = ""
         ))
@@ -2767,7 +2767,6 @@
             cat(paste(
                 "# --- Read the raw data ---",
                 enter, enter,
-                # "rdatafile <- readr::read_delim(csvpath, delim = \"", ifelse(delim == "\t", "\\t", delim), "\")",
                 "rdatafile <- read.csv(csvpath)", 
                 enter, enter,
                 "names(rdatafile) <- toupper(names(rdatafile))    # all variable names to upper case",
@@ -2816,7 +2815,15 @@
         cat(paste(
             "# --- Set the variable metadata attributes --- ",
             enter,
-            "# packages haven and declared should be installed",
+            "# package declared needs to be installed",
+            enter, enter,
+            "if (system.file(package = \"declared\") == \"\") {",
+            enter,
+            "    install.packages(\"declared\")",
+            enter,
+            "}",
+            enter, enter,    
+            "library(declared)",
             enter, enter,
             sep = ""
         ))
@@ -2828,19 +2835,13 @@
         cat(paste(
             "# --- Save the R data file --- ",
             enter, enter,
-            "rfilename <- unlist(strsplit(basename(rdatapath), split=\"\\\\.\"))[1]",
-            enter,
-            "rdatapath <- file.path(dirname(rdatapath), paste(rfilename, \".Rdata\", sep=\"\"))",
-            enter,
-            "assign(rfilename, rdatafile)",
-            enter,
-            "eval(parse(text = paste(\"save(\", rfilename, \", file=rdatapath)\", sep=\"\")))",
+            "saveRDS(rdatafile, file = rdspath)",
             enter, enter, enter, enter,
             "# ------------------------------------------------------------------------------",
             enter, enter,
             "# --- Clean up the working space --- ",
             enter, enter,
-            "rm(rfilename, rdatafile, csvpath, rdatapath",
+            "rm(rdatafile, csvpath, rdspath",
             sep = ""
         ))
         
