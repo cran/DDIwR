@@ -37,7 +37,7 @@ treatPath <- function(path, type = "*", single = FALSE, check = TRUE) {
     }
     
     if (!is.character(path)) {
-        admisc::stopError("The path should be specified in a string.")
+        admisc::stopError("A path should be specified in a string.")
     }
     currdir <- getwd()
 

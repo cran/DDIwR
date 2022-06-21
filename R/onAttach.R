@@ -25,7 +25,7 @@
 
 .onAttach <- function(...) {
 
-    core <- c("haven", "admisc", "declared")
+    core <- c("admisc", "haven", "declared")
     
     # code borrowed from package tidyverse
     
@@ -36,7 +36,12 @@
             loc <- dirname(getNamespaceInfo(pkg, "path"))
             do.call(
                 "library",
-                list(pkg, lib.loc = loc, character.only = TRUE, warn.conflicts = FALSE)
+                list(
+                    pkg,
+                    lib.loc = loc,
+                    character.only = TRUE,
+                    warn.conflicts = FALSE
+                )
             )
         }
     }

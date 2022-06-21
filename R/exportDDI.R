@@ -27,8 +27,13 @@
     codebook, file = "", embed = TRUE, OS = "", indent = 4,
     monolang = FALSE, xmlang = "en", xmlns = "", ...
 ) {
-    # https://ddialliance.org/Specification/DDI-Codebook/2.5/
     # https://ddialliance.org/Specification/DDI-Codebook/2.5/XMLSchema/field_level_documentation.html
+
+    # validation procedure:
+    # https://ddialliance.org/Specification/DDI-Codebook/2.5/
+    # schema <- read_xml("path/to/ddi_2_5_1/schemas/codebook.xsd")
+    # doc <- read_xml("path/to/filetovalidate.xml")
+    # xml_validate(doc, schema)
     
     `check_arg` <- function(x, vx, type = "c") {
         valid <- is.atomic(vx) && length(vx) == 1
@@ -133,13 +138,15 @@
     enter <- getEnter(OS = OS)
 
     data <- codebook[["fileDscr"]][["datafile"]]
-    obj  <- codebook[["dataDscr"]]
+    dataDscr  <- codebook[["dataDscr"]]
+    pN <- logical(length(dataDscr))
     
-    uuid <- generateUUID(length(obj) + 1)
+    # uuid for all variables
+    uuid <- generateUUID(length(dataDscr))
     
     prodate <- as.character(Sys.time())
     version <- as.character(packageVersion("DDIwR"))
-    varnames <- names(obj)
+    varnames <- names(dataDscr)
     
     if (!identical(file, "")) {
         sink(file)
@@ -148,7 +155,7 @@
 
     prodDate <- as.character(Sys.time())
     version <- as.character(packageVersion("DDIwR"))
-    varnames <- names(obj)
+    varnames <- names(dataDscr)
     cat(paste(
         s0, "<?xml version=\"1.0\" encoding=\"UTF-8\"?>",
         enter,
@@ -158,8 +165,9 @@
     cat(paste(
         s0, "<", ns, ifelse(identical(ns, ""), "", ":"), "codeBook version=\"2.5\"",
         enter,
-        "ID=\"", generateUUID(1), "\"",
-        enter,
+        # Apparently, Nesstar interprets this ID as the Study Description ID
+        # "ID=\"", generateUUID(1), "\"",
+        # enter,
         ifelse(isTRUE(monolang), paste0(xmlang, enter), ""),
         "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"",
         enter, 
@@ -179,11 +187,17 @@
         xmlang <- ""
     }
     
+    # Document description
     cat(paste(s1, "<", ns, "docDscr>", enter, sep = ""))
     cat(paste(s2, "<", ns, "citation>", enter, sep = ""))
     cat(paste(s3, "<", ns, "titlStmt>", enter, sep = ""))
     cat(paste(
         s4, "<", ns, "titl", xmlang, ">", titl, "</", ns, "titl>",
+        enter,
+        sep = ""
+    ))
+    cat(paste(
+        s4, "<", ns, "IDNo agency=\"", agency,"\">", generateUUID(1), "</", ns, "IDNo>",
         enter,
         sep = ""
     ))
@@ -204,6 +218,7 @@
     cat(paste(s2, "</", ns, "citation>", enter, sep = ""))
     cat(paste(s1, "</", ns, "docDscr>", enter, sep = ""))
 
+    # Study description
     cat(paste(s1, "<", ns, "stdyDscr>", enter, sep = ""))
     cat(paste(s2, "<", ns, "citation>", enter, sep = ""))
 
@@ -245,8 +260,9 @@
 
     cat(paste(s1, "</", ns, "stdyDscr>", enter, sep = ""))
     
+    fileDscrUUID <- generateUUID(1)
     cat(paste(
-        s1, "<", ns, "fileDscr ID=\"", uuid[length(uuid)], "\">",
+        s1, "<", ns, "fileDscr ID=\"", fileDscrUUID, "\">",
         enter,
         sep = ""
     ))
@@ -257,7 +273,7 @@
                 "The 'datafile' component should be a data frame."
             )
         }
-        else if (!identical(toupper(names(data)), toupper(names(obj)))) {
+        else if (!identical(toupper(names(data)), toupper(names(dataDscr)))) {
             admisc::stopError(
                 "Variables in the data do not match the variables in the data description."
             )
@@ -285,7 +301,16 @@
             ))
 
             sink()
-            suppressWarnings(write.table(undeclare(data, drop = TRUE), file = file, sep = ",", na = "", row.names = FALSE, append = TRUE))
+            suppressWarnings(
+                write.table(
+                    undeclare(data, drop = TRUE),
+                    file = file,
+                    sep = ",",
+                    na = "",
+                    row.names = FALSE,
+                    append = TRUE
+                )
+            )
             sink(file, append = TRUE)
 
             cat(paste(
@@ -296,10 +321,9 @@
             cat(paste(s2, "</", ns, "notes>", enter, sep = ""))
         }
 
-        pN <- unlist(lapply(
-            data[names(obj)],
-            function(x) admisc::possibleNumeric(unclass(x))
-        ))
+        pN <- sapply(data[names(dataDscr)], function(x) {
+            admisc::possibleNumeric(unclass(x))
+        })
 
         aN <- lapply(
             subset(
@@ -317,14 +341,15 @@
 
     cat(paste(s1, "</", ns, "fileDscr>", enter, sep = ""))
     cat(paste(s1, "<", ns, "dataDscr>", enter, sep = ""))
-    for (i in seq(length(obj))) {
+
+    for (i in seq(length(dataDscr))) {
         dcml <- ""
         if (!is.null(data)) {
             dcml <- paste0(
                 " dcml=\"",
                 ifelse(
-                    pN[[names(obj)[i]]],
-                    getDecimals(na.omit(aN[[names(obj)[i]]])),
+                    pN[[names(dataDscr)[i]]],
+                    getDecimals(na.omit(aN[[names(dataDscr)[i]]])),
                     0
                 ),
                 "\""
@@ -332,24 +357,24 @@
         }
         
         nature <- ""
-        if(any(grepl("measurement", names(obj[[i]])))) {
-            nature <- paste0(" nature=\"", obj[[i]]$measurement, "\"")
+        if(any(grepl("measurement", names(dataDscr[[i]])))) {
+            nature <- paste0(" nature=\"", dataDscr[[i]]$measurement, "\"")
         }
                          
         cat(paste0(
             s2, "<", ns, "var ID=\"", uuid[i], "\"",
             " name=\"", varnames[i], "\"",
-            " files=\"", uuid[length(uuid)], "\"",
+            " files=\"", fileDscrUUID, "\"",
             dcml, nature, ">",
             enter
         ))
         
-        if (!is.null(obj[[i]][["label"]])) {
-            if (!is.na(obj[[i]][["label"]])) {
+        if (!is.null(dataDscr[[i]][["label"]])) {
+            if (!is.na(dataDscr[[i]][["label"]])) {
                 cat(paste(
                     s3, "<", ns, "labl", xmlang, ">",
                     replaceChars(
-                        obj[[i]][["label"]]
+                        dataDscr[[i]][["label"]]
                     ),
                     "</", ns, "labl>",
                     enter,
@@ -359,13 +384,13 @@
         }
         
         na_values <- NULL
-        if (is.element("na_values", names(obj[[i]]))) {
-            na_values <- obj[[i]]$na_values
+        if (is.element("na_values", names(dataDscr[[i]]))) {
+            na_values <- dataDscr[[i]]$na_values
         }
 
         na_range <- NULL
-        if (is.element("na_range", names(obj[[i]]))) {
-            na_range <- obj[[i]]$na_range
+        if (is.element("na_range", names(dataDscr[[i]]))) {
+            na_range <- dataDscr[[i]]$na_range
         }
 
         if (length(na_range) > 0) {
@@ -410,92 +435,118 @@
             cat(paste(s3, "</", ns, "invalrng>", enter, sep = ""))
         }
 
-        lbls <- obj[[i]][["labels"]]
-        type <- obj[[i]]$type
+        lbls <- dataDscr[[i]][["labels"]]
+        if (!is.null(lbls)) {
+            nms <- names(lbls)
+
+            # TODO: XML doesn't seem to cope well with multibyte characters?
+            # TODO: what about multibyte languages (e.g. Asian)
+            multibyte <- grepl("[^!-~ ]", lbls)
+            if (any(multibyte)) {
+                for (m in which(multibyte)) {
+                    strlab <- unlist(strsplit(lbls[m], split = ""))
+                    strlab <- strlab[!grepl("[^!-~ ]", strlab)]
+                    lbls[m] <- paste(strlab, collapse = "")
+                }
+            }
+            
+            lbls <- setNames(admisc::trimstr(lbls), nms)
+            # names(lbls) <- nms
+        }
+
+        type <- dataDscr[[i]]$type
         
-        if (!is.null(data)) {
-            if (pN[i]) {
-                vals <- aN[[names(obj)[i]]]
+        # even if the data is not present, pN is FALSE for all variables
+        if (pN[i]) {
+            vals <- aN[[names(dataDscr)[i]]]
 
-                if (!is.null(lbls)) {
-                    ismiss <- is.element(lbls, na_values)
-                    if (length(na_range) > 0) {
-                        ismiss <- ismiss | (lbls >= na_range[1] & lbls <= na_range[2])
-                    }
-                    vals[is.element(vals, lbls[ismiss])] <- NA
+            if (!is.null(lbls)) {
+                ismiss <- is.element(lbls, na_values)
+                if (length(na_range) > 0) {
+                    ismiss <- ismiss | (lbls >= na_range[1] & lbls <= na_range[2])
                 }
+                vals[is.element(vals, lbls[ismiss])] <- NA
+            }
 
-                printnum <- length(setdiff(vals[!is.na(vals)], lbls)) > 4
-                if (!is.null(type)) printnum <- printnum | grepl("num", type)
+            vals <- na.omit(vals)
+
+            # this is a test if a variable truly is numeric
+            # (not just categorical using numbers)
+            # if it has at least four(?) values different from the labels
+            printnum <- length(setdiff(vals, lbls)) > 4
+            
+            if (!is.null(type)) {
+                # at least two non missing values are needed to calculate sd()
+                printnum <- printnum | (length(vals) > 2 & grepl("num", type))
+            }
+            
+            if (printnum) { # numeric variable
+                cat(paste(
+                    s3,
+                    "<", ns, "sumStat type=\"min\">",
+                    format(
+                        min(vals, na.rm = TRUE),
+                        scientific = FALSE
+                    ),
+                    "</", ns, "sumStat>",
+                    enter,
+                    sep = ""
+                ))
+
+                cat(paste(
+                    s3,
+                    "<", ns, "sumStat type=\"max\">",
+                    format(
+                        max(vals, na.rm = TRUE),
+                        scientific = FALSE
+                    ),
+                    "</", ns, "sumStat>",
+                    enter,
+                    sep = ""
+                ))
                 
-                if (printnum) { # numeric variable
-                    cat(paste(
-                        s3,
-                        "<", ns, "sumStat type=\"min\">",
-                        format(
-                            min(vals, na.rm = TRUE),
-                            scientific = FALSE
-                        ),
-                        "</", ns, "sumStat>",
-                        enter,
-                        sep = ""
-                    ))
-
-                    cat(paste(
-                        s3,
-                        "<", ns, "sumStat type=\"max\">",
-                        format(
-                            max(vals, na.rm = TRUE),
-                            scientific = FALSE
-                        ),
-                        "</", ns, "sumStat>",
-                        enter,
-                        sep = ""
-                    ))
-                    
-                    cat(paste(
-                        s3,
-                        "<", ns, "sumStat type=\"mean\">",
-                        format(
-                            mean(vals, na.rm = TRUE),
-                            scientific = FALSE
-                        ),
-                        "</", ns, "sumStat>",
-                        enter,
-                        sep = ""
-                    ))
-                    
-                    cat(paste(
-                        s3,
-                        "<", ns, "sumStat type=\"medn\">",
-                        format(
-                            median(vals, na.rm = TRUE),
-                            scientific = FALSE
-                        ),
-                        "</", ns, "sumStat>",
-                        enter,
-                        sep = ""
-                    ))
-                    
-                    cat(paste(
-                        s3,
-                        "<", ns, "sumStat type=\"stdev\">",
-                        format(
-                            sd(vals, na.rm = TRUE),
-                            scientific = FALSE
-                        ),
-                        "</", ns, "sumStat>",
-                        enter,
-                        sep = ""
-                    ))
-             
-                }
+                cat(paste(
+                    s3,
+                    "<", ns, "sumStat type=\"mean\">",
+                    format(
+                        mean(vals, na.rm = TRUE),
+                        scientific = FALSE
+                    ),
+                    "</", ns, "sumStat>",
+                    enter,
+                    sep = ""
+                ))
+                
+                cat(paste(
+                    s3,
+                    "<", ns, "sumStat type=\"medn\">",
+                    format(
+                        median(vals, na.rm = TRUE),
+                        scientific = FALSE
+                    ),
+                    "</", ns, "sumStat>",
+                    enter,
+                    sep = ""
+                ))
+                
+                cat(paste(
+                    s3,
+                    "<", ns, "sumStat type=\"stdev\">",
+                    format(
+                        sd(vals, na.rm = TRUE),
+                        scientific = FALSE
+                    ),
+                    "</", ns, "sumStat>",
+                    enter,
+                    sep = ""
+                ))
+            
             }
         }
         
-        if (any(grepl("labels", names(obj[[i]])))) {
+        if (!is.null(lbls)) {
 
-            tbl <- table(data[[names(obj)[i]]])
+            tbl <- table(data[[names(dataDscr)[i]]]) # what is the difference from data[[i]] ?
             
             for (v in seq(length(lbls))) {
                 
@@ -513,7 +564,9 @@
 
                 cat(paste(
                     s4,
-                    "<", ns, "catValu>", replaceChars(lbls[v]), "</", ns, "catValu>",
+                    "<", ns, "catValu>",
+                    lbls[v],
+                    "</", ns, "catValu>",
                     enter,
                     sep = ""
                 ))
@@ -547,26 +600,31 @@
             }
         }
 
-        if (any(grepl("type", names(obj[[i]])))) {
+        if (any(grepl("type", names(dataDscr[[i]])))) {
+            varFormat <- dataDscr[[i]]$varFormat[1] # SPSS
             cat(paste(
                 s3,
                 "<", ns, "varFormat type=\"",
                 ifelse(
-                    grepl("char", obj[[i]]$type),
+                    grepl("char", dataDscr[[i]]$type),
                     "character",
                     "numeric"
                 ),
-                "\"/>",
+                "\" schema=\"other\" formatname=\"",
+                substr(varFormat, 1, 1),
+                "\">",
+                varFormat,
+                "</", ns, "varFormat>",
                 enter,
                 sep = ""
             ))
         }
-        
-        if (any(grepl("txt", names(obj[[i]])))) {
+
+        if (any(grepl("txt", names(dataDscr[[i]])))) {
             cat(paste(s3, "<", ns, "txt>", enter, sep = ""))
             cat(paste(
                 s0,
-                "<![CDATA[", obj[[i]]$txt, "]]>",
+                "<![CDATA[", dataDscr[[i]]$txt, "]]>",
                 enter,
                 sep = ""
             ))

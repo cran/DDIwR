@@ -10,14 +10,16 @@ information about missing values.
 }
 
 \usage{
-getMetadata(x, save = FALSE, OS = "Windows", ...)
+getMetadata(x, save = FALSE, declared = TRUE, OS = "Windows", encoding = "UTF-8", ...)
 }
 
 \arguments{
   \item{x}{A path to a file, or a data frame object}
   \item{save}{Boolean, save an .R file in the same directory}
+  \item{declared}{Logical, embed the data as a declared object}
   \item{OS}{The target operating system, for the eol - end of line separator,
             if saving the file}
+  \item{encoding}{The character encoding used to read a file}
   \item{...}{Additional arguments for this function (internal uses only)}
 }
 
@@ -29,8 +31,10 @@ labels, plus some other useful information.
 
 It additionally attempts to automatically detect a type for each variable:
 \tabular{rl}{
-  \bold{\code{cat}}: \tab categorical using numeric values\cr
-  \bold{\code{catchar}}: \tab categorical using character values\cr
+  \bold{\code{cat}}: \tab categorical variable using numeric values\cr
+  \bold{\code{catchar}}: \tab categorical variable using character values\cr
+  \bold{\code{catnum}}: \tab categorical variable for which numerical summaries\cr
+  \tab can be calculated (ex. a 0...10 Likert response scale)\cr
   \bold{\code{num}}: \tab numerical\cr
   \bold{\code{numcat}}: \tab numerical variable with very few values (ex. number of children)\cr
   \tab for which a table of frequencies is possible in addition to frequencies
