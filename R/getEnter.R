@@ -23,7 +23,10 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-getEnter <- function(OS) {
+#' @description Get the carriage return code from the current Operating System
+#' @return Character scalar
+#' @noRd
+`getEnter` <- function(OS) {
 
     current_os <- Sys.info()[["sysname"]]
     target_os <- toupper(OS)

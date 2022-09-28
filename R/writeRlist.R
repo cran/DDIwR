@@ -23,6 +23,9 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+#' @description Write an .R file containing a metadata specific list.
+#' @return Nothing.
+#' @noRd
 `writeRlist` <- function(dataDscr, OS = "windows", indent = 4, dirpath = "", filename = "") {
     
     on.exit(suppressWarnings(sink()))

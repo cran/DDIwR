@@ -23,6 +23,9 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+#' @description Get the number of decimals from a given number
+#' @return Numeric scalar
+#' @noRd
 `getDecimals` <- function(number) {
     decs <- unique(nchar(format(abs(number), scientific = FALSE)) - (trunc(log10(max(1, trunc(abs(number))))) + 1) - 1)
     return(ifelse(decs < 0, 0, decs))

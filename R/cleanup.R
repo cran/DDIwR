@@ -23,6 +23,9 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+#' @description Rectify texts read from a metadata object
+#' @return A character vector
+#' @noRd
 `cleanup` <- function(x, cdata = TRUE) {
 
     x <- gsub("&amp;", "&", x)
@@ -39,6 +42,6 @@
     }
 
     x <- replaceTicks(x)
-    
+
     return(x)
 }

@@ -23,15 +23,19 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+#' @description Read the DDI XML file
+#' @return An XML document
+#' @noRd
 `getXML` <- function(path) {
-    xml <- tryCatch(xml2::read_xml(path), error = identity, warning = identity)
+    tc <- admisc::tryCatchWEM(xml <- xml2::read_xml(path))
 
-    if (any(class(xml) == "error")) {
+    if (is.null(tc$error)) {
+        return(xml)
+    }
+    else {
         # xml <- readLines(path)
         # nms <- grepl("xmlns", xml[which(grepl("codeBook", xml))[1]])
 
         admisc::stopError("Unable to read the XML file.")
     }
-
-    return(xml)
 }

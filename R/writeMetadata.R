@@ -23,6 +23,9 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+#' @description Utility function to write the metadata part in the setup file.
+#' @return Nothing.
+#' @noRd
 `writeMetadata` <- function(dataDscr, OS = "", indent = 4) {
     if (OS == "") {
         OS <- Sys.info()[['sysname']]

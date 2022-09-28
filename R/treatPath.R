@@ -23,7 +23,10 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-treatPath <- function(path, type = "*", single = FALSE, check = TRUE) {
+#' @description Determine which specific type of files are present in a certain directory.
+#' @return A list with four components: the complete path, the files, the file names and the file extensions
+#' @noRd
+`treatPath` <- function(path, type = "*", single = FALSE, check = TRUE) {
     if (length(path) > 1) {
         cat("\n")
         # if (type == "R") {
@@ -35,7 +38,7 @@ treatPath <- function(path, type = "*", single = FALSE, check = TRUE) {
             )
         }
     }
-    
+
     if (!is.character(path)) {
         admisc::stopError("A path should be specified in a string.")
     }
@@ -75,7 +78,14 @@ treatPath <- function(path, type = "*", single = FALSE, check = TRUE) {
         # where lastpart is *.R
         filesplit <- unlist(strsplit(lastpart, split = "\\."))
 
-        if (length(filesplit) >= 2) {
+        if (length(filesplit) > 2) {
+            # multiple dots inside the file name
+            filesplit <- c(
+                paste(filesplit[-length(filesplit)], collapse = "."),
+                filesplit[length(filesplit)]
+            )
+        }
+        else if (length(filesplit) == 2) {
             if (filesplit[1] == "*") {
                 allfiles <- TRUE
                 type <- filesplit[2]
@@ -84,7 +94,7 @@ treatPath <- function(path, type = "*", single = FALSE, check = TRUE) {
         }
 
         if (!allfiles & check) {
-            
+
             admisc::stopError(
                 paste(
                     "There is no \"",
@@ -122,10 +132,10 @@ treatPath <- function(path, type = "*", single = FALSE, check = TRUE) {
         }
         else {
 
-            if (type != "*" && type != toupper(tools::file_ext(file.path(pathname, lastpart)))) {
+            if (type != "*" && toupper(type) != toupper(tools::file_ext(file.path(pathname, lastpart)))) {
                 return(paste0("Wrong file type, it should be ", type, "."))
             }
-            
+
             fileobj <- getFiles(path = file.path(pathname, lastpart), type = type)
         }
 

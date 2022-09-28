@@ -23,7 +23,10 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-getDelimiter <- function(x) {
+#' @description Guess the column delimiter from a text file
+#' @return Character scalar
+#' @noRd
+`getDelimiter` <- function(x) {
     
     delimiter <- ","
         

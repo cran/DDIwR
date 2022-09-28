@@ -23,6 +23,9 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+#' @description Determine the SPSS / Stata variable format
+#' @return Character scalar
+#' @noRd
 `getFormat` <- function(x, type = c("SPSS", "Stata"), ...) {
 
     dots <- list(...)
@@ -70,8 +73,6 @@
             maxvarchar <- max(nofchars, na.rm = TRUE)
         }
     }
-
-    if (pN)
 
     if (!nullabels & !pN) {
         maxvarchar <- max(maxvarchar, nchar(labels))

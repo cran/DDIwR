@@ -23,25 +23,57 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+#' @name recodeCharcat
+#'
+#' @title Recode character categorical variables
+#'
+#' @description
+#' Recodes a character categorical variables to a numerical categorical variable.
+#'
+#' @details
+#' For this function, a categorical variable is something else than a base factor.
+#' It should be an object of class \code{"declared"}, or an object of class
+#' \code{"haven_labelled_spss"}, with a specific attribute called \code{"labels"}
+#' that stores the value labels.
+#'
+#' @return
+#' A numeric categorical variable of the same class as the input.
+#'
+#' @examples
+#' x <- declared(
+#'     c(letters[1:5], -91),
+#'     labels = c(Good = "a", Bad = "e", NR = -91),
+#'     na_values = -91
+#' )
+#'
+#' recodeCharcat(x)
+#'
+#' @author Adrian Dusa
+#'
+#' @param x A character categorical variable
+#' @param ... Other internal arguments
+#'
+#' @export
+
 `recodeCharcat` <- function(x, ...) {
     if (!is.character(x)) {
         return(x)
     }
-    
+
     dots <- list(...)
     metadata <- dots$metadata
-    labels <- metadata[["labels"]]
-    attrx <- attributes(x)
     if (is.null(metadata)) {
-        metadata <- attrx
+        metadata <- attributes(x)
     }
+
+    labels <- metadata[["labels"]]
+    xdeclared <- inherits(x, "declared")
 
     # only character _categorical_ variables should be recoded
     if (
-        is.null(labels) ||
+        is.null(labels) &
         !(
-            inherits(x, "declared") |
-            inherits(x, "haven_labelled_spss")
+            xdeclared | inherits(x, "haven_labelled_spss")
         )
     ) {
         # nothing to recode, no information about categories
@@ -49,7 +81,7 @@
     }
 
     x <- declared::undeclare(x, drop = TRUE)
-    
+
     label <- metadata[["label"]]
     na_values <- metadata[["na_values"]]
 
@@ -72,7 +104,7 @@
         cux <- ux[!pnux]
         lux <- length(cux)
         n <- l <- 1
-        
+
         while (l <= lux) {
             if (!is.element(n, nums)) {
                 x[x == cux[l]] <- n
@@ -96,7 +128,7 @@
         na_values <- NULL
     }
 
-    if (is.element("declared", attrx$class)) {
+    if (xdeclared) {
         return(declared::declared(
             x,
             label = label,
@@ -104,7 +136,7 @@
             na_values = na_values
         ))
     }
-    
+
     return(haven::labelled_spss(
         x,
         label = label,

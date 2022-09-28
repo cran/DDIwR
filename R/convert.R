@@ -23,6 +23,133 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+#' @name convert
+#'
+#' @title
+#' Converts a dataset from one statistical software to another
+#'
+#' @description
+#' This function converts (or transfers) between R, Stata, SPSS, SAS, Excel and DDI
+#' XML files. Unlike the regular import / export functions from packages
+#' \bold{\pkg{haven}} or \bold{\pkg{rio}}, this function uses the DDI standard as
+#' an exchange platform and facilitates a consistent conversion of the missing values.
+#'
+#' @details
+#' When the argument **`to`** specifies a certain statistical package
+#' (`"R"`, `"Stata"`, `"SPSS"`, `"SAS"`, `"XPT"`) or `"Excel"`, the name of the
+#' destination file will be identical to the one in the argument **`from`**,
+#' with an automatically added software specific extension.
+#'
+#' SPSS portable file (with the extension `".por"`) can only be read, and SAS
+#' Transport files (with the extension `".xpt"`) can be both read and written.
+#'
+#' Alternatively, the argument **`to`** can be specified as a path to a specific
+#' file, in which case the software package is determined from its file extension.
+#' The following extentions are currently recognized: `.xml` for DDI, `.rds` for R,
+#' `.dta` for Stata, `.sav` for SPSS, `.sas7bdat` for SAS, and `.xlsx` for Excel.
+#'
+#' Additional parameters can be specified via the three dots argument
+#' **`...`**, that are passed to the respective functions from packages
+#' \bold{\pkg{haven}} and \bold{\pkg{readxl}}. For instance the function
+#' \bold{\code{\link[haven]{write_dta}()}} has an additional argument called
+#' **`version`** when writing a Stata file.
+#'
+#' The most important argument to consider is called **`user_na`**, part of
+#' the function \bold{\code{\link[haven]{read_sav}()}}. Although it is defaulted
+#' to `FALSE` in package \bold{\pkg{haven}}, in package \bold{\pkg{DDIwR}} it
+#' is used as having the value of `TRUE`. Users who really want to deactivate
+#' it should explicitly specify `use_na = FALSE` in function **`convert()`**.
+#'
+#' The same three dots argument is used to pass additional parameters to other
+#' functions in this package, for instance **`exportDDI()`** when
+#' converting to a DDI file. One of its argument **`embed`** (activated by
+#' default) can be used to control embedding the data in the XML file. Deactivating
+#' it will create a CSV file in the same directory, using the same file name as the
+#' XML file.
+#'
+#' When converting from DDI, if the dataset is not embedded in the XML file, the
+#' CSV file is expected to be found in the same directory as the DDI Codebook, and
+#' it should have the same file name as the XML file. Alternatively, the path to
+#' the CSV file can be provided via the **`csv`** argument. Additional formal
+#' parameters of the function \bold{\code{\link[utils]{read.csv}()}} can be
+#' passed via the same three dots **`...`** argument.
+#'
+#' The argument **`chartonum`** signals recoding character categorical
+#' variables, and employs the function \bold{\code{\link{recodeCharcat}()}}. This
+#' only makes sense when recoding to Stata, which does not allow allocating labels
+#' for anything but integer variables.
+#'
+#' If the argument **`to`** is left to `NULL`, the data is (invisibly) returned
+#' to the R enviroment. Conversion to R, either in the working space or as
+#' a data file, will result (by default) in a data frame containing declared
+#' labelled variables, as defined in package \bold{\pkg{declared}}.
+#'
+#' The current version reads and creates DDI Codebook version 2.5, with future
+#' versions to extend the functionality for DDI Lifecycle versions 3.x and link to
+#' the future package \bold{DDI4R} for the UML model based version 4. It extends
+#' the standard DDI Codebook by offering the possibility to embed a CSV version of
+#' the raw data into the XML file containing the Codebook, into a `notes`
+#' child of the `fileDscr` component. This type of codebook is unique to this
+#' package and automatically detected when converting to another statistical
+#' software.
+#'
+#' Converting the missing values to SAS is not tested, but it relies on the same
+#' package \bold{\pkg{haven}} using the ReadStat C library. Should it not work, it
+#' is also possible to use a setup file produced by function
+#' \bold{\code{\link{setupfile}()}} and run the commands manually.
+#'
+#' The argument **`recode`** controls how missing values are treated. If
+#' the input file has SPSS like numeric codes, they will be recoded to extended
+#' (a-z) missing types when converting to Stata or SAS. If the input has Stata like
+#' extended codes, they will be recoded to SPSS like numeric codes.
+#'
+#' The character **`encoding`** is usually passed to the corresponding
+#' functions from package \bold{\pkg{haven}}. It can be set to \code{NULL} to reset
+#' at the default in that package.
+#'
+#' @examples
+#' \dontrun{
+#' # Assuming an SPSS file called test.sav is located in the working directory
+#' # the following command will extract the metadata in a DDI Codebook and
+#' # produce a test.xml file in the same directory
+#' convert("test.sav", to = "DDI")
+#'
+#' # The data may be saved separately from the DDI file, using:
+#' convert("test.sav", to = "DDI", embed = FALSE)
+#'
+#' # To produce a Stata file:
+#' convert("test.sav", to = "Stata")
+#'
+#' # To produce an R file:
+#' convert("test.sav", to = "R")
+#'
+#' # To produce an Excel file:
+#' convert("test.sav", to = "Excel")
+#' }
+#'
+#' @references
+#' DDI - Data Documentation Initiative, see
+#' \href{https://ddialliance.org/}{https://ddialliance.org/}
+#'
+#' @seealso
+#' \code{\link{setupfile}},
+#' \code{\link{getMetadata}},
+#' \code{\link[declared]{declared}},
+#' \code{\link[haven]{labelled}}
+#'
+#' @author Adrian Dusa
+#'
+#' @param from A path to a file, or a data.frame object
+#' @param to Character, the name of a software package or a path to a specific file
+#' @param declared Logical, return the resulting dataset as a declared object
+#' @param chartonum Logical, recode character categorical variables to numerical categorical variables
+#' @param recode Logical, recode missing values
+#' @param encoding The character encoding used to read a file
+#' @param csv Path to the CSV file, if not embedded in XML file containing the DDI Codebook
+#' @param ... Additional parameters passed to exporting functions, see the Details section
+#'
+#' @export
+
 `convert` <- function(
     from, to = NULL, declared = TRUE, chartonum = FALSE, recode = TRUE,
     encoding = "UTF-8", csv = NULL, ...
@@ -32,17 +159,12 @@
     }
 
     funargs <- unlist(lapply(match.call(), deparse)[-1])
-    
+
     # if (missing(to)) {
     #     admisc::stopError("sprintf("Argument %s is missing.", dQuote("to").")
     # }
 
     dots <- list(...)
-
-    user_na <- ifelse(isFALSE(dots$user_na), FALSE, TRUE)
-
-    # embed the data in the XML file
-    embed <- ifelse(isFALSE(dots$embed), FALSE, TRUE)
 
     dictionary <- NULL
     if (is.element("dictionary" , names(dots))) {
@@ -78,7 +200,7 @@
     tp_to <- to
 
     if (!is.null(to)) {
-        
+
         if (identical(toupper(to), "EXCEL")) {
             to <- file.path(
                 tp_from$completePath,
@@ -133,7 +255,7 @@
             tp_to$fileext <- "XLSX"
         }
 
-        known_extensions <- c("RDS", "SAV", "DTA", "XML", "SAS7BDAT", "XPT", "XLSX") # 
+        known_extensions <- c("RDS", "SAV", "DTA", "XML", "SAS7BDAT", "XPT", "XLSX") #
 
         if (is.na(tp_to$fileext)) {
             admisc::stopError(
@@ -196,7 +318,7 @@
             header <- ifelse(isFALSE(callist$header), FALSE, TRUE)
 
             data <- do.call("read.csv", callist)
-            
+
             if (ncol(data) == length(codeBook$dataDscr)) {
                 if (header) {
                     if (!identical(names(data), names(codeBook$dataDscr))) {
@@ -224,16 +346,20 @@
                 )
                 # data <- data[, -1, drop = FALSE]
             }
-            
+
             # return(list(data = data, codeBook = codeBook))
             data <- make_labelled(data, codeBook$dataDscr)
         }
+
+        attr(data, "stdyDscr") <- codeBook[["stdyDscr"]]
+
+        return(data)
     }
     else {
         if (tp_from$fileext == "XLS" || tp_from$fileext == "XLSX") {
-            # if (require(readxl, quietly = TRUE)) {
+            if (requireNamespace("readxl", quietly = TRUE)) {
                 callist <- list(path = from)
-                for (f in names(formals(read_excel))) {
+                for (f in names(formals(readxl::read_excel))) {
                     if (is.element(f, names(dots))) {
                         callist[[f]] <- dots[[f]]
                     }
@@ -242,12 +368,17 @@
                 data <- do.call("read_excel", callist)
                 variables <- NULL
                 callist$sheet <- "variables"
-                admisc::tryCatchWEM(variables <-  do.call("read_excel", callist))
-                codes <- NULL
-                callist$sheet <- "codes"
-                admisc::tryCatchWEM(codes <- do.call("read_excel", callist))
+                admisc::tryCatchWEM(variables <- do.call("read_excel", callist))
 
-                if (!is.null(variables) & !is.null(codes)) {
+                values <- NULL
+                callist$sheet <- "values"
+                admisc::tryCatchWEM(values <- do.call("read_excel", callist))
+                if (is.null(values)) {
+                    callist$sheet <- "codes"
+                    admisc::tryCatchWEM(values <- do.call("read_excel", callist))
+                }
+
+                if (!is.null(variables) & !is.null(values)) {
                     for (v in colnames(data)) {
                         callist <- list(x = data[[v]])
                         label <- NULL
@@ -259,17 +390,22 @@
                         }
 
                         labels <- NULL
-                        admisc::tryCatchWEM(labels <- codes$code[codes$variable == v])
+                        admisc::tryCatchWEM(labels <- values$value[values$variable == v])
+                        if (is.null(labels)) {
+                            admisc::tryCatchWEM(labels <- values$code[values$variable == v])
+                        }
+
                         nms <- NULL
-                        admisc::tryCatchWEM(nms <- codes$label[codes$variable == v])
+                        admisc::tryCatchWEM(nms <- values$label[values$variable == v])
+
                         vmissing <- NULL
-                        admisc::tryCatchWEM(vmissing <- codes$missing[codes$variable == v])
+                        admisc::tryCatchWEM(vmissing <- values$missing[values$variable == v])
 
                         if (length(labels) > 0 & length(nms) > 0 & length(vmissing) > 0) {
                             if (admisc::possibleNumeric(labels)) {
                                 labels <- admisc::asNumeric(labels)
                             }
-                            
+
                             if (!all(is.na(vmissing)) && any(vmissing == "y")) {
                                 callist$na_values <- labels[which(vmissing == "y")]
                             }
@@ -282,13 +418,13 @@
 
                     }
                 }
-            # }
+            }
         }
-        else if (tp_from$fileext == "SAV") {
+        else if (tp_from$fileext == "SAV" || tp_from$fileext == "ZSAV") {
             fargs <- names(formals(read_sav))
             arglist <- dots[is.element(names(dots), fargs)]
             arglist$file <- from
-            arglist$user_na <- user_na
+            arglist$user_na <- !isFALSE(dots$user_na)
             arglist$encoding <- encoding
             data <- do.call(haven::read_sav, arglist) # haven_labelled variables
         }
@@ -296,7 +432,7 @@
             fargs <- names(formals(read_por))
             arglist <- dots[is.element(names(dots), fargs)]
             arglist$file <- from
-            arglist$user_na <- user_na
+            arglist$user_na <- !isFALSE(dots$user_na)
             data <- do.call(haven::read_por, arglist)
         }
         else if (tp_from$fileext == "DTA") {
@@ -308,7 +444,7 @@
 
             # return(list(data = data, to = to, dictionary = dictionary, chartonum = chartonum, to_declared = FALSE, error_null = FALSE))
             if (recode) {
-                data <- recodeValues(
+                data <- recodeMissings(
                     dataset = data,
                     to = "SPSS",
                     dictionary = dictionary,
@@ -326,12 +462,12 @@
         else if (tp_from$fileext == "SAS7BDAT") {
             fargs <- names(formals(read_sas))
             arglist <- dots[is.element(names(dots), fargs)]
-            arglist$file <- from
+            arglist$data_file <- from
             arglist$encoding <- encoding
             data <- do.call(haven::read_sas, arglist)
 
             if (recode) {
-                data <- recodeValues(
+                data <- recodeMissings(
                     dataset = data,
                     to = "SPSS",
                     dictionary = dictionary,
@@ -350,7 +486,7 @@
             data <- do.call(haven::read_xpt, arglist)
 
             if (recode) {
-                data <- recodeValues(
+                data <- recodeMissings(
                     dataset = data,
                     to = "SPSS",
                     dictionary = dictionary,
@@ -369,11 +505,11 @@
         }
 
         codeBook <- getMetadata(data, error_null = FALSE)
-        
+
         codeBook$fileDscr$fileName <- tp_from$files
 
-        filetypes <- c("SPSS", "SPSS", "Stata", "SAS", "XPT", "R", "DDI", "Excel", "Excel")
-        fileexts <- c("SAV", "POR", "DTA", "SAS7BDAT", "XPT", "RDS", "XML", "XLS", "XLSX")
+        filetypes <- c("SPSS", "SPSS", "SPSS", "Stata", "SAS", "XPT", "R", "DDI", "Excel", "Excel")
+        fileexts <- c("SAV", "ZSAV", "POR", "DTA", "SAS7BDAT", "XPT", "RDS", "XML", "XLS", "XLSX")
 
         codeBook$fileDscr$fileType <- filetypes[which(fileexts == tp_from$fileext)]
     }
@@ -382,7 +518,7 @@
     if (!is.null(subset)) {
         data <- eval(parse(text = paste("data <- subset(data, ", subset, ")")))
     }
-    
+
     if (is.null(to)) {
         if (declared) {
             data <- declared::as.declared(data)
@@ -414,19 +550,27 @@
 
             codeBook$fileDscr$datafile <- data
 
-            if (!embed) {
-                write.csv(
-                    x = data,
+            if (isFALSE(dots$embed)) {
+                 write.table(
+                    undeclare(data, drop = TRUE),
                     file = file.path(
                         tp_to$completePath,
                         paste(tp_to$filenames[1], "csv", sep = ".")
                     ),
-                    row.names = FALSE,
-                    na = ""
+                    sep = ",",
+                    na = "",
+                    row.names = FALSE
                 )
             }
+
             # return(list(codeBook = codeBook, file = to))
-            exportDDI(codeBook, to, ... = ...)
+
+            attrdata <- attributes(data)
+            if (is.element("stdyDscr", names(attrdata))) {
+                codeBook$stdyDscr <- attrdata$stdyDscr
+            }
+
+            exportDDI(codeBook, to, ... = ...) # embed = FALSE would go in three dots
         }
         else if (identical(tp_to$fileext, "SAV")) {
             data[] <- lapply(data, function(x) {
@@ -450,7 +594,7 @@
             arglist <- list(data = data)
 
             rechars <- c()
-            
+
             for (i in seq(ncol(data))) {
                 x <- data[[colnms[i]]]
                 metadata <- codeBook$dataDscr[[colnms[i]]]
@@ -489,7 +633,7 @@
             }
 
             if (recode) {
-                data <- recodeValues(
+                data <- recodeMissings(
                     data,
                     to = "Stata",
                     dictionary = dictionary,
@@ -497,7 +641,7 @@
                     error_null = FALSE
                 )
             }
-            
+
             # return(data)
             data[] <- lapply(data, function(x) {
                 attr(x, "format.spss") <- NULL
@@ -527,14 +671,14 @@
             #         })
             #         base::unlist(result, use.names = TRUE)
             #     })
-                
+
             #     callist$file <- to
             #     callist$compress <- TRUE
             #     do.call(readstata13::save.dta13, callist)
             # }
             # else {
                 arglist$path <- to
-                
+
                 do.call(haven::write_dta, arglist)
                 # return(invisible(arglist$data))
             # }
@@ -576,14 +720,14 @@
                     label = labels,
                     type = sapply(data, mode)
                 ),
-                codes = data.frame(
+                values = data.frame(
                     variable = character(0),
-                    code = character(0),
+                    value = character(0),
                     label = character(0),
                     missing = character(0)
                 )
             )
-            
+
             x$variables$width <- sapply(varFormat, "[[", 1)
             x$variables$decimals <- sapply(varFormat, function(x) {
                 ifelse(length(x) > 1, x[2], NA)
@@ -594,18 +738,18 @@
                 if (!is.null(labels)) {
                     temp <- data.frame(
                         variable = v,
-                        code = labels,
+                        value = labels,
                         label = names(labels),
                         missing = NA
                     )
 
                     na_values <- codeBook$dataDscr[[v]][["na_values"]]
-                    
+
                     if (!is.null(na_values)) {
                         temp$missing[is.element(labels, na_values)] <- "y"
                     }
 
-                    x$codes <- rbind(x$codes, temp)
+                    x$values <- rbind(x$values, temp)
                 }
             }
 
@@ -626,13 +770,13 @@
                 arglist$path <- to
                 do.call(haven::write_xpt, arglist)
             }
-            
+
             to <- file.path(
                 tp_from$completePath,
                 paste(tp_from$filenames, "sas", sep = ".")
             )
 
-            ### TODO: recodeValues() for the dictionary, only if recode = TRUE?
+            ### TODO: recodeMissings() for the dictionary, only if recode = TRUE?
 
             setupfile(
                 codeBook = getMetadata(arglist$data),
@@ -640,7 +784,7 @@
                 type = "SAS",
                 recode = recode,
                 catalog = TRUE,
-                dictionary = recodeValues(
+                dictionary = recodeMissings(
                     arglist$data, to = "Stata", return_dictionary = TRUE
                 )
             )

@@ -23,6 +23,9 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+#' @description Recode all tick characters with a single quote.
+#' @return A recoded string.
+#' @noRd
 `replaceTicks` <- function(x) {
     # weird A character sometimes from encoding a single tick quote
     achar <- rawToChar(as.raw(c(195, 130)))

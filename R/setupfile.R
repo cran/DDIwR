@@ -23,11 +23,171 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+#' @name setupfile
+#' @title
+#' Create setup files for SPSS, Stata, SAS and R
+#'
+#' @description
+#' Creates a setup file, based on a list of variable and value labels.
+#'
+#' @details
+#' When the a path to a metadata directory is specified for the argument **`codebook`**,
+#' then next argument **`file`** is silently ignored and all created setup files are
+#' saved in a directory called "Setup Files" that (if not already found) is created in the
+#' working directory.
+#'
+#' The argument **`file`** expects the name of the final setup file being
+#' saved on the disk. If not specified, the name of the object provided for the
+#' **`codebook`** argument will be used as a filename.
+#'
+#' If **`file`** is specified, the argument **`type`** is automatically
+#' determined from the file's extension, otherwise when **`type = "all"`**, the
+#' function produces one setup file for each supported type.
+#'
+#' If batch processing multiple files, the function will inspect all files in the
+#' provided directory, and retain only those with the extension  `.R` or `.r`
+#' or DDI versions with the extension `.xml` or `.XML` (it will
+#' subsequently generate an error if the .R files do not contain an object list,
+#' or if the `.xml` files do not contain a DDI structured metadata file).
+#'
+#' If the metadata directory contains a subdirectory called `"data"` or
+#' `"Data"`, it will match the name of the metadata file with the name of the
+#' `.csv` file (their names have to be *exactly* the same, regardless of
+#' their extension).
+#'
+#' The **`csv`** argument can provide a data frame object produced by reading the
+#' `.csv` file, or a path to the directory where the `.csv` files are located.
+#' If the user doesn't provide something for this argument, the function will check
+#' the existence of a subdirectory called `data` in the directory where the metadata
+#' files are located.
+#'
+#' In batch mode, the code starts with the argument **`delim = ","`**, but if the
+#' `.csv` file is delimited differently it will also try hard to find other delimiters
+#' that will match the variable names in the metadata file. At the initial version 0.1-0,
+#' the automatically detected delimiters include `";"` and `"\t"`.
+#'
+#' The argument `OS` (case insensitive) can be either:\cr
+#' `"Windows"` (default), or `"Win"`,\cr
+#' `"MacOS"`, `"Darwin"`, `"Apple"`, `"Mac"`,\cr
+#' `"Linux"`.\cr
+#'
+#' The end of line character(s) changes only when the target OS is different from the
+#' running OS.
+#'
+#' @return
+#' A setup file to complement the imported raw dataset.
+#'
+#' @examples
+#' codebook <- list(dataDscr = list(
+#' ID = list(
+#'     label = "Questionnaire ID",
+#'     type = "num",
+#'     measurement = "interval"
+#' ),
+#' V1 = list(
+#'     label = "Label for the first variable",
+#'     labels = c(
+#'         "No"             =  0,
+#'         "Yes"            =  1,
+#'         "Not applicable" = -97,
+#'         "Not answered"   = -99),
+#'     na_values = c(-99, -97),
+#'     type = "cat",
+#'     measurement = "nominal"
+#' ),
+#' V2 = list(
+#'     label = "Label for the second variable",
+#'     labels = c(
+#'         "Very little"    =  1,
+#'         "Little"         =  2,
+#'         "So, so"         =  3,
+#'         "Much"           =  4,
+#'         "Very much"      =  5,
+#'         "Don't know"     = -98),
+#'     na_values = c(-98),
+#'     type = "cat",
+#'     measurement = "ordinal"
+#' ),
+#' V3 = list(
+#'     label = "Label for the third variable",
+#'     labels = c(
+#'         "First answer"   = "A",
+#'         "Second answer"  = "B",
+#'         "Don't know"     = -98),
+#'     na_values = c(-98),
+#'     type = "cat",
+#'     measurement = "nominal"
+#' ),
+#' V4 = list(
+#'     label = "Number of children",
+#'     labels = c(
+#'         "Don't know"     = -98,
+#'         "Not answered"   = -99),
+#'     na_values = c(-99, -98),
+#'     type = "numcat",
+#'     measurement = "ratio"
+#' )))
+#'
+#'
+#' \dontrun{
+#' # IMPORTANT:
+#' # make sure to set the working directory to a directory with read/write permissions
+#' # setwd("/path/to/read/write/directory")
+#'
+#'
+#' setupfile(codebook)
+#'
+#'
+#' # if the csv data file is available
+#' setupfile(codebook, csv="/path/to/csv/file.csv")
+#'
+#'
+#' # generating a specific type of setup file
+#' setupfile(codebook, file = "codebook.do") # type = "Stata" is unnecessary
+#'
+#'
+#' # other types of possible utilizations, using paths to specific files
+#' # an XML file containing a DDI metadata object
+#'
+#' setupfile("/path/to/the/metadata/file.xml", csv="/path/to/csv/file.csv")
+#'
+#'
+#' # or in batch mode, specifying entire directories
+#' setupfile("/path/to/the/metadata/directory", csv="/path/to/csv/directory")
+#' }
+#'
+#' @author Adrian Dusa
+#'
+#' @param codebook
+#' A list object containing the metadata, or a path to a directory where
+#' these objects are located, for batch processing
+#'
+#' @param file Character, the (path to the) setup file to be created
+#'
+#' @param type
+#' The type of setup file, can be: "SPSS", "Stata", "SAS", "R", or "all" (default)
+#'
+#' @param csv
+#' The original dataset, used to create the setup file commands, or a path
+#' to the directory where the .csv files are located, for batch processing
+#'
+#' @param recode
+#' Logical, recode missing values to extended .a-.z range
+#'
+#' @param OS The target operating system, for the eol - end of line character(s)
+#'
+#' @param stringnum Logical, recode string variables to numeric
+#'
+#' @param ... Other arguments, see Details below
+#'
+#' @export
+
 `setupfile` <- function(
-    codeBook, file = "", type = "all", csv = "", recode = TRUE, OS = "", ...
+    codebook, file = "", type = "all", csv = "", recode = TRUE, OS = "",
+    stringnum = TRUE, ...
 ) {
 
-    # TO DO: when codeBook is a path to a file or directory,
+    # TO DO: when codebook is a path to a file or directory,
     # it should be (only) XML and not R anymore
     on.exit(suppressWarnings(sink()))
 
@@ -39,20 +199,20 @@
     dictionary <- dots$dictionary
 
     tp <- NULL
-    
-    recall <- FALSE
-    if (is.element("recall", names(dots))) {
-        recall <- dots$recall
-    }
+
+    recall <- isTRUE(dots$recall)
+    saveFile <- isTRUE(dots$saveFile)
+    script <- isTRUE(dots$script) ## what did I want to do with this...?
 
     outdir <- identical(file, "") # internal, logical argument
+
     if (is.element("outdir", names(dots))) {
-        outdir <- dots$outdir
+        outdir <- isTRUE(dots$outdir)
     }
 
     if (!identical(file, "")) {
         tp <- treatPath(file, check = FALSE)
-            
+
         if (is.na(tp$fileext)) {
             if (identical(toupper(type), "ALL") & !recall) {
                 admisc::stopError("Unknown file type.")
@@ -90,16 +250,9 @@
         }
     }
 
-    saveFile <- isTRUE(dots$saveFile)
-
     indent <- 4
     if (is.element("indent", names(dots))) {
         indent <- dots$indent
-    }
-
-    script <- FALSE ## what did I want to do with this...?
-    if (is.element("script", names(dots))) {
-        script <- dots$script
     }
 
     forcenum  <- c("") # variable names that are to be forced as numeric
@@ -119,17 +272,19 @@
         OS <- Sys.info()[['sysname']]
     }
 
-    if (missing(codeBook)) {
+    csvlist <- NULL
+
+    if (missing(codebook)) {
         admisc::stopError(
-            "The argument <codeBook> is missing, with no default."
+            "The argument <codebook> is missing, with no default."
         )
     }
-    else if (all(is.character(codeBook))) {
+    else if (all(is.character(codebook))) {
             # all() just in case someone provides a vector by mistake
-        if (length(codeBook) > 1) {
+        if (length(codebook) > 1) {
             admisc::stopError(
                 paste(
-                    "The argument <codeBook> should contain",
+                    "The argument <codebook> should contain",
                     "a single path to the list object."
                 )
             )
@@ -137,7 +292,7 @@
 
         pathtofiles <- FALSE
 
-        labelist <- treatPath(codeBook, check = FALSE)
+        labelist <- treatPath(codebook, check = FALSE)
         if (length(labelist) == 1) {
             admisc::stopError(labelist)
         }
@@ -145,7 +300,7 @@
             pathtofiles <- TRUE
         }
 
-        outdir <- outdir | length(labelist$fileext) > 1
+        outdir <- outdir & length(labelist$fileext) > 1
 
         csvdatadir <- FALSE # by default
 
@@ -164,14 +319,16 @@
                     )
                 }
 
-                csvlist <- treatPath(csv, type = "csv")
-                if (length(csvlist) > 1) {
-                    datadir <- csvlist$completePath
-                    csvdatadir <- TRUE
+                tc <- admisc::tryCatchWEM(csvlist <- treatPath(csv, type = "csv"))
+                if (is.null(tc)) {
+                    if (length(csvlist$files) > 1) {
+                        datadir <- csvlist$completePath
+                        csvdatadir <- TRUE
+                    }
                 }
                 else {
-                    cat("\nNOTE:", csvlist)
-                    # since "csvlist" is now an error message from treatPath()
+                    cat("\nNOTE:", tc$error)
+                    # since "err" is now an error message from treatPath()
                 }
             }
             else {
@@ -188,6 +345,9 @@
                     labelist$completePath,
                     "Data"
                 )
+
+                # TODO:
+                # return(list(datathere, datadir))
 
                 csvdatadir <- file.exists(datadir)
 
@@ -242,7 +402,6 @@
         }
 
         for (i in seq(length(labelist$files))) {
-
             if (pathtofiles) {
                 obj <- getMetadata(
                     file.path(
@@ -254,7 +413,9 @@
                     save = saveFile
                 )
 
-                csv <- obj[["fileDscr"]][["datafile"]]
+                if (!is.null(obj[["fileDscr"]][["datafile"]])) {
+                    csv <- obj[["fileDscr"]][["datafile"]]
+                }
             }
             else {
                 aa <- ls()
@@ -292,7 +453,7 @@
             if (csvdatadir) {
 
                 if (is.element(labelist$filenames[i], csvnames)) {
-                    
+
                     if (outdir) {
                         cat(paste(labelist$filenames[i], "\n"))
                     }
@@ -362,8 +523,9 @@
                                     csv = csvreadfile,
                                     delim = delim,
                                     OS = OS,
-                                    file = labelist$filenames[i],
+                                    file = ifelse(identical(file, ""), labelist$filenames[i], file),
                                     outdir = outdir,
+                                    stringnum = stringnum,
                                     recall = TRUE,
                                     ... = ...
                                 ),
@@ -378,7 +540,7 @@
                                     setwd(currentdir)
                                     cat(paste(
                                         "     There is an error associated with the file \"",
-                                        labelist$filenames[i],
+                                        labelist$files[i],
                                         "\", see below:\n     ",
                                         sep = ""
                                     ))
@@ -406,8 +568,9 @@
                             type = type,
                             delim = delim,
                             OS = OS,
-                            file = labelist$filenames[i],
+                            file = ifelse(identical(file, ""), labelist$filenames[i], file),
                             outdir = outdir,
+                            stringnum = stringnum,
                             recall = TRUE,
                             ... = ...
                         ),
@@ -422,7 +585,7 @@
                             setwd(currentdir)
                             cat(paste(
                                 "     There is an error associated with the file \"",
-                                labelist$filenames[i],
+                                labelist$files[i],
                                 "\", see below:\n     ",
                                 sep = ""
                             ))
@@ -437,7 +600,7 @@
                     cat(labelist$filenames[i], "\n")
                 }
 
-                if (is.data.frame(csv)) {
+                if (is.data.frame(csv) | length(csvlist) > 1) {
                     if (length(labelist$filenames) == 1) {
                         if (!pathtofiles) {
                             obj <- get(setdiff(bb, aa))
@@ -447,13 +610,13 @@
                             outdir <- FALSE
                             labelist$filenames <- tp$filenames
                         }
-                        
-                        # return(list(codeBook = obj,
+
+                        # return(list(codebook = obj,
                         #             type = type,
                         #             csv = csv,
                         #             delim = delim,
                         #             OS = OS,
-                        #             file = labelist$filenames,
+                        #             file = ifelse(identical(file, ""), labelist$filenames, file),
                         #             outdir = outdir,
                         #             ... = ...))
 
@@ -464,8 +627,9 @@
                                 csv = csv,
                                 delim = delim,
                                 OS = OS,
-                                file = labelist$filenames,
+                                file = ifelse(identical(file, ""), labelist$filenames, file),
                                 outdir = outdir,
+                                stringnum = stringnum,
                                 recall = TRUE,
                                 ... = ...
                             ),
@@ -480,7 +644,7 @@
 
                                 cat(paste(
                                     "     There is an error associated with the file \"",
-                                    labelist$filenames[i],
+                                    labelist$files[i],
                                     "\", see below:\n     ",
                                     sep = ""
                                 ))
@@ -502,8 +666,9 @@
                             type = type,
                             delim = delim,
                             OS = OS,
-                            file = labelist$filenames[i],
+                            file = ifelse(identical(file, ""), labelist$filenames[i], file),
                             outdir = outdir,
+                            stringnum = stringnum,
                             recall = TRUE,
                             ... = ...
                         ),
@@ -516,10 +681,10 @@
                             )
 
                             setwd(currentdir)
-                            
+
                             cat(paste(
                                 "     There is an error associated with the file \"",
-                                labelist$filenames[i],
+                                labelist$files[i],
                                 "\", see below:\n     ",
                                 sep = ""
                             ))
@@ -533,6 +698,7 @@
             if (!pathtofiles) {
                 rm(list = c(eval(setdiff(bb, aa)), "bb", "aa"))
             }
+
         }
 
         if (outdir) {
@@ -549,15 +715,16 @@
 
         return(invisible())
     }
-    else if (is.list(codeBook)) {
-        if (!is.null(codeBook[["fileDscr"]][["datafile"]])) {
-            csv <- codeBook[["fileDscr"]][["datafile"]]
+    else if (is.list(codebook)) {
+        if (!is.null(codebook[["fileDscr"]][["datafile"]])) {
+            csv <- codebook[["fileDscr"]][["datafile"]]
         }
-        dataDscr <- codeBook[["dataDscr"]]
-        dataDscr_objname <- deparse(substitute(codeBook))
+        dataDscr <- codebook[["dataDscr"]]
+        dataDscr_objname <- deparse(substitute(codebook))
+        outdir <- FALSE
     }
     else {
-        admisc::stopError("Unknown input for the argument <codeBook>.")
+        admisc::stopError("Unknown input for the argument <codebook>.")
     }
 
     anymissing <- any(unlist(lapply(dataDscr, function(x) {
@@ -578,6 +745,7 @@
             }
 
             csvlist <- treatPath(csv, type = "CSV")
+
             if (length(csvlist) > 1) {
                 # no error
                 if (length(csvlist$files) > 1) {
@@ -604,8 +772,9 @@
         if (type == "STATA") {
             type <- "Stata"
         }
-        dictionary <- recodeValues(
-            csv,
+
+        dictionary <- recodeMissings(
+            make_labelled(csv, codebook$dataDscr),
             to = ifelse(type == "SAS", "Stata", type),
             return_dictionary = TRUE
         )
@@ -645,7 +814,7 @@
     }
 
     # for recoding into SPSS
-    `values_missing` <- function(dataDscr, range = FALSE) {
+    `values_missing` <- function(dataDscr, range = FALSE, numvars = TRUE) {
         lapply(dataDscr, function(x) {
             na_values <- NULL
             if (is.element("na_values", names(x))) {
@@ -679,7 +848,7 @@
 
     if (is.null(names(dataDscr)) | !checkvarlab(dataDscr)) {
         admisc::stopError(
-            "The argument <codeBook> does not contain variables and / or labels."
+            "The argument <codebook> does not contain variables and / or labels."
         )
     }
 
@@ -699,7 +868,7 @@
 
     csv_is_path <- FALSE
     if (length(csv) == 1) {
-        # csv is a character vector of length 1, i.e. a path 
+        # csv is a character vector of length 1, i.e. a path
         if (is.character(csv)) {
             if (csv != "") {
                 csv_is_path <- TRUE
@@ -934,9 +1103,9 @@
                 }
 
                 if (vartypes[i] == "numeric") {
-                    
+
                     tempvar2 <- tempvar[!is.na(tempvar)]
-                    
+
                     if (any(tempvar2 - floor(tempvar2) > 0)) { # has decimals
                         decimals <- TRUE
                     }
@@ -1010,7 +1179,7 @@
         }
         else {
             tp <- treatPath(file, check = FALSE)
-            
+
             if (is.na(tp$fileext)) {
                 if (toupper(type) == "ALL") {
                     outdir <- TRUE
@@ -1191,7 +1360,7 @@
                 "* ------------------------------------------------------------------------------",
                 enter, enter, enter, enter,
                 "* There should be nothing to change below this line",
-                enter,                                                            
+                enter,
                 "* ------------------------------------------------------------------------------",
                 enter, enter, enter, enter,
                 sep = ""
@@ -1267,13 +1436,19 @@
                 ))
             }
 
-            if (any(unlist(stringvars))) {
+            numvars <- !unlist(stringvars)
+
+            if (stringnum & any(unlist(stringvars))) {
+
+                numvars <- rep(TRUE, length(dataDscr))
+
                 cat(paste(
                     "* --- Recode string variables with labels, to numeric variables ---",
                     enter, enter, enter
                 ))
 
                 stringvars <- stringvars[unlist(stringvars)]
+
                 for (sv in names(stringvars)) {
 
                     oldvalues <- dataDscr2[[sv]][["labels"]]
@@ -1295,7 +1470,7 @@
                         }
                     }
 
-                    if (csv_is_df | csv_is_path) {
+                    # if (csv_is_df | csv_is_path) {
                         if (emptyvars[[sv]]) {
                             cat(paste(
                                 "* Variable ",
@@ -1311,8 +1486,9 @@
                                 sep = ""
                             ))
                         }
-                    }
-                    else {
+                    # }
+                    # else {
+                    #     cat("--++--\nbla\n")
                         precommand <- paste(
                             "RECODE ",
                             toupper(sv),
@@ -1405,7 +1581,7 @@
                             enter, enter,
                             sep = ""
                         ))
-                    }
+                    # }
 
                     names(newvalues) <- names(oldvalues)
                     dataDscr2[[sv]][["labels"]] <- newvalues
@@ -1558,25 +1734,204 @@
 
         }
 
+# return(numvars)
+
         if (anymissing) {
 
-            missvaRs <- labels_missing(dataDscr2)
-            withmiss <- unlist(lapply(missvaRs, any))
+            makeMissingValues <- function(uniqueMissList, missvaLs, nms, finalize = TRUE) {
+                for (i in seq(length(uniqueMissList))) {
+                    if (i > 1) {
+                        cat("/")
+                    }
 
-            missvaLs <- values_missing(dataDscr2[withmiss], range = TRUE)
-            nms <- names(missvaLs)
-            uniqueMissList <- lapply(unique(missvaLs), function(x) {
-                nms[unlist(lapply(missvaLs, function(y) {
-                    identical(x, y)
-                }))]
-            })
+                    if (any(grepl("THRU", missvaLs[[i]]))) {
+                        cat(
+                            splitrows(
+                                toupper(uniqueMissList[[i]]),
+                                enter,
+                                80
+                            )
+                        )
 
-            missvaLs <- unique(missvaLs)
+                        if (length(missvaLs[[i]]) <= 2) {
+                            # at most one discrete missing value and a missing range
+                            cat(paste(
+                                " (",
+                                paste(
+                                    if (finalize) {
+                                        missvaLs[[i]]
+                                    } else {
+                                        paste("\"", paste(missvaLs[[i]], collapse = "\", \""), "\"", sep = "")
+                                    },
+                                    collapse = ", "
+                                ),
+                                ")",
+                                sep = ""
+                            ))
+                        }
+                        else {
+                            cat(paste(
+                                " (",
+                                paste(
+                                    missvaLs[[i]][c(1, which(grepl("THRU", missvaLs[[i]])))],
+                                    collapse = ", "
+                                ),
+                                ")",
+                                sep = ""
+                            ))
 
-            # sink()
-            # setwd(currentdir)
-            # return(list(dataDscr2=dataDscr2, haslabels=haslabels, missvaRs=missvaRs, withmiss=withmiss, missing = missing))
-            # return(list(missvaLs=missvaLs, uniqueMissList=uniqueMissList))
+                            # cat(paste(
+                            #     "  * more than one distinct missing value",
+                            #     "found, next to a missing range"
+                            # ))
+                        }
+                    }
+                    else {
+
+                        if (length(missvaLs[[i]]) < 4) {
+                            cat(
+                                splitrows(
+                                    toupper(uniqueMissList[[i]]),
+                                    enter,
+                                    80
+                                )
+                            )
+
+                            cat(paste(
+                                " (",
+                                paste(
+                                    if (finalize) {
+                                        missvaLs[[i]]
+                                    } else {
+                                        paste("\"", paste(missvaLs[[i]], collapse = "\", \""), "\"", sep = "")
+                                    },
+                                    collapse = ", "
+                                ),
+                                ")",
+                                sep = ""
+                            ))
+                        }
+                        else {
+                            absrange <- abs(range(missvaLs[[i]]))
+
+                            if (all(missvaLs[[i]] < 0)) {
+                                cat(
+                                    splitrows(
+                                        toupper(uniqueMissList[[i]]),
+                                        enter,
+                                        80
+                                    )
+                                )
+                                cat(paste(
+                                    " (LOWEST THRU ",
+                                    max(missvaLs[[i]]),
+                                    ")",
+                                    sep = ""
+                                ))
+                            }
+                            else {
+                                # check if the missing values range doesn't contain
+                                # any other (non-missing) values
+                                checklist <- list()
+                                for (mv in uniqueMissList[[i]]) {
+                                    allvalues <- dataDscr2[[mv]][["labels"]]
+                                    nonmiss <- setdiff(allvalues, missvaLs[[i]])
+                                    checklist[[mv]] <- any(
+                                        is.element(
+                                            nonmiss,
+                                            seq(
+                                                min(missvaLs[[i]]),
+                                                max(missvaLs[[i]])
+                                            )
+                                        )
+                                    )
+                                }
+
+                                checklist <- unlist(checklist)
+
+                                # print(checklist)
+
+                                if (any(checklist)) {
+                                    # at least one variable has a non-missing value within the range of the missing values
+                                    printMISSING <- TRUE
+
+                                    # now trying to see if at least some of the variables can be "rescued"
+                                    if (any(!checklist)) {
+                                        ###
+                                        # is this working...? TO TEST
+                                        cat(
+                                            splitrows(
+                                                names(checklist)[!checklist],
+                                                enter,
+                                                80
+                                            )
+                                        )
+
+                                        # cat(paste(names(checklist)[!checklist], collapse=", "))
+                                        ###
+                                        cat(paste(
+                                            " (",
+                                            min(missvaLs[[i]]),
+                                            " TO ",
+                                            max(missvaLs[[i]]),
+                                            ")",
+                                            enter,
+                                            sep = ""
+                                        ))
+                                        checklist <- checklist[checklist]
+                                    }
+
+                                    ###
+                                    # is this working...? TO TEST
+                                    cat(
+                                        splitrows(
+                                            names(checklist),
+                                            enter,
+                                            80
+                                        )
+                                    )
+                                    # cat(paste(names(checklist), collapse=", "))
+                                    ###
+                                    cat(paste(
+                                        " (",
+                                        paste(
+                                            missvaLs[[i]][1:3],
+                                            collapse = ", "
+                                        ),
+                                        ")",
+                                        sep = ""
+                                    ))
+
+                                    cat(ifelse(i == length(uniqueMissList), " .", ""))
+                                    # cat("  * more than three distinct missing values found")
+                                }
+                                else {
+                                    cat(
+                                        splitrows(
+                                            toupper(uniqueMissList[[i]]),
+                                            enter,
+                                            80
+                                        )
+                                    )
+                                    cat(paste(
+                                        " (",
+                                        min(missvaLs[[i]]),
+                                        " TO ",
+                                        max(missvaLs[[i]]),
+                                        ")",
+                                        sep = ""
+                                    ))
+                                }
+                            }
+                        }
+                    }
+
+                    if (finalize) {
+                        cat(ifelse(i == length(uniqueMissList), " .", ""))
+                    }
+                    cat(enter)
+                }
+            }
 
             cat(paste(
                 "* --- Add missing values --- ",
@@ -1586,184 +1941,42 @@
                 sep = ""
             ))
 
-            for (i in seq(length(uniqueMissList))) {
-                if (any(grepl("THRU", missvaLs[[i]]))) {
-                    cat(
-                        splitrows(
-                            toupper(uniqueMissList[[i]]),
-                            enter,
-                            80
-                        )
-                    )
+            if (sum(numvars) != length(dataDscr)) {
+                missvaRs <- labels_missing(dataDscr2[!numvars])
+                withmiss <- unlist(lapply(missvaRs, any))
 
-                    if (length(missvaLs[[i]]) <= 2) {
-                        # at most one discrete missing value and a missing range
-                        cat(paste(
-                            " (",
-                            paste(
-                                missvaLs[[i]],
-                                collapse = ", "
-                            ),
-                            ")",
-                            sep = ""
-                        ))
-                    }
-                    else {
-                        cat(paste(
-                            " (",
-                            paste(
-                                missvaLs[[i]][c(1, which(grepl("THRU", missvaLs[[i]])))],
-                                collapse = ", "
-                            ),
-                            ")",
-                            sep = ""
-                        ))
+                missvaLs <- values_missing(dataDscr2[!numvars][withmiss]) # range is FALSE by default, so no THRU
+                nms <- names(missvaLs)
+                uniqueMissList <- lapply(unique(missvaLs), function(x) {
+                    nms[unlist(lapply(missvaLs, function(y) {
+                        identical(x, y)
+                    }))]
+                })
 
-                        cat(paste(
-                            "  * more than one distinct missing value",
-                            "found, next to a missing range"
-                        ))
-                    }
-                }
-                else {
+                missvaLs <- unique(missvaLs)
 
-                    if (length(missvaLs[[i]]) < 4) {
-                        cat(
-                            splitrows(
-                                toupper(uniqueMissList[[i]]),
-                                enter,
-                                80
-                            )
-                        )
-
-                        cat(paste(
-                            " (",
-                            paste(
-                                missvaLs[[i]],
-                                collapse = ", "
-                            ),
-                            ")",
-                            sep = ""
-                        ))
-                    }
-                    else {
-                        absrange <- abs(range(missvaLs[[i]]))
-
-                        if (all(missvaLs[[i]] < 0)) {
-                            cat(
-                                splitrows(
-                                    toupper(uniqueMissList[[i]]),
-                                    enter,
-                                    80
-                                )
-                            )
-                            cat(paste(
-                                " (LOWEST THRU ",
-                                max(missvaLs[[i]]),
-                                ")",
-                                sep = ""
-                            ))
-                        }
-                        else {
-                            # check if the missing values range doesn't contain
-                            # any other (non-missing) values
-                            checklist <- list()
-                            for (mv in uniqueMissList[[i]]) {
-                                allvalues <- dataDscr2[[mv]][["labels"]]
-                                nonmiss <- setdiff(allvalues, missvaLs[[i]])
-                                checklist[[mv]] <- any(
-                                    is.element(
-                                        nonmiss, 
-                                        seq(
-                                            min(missvaLs[[i]]),
-                                            max(missvaLs[[i]])
-                                        )
-                                    )
-                                )
-                            }
-
-                            checklist <- unlist(checklist)
-
-                            # print(checklist)
-
-                            if (any(checklist)) {
-                                # at least one variable has a non-missing value within the range of the missing values
-                                printMISSING <- TRUE
-
-                                # now trying to see if at least some of the variables can be "rescued"
-                                if (any(!checklist)) {
-                                    ###
-                                    # is this working...? TO TEST
-                                    cat(
-                                        splitrows(
-                                            names(checklist)[!checklist],
-                                            enter,
-                                            80
-                                        )
-                                    )
-
-                                    # cat(paste(names(checklist)[!checklist], collapse=", "))
-                                    ###
-                                    cat(paste(
-                                        " (",
-                                        min(missvaLs[[i]]),
-                                        " TO ",
-                                        max(missvaLs[[i]]),
-                                        ")",
-                                        enter,
-                                        sep = ""
-                                    ))
-                                    checklist <- checklist[checklist]
-                                }
-
-                                ###
-                                # is this working...? TO TEST
-                                cat(
-                                    splitrows(
-                                        names(checklist),
-                                        enter,
-                                        80
-                                    )
-                                )
-                                # cat(paste(names(checklist), collapse=", "))
-                                ###
-                                cat(paste(
-                                    " (",
-                                    paste(
-                                        missvaLs[[i]][1:3],
-                                        collapse = ", "
-                                    ),
-                                    ")",
-                                    sep = ""
-                                ))
-
-                                cat(ifelse(i == length(uniqueMissList), " .", ""))
-                                cat("  * more than three distinct missing values found")
-                            }
-                            else {
-                                cat(
-                                    splitrows(
-                                        toupper(uniqueMissList[[i]]),
-                                        enter,
-                                        80
-                                    )
-                                )
-                                cat(paste(
-                                    " (",
-                                    min(missvaLs[[i]]),
-                                    " TO ",
-                                    max(missvaLs[[i]]),
-                                    ")",
-                                    sep = ""
-                                ))
-                            }
-                        }
-                    }
-                }
-
-                cat(ifelse(i == length(uniqueMissList), " .", ""))
-                cat(enter)
+                makeMissingValues(uniqueMissList, missvaLs, nms, FALSE)
             }
+
+            missvaRs <- labels_missing(dataDscr2[numvars])
+            withmiss <- unlist(lapply(missvaRs, any))
+
+            missvaLs <- values_missing(dataDscr2[numvars][withmiss], range = TRUE)
+            nms <- names(missvaLs)
+            uniqueMissList <- lapply(unique(missvaLs), function(x) {
+                nms[unlist(lapply(missvaLs, function(y) {
+                    identical(x, y)
+                }))]
+            })
+
+            missvaLs <- unique(missvaLs)
+
+            makeMissingValues(uniqueMissList, missvaLs, nms)
+
+            # sink()
+            # setwd(currentdir)
+            # return(list(dataDscr2=dataDscr2, haslabels=haslabels, missvaRs=missvaRs, withmiss=withmiss, missing = missing))
+            # return(list(missvaLs=missvaLs, uniqueMissList=uniqueMissList))
 
             cat(enter, enter, sep = "")
         }
@@ -2456,7 +2669,7 @@
                 }
             }
         }
-        
+
         if (length(numerical_with_strings) > 0) {
 
             cat(paste(
@@ -2562,7 +2775,7 @@
 
             if (any(withmiss)) {
                 dataDscr3 <- dataDscr2
-                
+
                 dataDscr3[withmiss] <- mapply(
                     function(x, y) {
                         x[["labels"]][y] <- nms[match(x[["labels"]][y], dictionary)]
@@ -2706,7 +2919,7 @@
                 ))
             }
         }
-          
+
         cat(paste(
             "    ;",
             enter, enter,
@@ -2715,7 +2928,7 @@
             sep = ""
         ))
         # "* ------------------------------------------------------------------------------ ;", enter, enter, enter, sep = "")
-        
+
         if (!script & !catalog) {
             cat(paste(
                 "* --- Save data to a sas type file --- ;",
@@ -2737,19 +2950,19 @@
     if (toupper(type) == "R" | toupper(type) == "ALL") {
         printMISSING <- FALSE
         currentdir <- getwd()
-        
+
         if (outdir) {
             if (!file.exists("Setup files")) {
                 dir.create("Setup files")
             }
-            
+
             if (!file.exists(file.path("Setup files", "R"))) {
                 dir.create(file.path("Setup files", "R"))
             }
 
             setwd(file.path("Setup files", "R"))
         }
-        
+
         sink(
             ifelse(
                 grepl("\\.R", file),
@@ -2757,7 +2970,7 @@
                 paste(file, ".R", sep = "")
             )
         )
-        
+
         cat(paste(
             "# ------------------------------------------------------------------------------",
             enter, enter,
@@ -2779,7 +2992,7 @@
                 sep = ""
             ))
         # }
-        
+
         cat(paste(
             "# The following command should contain the complete path to",
             enter,
@@ -2791,12 +3004,12 @@
             enter, enter, enter,
             sep = ""
         ))
-        
+
         # if (formats) {
             cat(paste(
                 "# --- Read the raw data ---",
                 enter, enter,
-                "rdatafile <- read.csv(csvpath)", 
+                "rdatafile <- read.csv(csvpath)",
                 enter, enter,
                 "# all variable names to upper case",
                 enter,
@@ -2808,27 +3021,27 @@
         # else {
         #     cat("# \"rdatafile\" should be an R data.frame (usually read from a .csv file)\n\n")
         # }
-        
+
         cat(paste(
             "# --- CONFIGURATION SECTION -  END  ---",
             enter, enter,
             "# There should be nothing to change below this line",
-            enter,                                                            
+            enter,
             "# ------------------------------------------------------------------------------",
             enter, enter, enter, enter,
             sep = ""
         ))
-        
+
         if (length(numerical_with_strings) > 0) {
-            
+
             cat(paste(
                 "# --- Force variables as numeric ---",
                 enter, enter,
                 sep = ""
             ))
-            
+
             maxnchars <- max(nchar(names(numerical_with_strings)))
-            
+
             for (i in toupper(names(numerical_with_strings))) {
                 cat(paste(
                     "rdatafile[ , \"", i, "\"]",
@@ -2842,7 +3055,7 @@
                 ))
             }
         }
-        
+
         cat(paste(
             "# --- Set the variable metadata attributes --- ",
             enter,
@@ -2853,16 +3066,16 @@
             "    install.packages(\"declared\")",
             enter,
             "}",
-            enter, enter,    
+            enter, enter,
             "library(declared)",
             enter, enter,
             sep = ""
         ))
-        
+
         writeMetadata(dataDscr, OS = OS, indent = indent)
-        
+
         cat(paste(enter, enter, sep = ""))
-        
+
         cat(paste(
             "# --- Save the R data file --- ",
             enter, enter,
@@ -2875,17 +3088,17 @@
             "rm(rdatafile, csvpath, rdspath",
             sep = ""
         ))
-        
+
         # if (any(unlist(stringvars))) {
         #     cat(", tempvar")
         # }
-        
+
         cat(paste(")", enter, sep = ""))
-        
+
         # finish writing and close the .R file
         sink()
-        
+
         setwd(currentdir)
-        
+
     }
 }

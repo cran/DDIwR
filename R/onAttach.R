@@ -25,14 +25,14 @@
 
 .onAttach <- function(...) {
 
-    core <- c("admisc", "haven", "declared")
+    core <- c("admisc", "declared", "haven")
     
     # code borrowed from package tidyverse
     
     # Attach the package from the same package library it was
     # loaded from before. https://github.com/tidyverse/tidyverse/issues/171
     same_library <- function(pkg) {
-        if (pkg %in% loadedNamespaces() && !is.element(pkg, .packages())) {
+        if (is.element(pkg, setdiff(loadedNamespaces(), .packages()))) {
             loc <- dirname(getNamespaceInfo(pkg, "path"))
             do.call(
                 "library",
@@ -48,7 +48,7 @@
 
     core_unloaded <- function() {
         search <- paste0("package:", core)
-        core[!search %in% search()]
+        return(core[!is.element(search, search())])
     }
     
     to_load <- core_unloaded()
@@ -65,5 +65,4 @@
     )
 
     return(invisible())
-
 }
