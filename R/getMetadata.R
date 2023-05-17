@@ -1,28 +1,3 @@
-# Copyright (c) 2022, Adrian Dusa
-# All rights reserved.
-# 
-# Redistribution and use in source and binary forms, with or without
-# modification, in whole or in part, are permitted provided that the
-# following conditions are met:
-#     * Redistributions of source code must retain the above copyright
-#       notice, this list of conditions and the following disclaimer.
-#     * Redistributions in binary form must reproduce the above copyright
-#       notice, this list of conditions and the following disclaimer in the
-#       documentation and/or other materials provided with the distribution.
-#     * The names of its contributors may NOT be used to endorse or promote products
-#       derived from this software without specific prior written permission.
-# 
-# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-# ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-# WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-# DISCLAIMED. IN NO EVENT SHALL ADRIAN DUSA BE LIABLE FOR ANY
-# DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
-# (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
-# LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
-# ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-# (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
-# SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
 #' @name getMetadata
 #'
 #' @title Extract metadata information
@@ -38,27 +13,29 @@
 #'
 #' It additionally attempts to automatically detect a type for each variable:
 #' \tabular{rl}{
-#'   \bold{\code{cat}}: \tab categorical variable using numeric values\cr
-#'   \bold{\code{catchar}}: \tab categorical variable using character values\cr
-#'   \bold{\code{catnum}}: \tab categorical variable for which numerical summaries\cr
+#'   **`cat`**: \tab categorical variable using numeric values\cr
+#'   **`catchar`**: \tab categorical variable using character values\cr
+#'   **`catnum`**: \tab categorical variable for which numerical summaries\cr
 #'   \tab can be calculated (ex. a 0...10 Likert response scale)\cr
-#'   \bold{\code{num}}: \tab numerical\cr
-#'   \bold{\code{numcat}}: \tab numerical variable with few enough values (ex. number of children)\cr
-#'   \tab for which a table of frequencies is possible in addition to frequencies
+#'   **`num`**: \tab numerical\cr
+#'   **`numcat`**: \tab numerical variable with few enough values (ex. number of
+#' children)\cr
+#'   \tab for which a table of frequencies is possible in addition to
+#' frequencies
 #' }
 #'
-#' By default, this function extracts the metadata into an R list object, but when
-#' the argument \code{save} is activated, the argument \code{OS} (case insensitive)
+#' By default, this function extracts the metadata into an R list object, but
+#' when the argument `save` is activated, the argument `OS` (case insensitive)
 #' can be either:\cr
-#' \code{"Windows"} (default), or \code{"Win"},\cr
-#' \code{"MacOS"}, \code{"Darwin"}, \code{"Apple"}, \code{"Mac"},\cr
-#' \code{"Linux"}.\cr
+#' `"Windows"` (default), or `"Win"`,\cr
+#' `"MacOS"`, `"Darwin"`, `"Apple"`, `"Mac"`,\cr
+#' `"Linux"`.\cr
 #'
-#' The end of line separator changes only when the target OS is different from the
-#' running OS.
+#' The end of line separator changes only when the target OS is different from
+#' the running OS.
 #'
-#' For the moment, only DDI version 2.5 (Codebook) is supported, but DDI Lifecycle
-#' is planned to be implemented.
+#' For the moment, only DDI version 2.5 (Codebook) is supported, but DDI
+#' Lifecycle is planned to be implemented.
 #'
 #' @examples
 #' x <- data.frame(
@@ -160,7 +137,7 @@
     tp <- treatPath(x, type = "*")
 
     singlefile <- length(tp$files) == 1
-    notes <- NA
+    notes <- NULL
 
     if (!fromsetupfile & !singlefile) {
         cat("Processing:\n")
@@ -178,7 +155,21 @@
         if (tp$fileext[ff] == "XML") {
 
             codeBook <- list()
-            xml <- getXML(file.path(tp$completePath, tp$files[ff]))
+
+            # xml <- getXML(file.path(tp$completePath, tp$files[ff]))
+            tc <- admisc::tryCatchWEM(
+                xml <- xml2::read_xml(file.path(tp$completePath, tp$files[ff]))
+            )
+
+            if (!is.null(tc$error)) {
+                admisc::stopError(
+                    paste(
+                        "Unable to read the XML file",
+                        tc$error,
+                        sep = ", "
+                    )
+                )
+            }
 
             children <- xml2::xml_children(xml)
             nms <- xml2::xml_name(children)
@@ -214,10 +205,19 @@
 
             xpath <- sprintf("/%scodeBook/%sdataDscr/%svar", dns, dns, dns)
             vars <- xml2::xml_find_all(xml, xpath)
-            varlab <- cleanup(xml2::xml_text(xml2::xml_find_first(vars, sprintf("%slabl", dns))))
+
+            if (length(vars) == 0) {
+                admisc::stopError("This DDI Codebook file does not contain any variable level metadata.")
+            }
+
+            varlab <- cleanup(
+                xml2::xml_text(
+                    xml2::xml_find_first(vars, sprintf("%slabl", dns))
+                )
+            )
 
             xpath <- sprintf("/%scodeBook/%sfileDscr/%snotes", dns, dns, dns)
-            notes <- xml2::xml_text(xml2::xml_find_first(xml, xpath))
+            notes <- xml2::xml_text(xml2::xml_find_all(xml, xpath))
 
             codeBook$dataDscr <- lapply(varlab, function(x) list(label = x))
 
@@ -225,6 +225,10 @@
             names(codeBook$dataDscr) <- admisc::trimstr(xml2::xml_text(xml2::xml_find_all(xml, xpath)))
 
             for (i in seq(length(codeBook$dataDscr))) {
+                if (is.na(codeBook$dataDscr[[i]][["label"]])) {
+                    codeBook$dataDscr[[i]][["label"]] <- NULL
+                }
+
                 # nms <- xml_name(xml_contents(xml_find_all(xml, sprintf("/d1:codeBook/d1:dataDscr/d1:var[%s]", i))))
 
                 # xpath <- sprintf("/%scodeBook/%sdataDscr/%svar[%s]", dns, dns, dns, i)
@@ -238,8 +242,7 @@
                 na_range[2] <- admisc::asNumeric(xml2::xml_attr(xml2::xml_find_first(vars[i], xpath), "max"))
                 if (all(is.na(na_range))) {
                     na_range <- NULL
-                }
-                else {
+                } else {
                     if (is.na(na_range[1])) na_range[1] <- -Inf
                     if (is.na(na_range[2])) na_range[2] <- Inf
                 }
@@ -273,6 +276,19 @@
 
                     codeBook$dataDscr[[i]][["labels"]] <- values
                     names(codeBook$dataDscr[[i]][["labels"]]) <- labl
+
+                    frequencies <- unlist(lapply(catgry, function(x) {
+                        xml2::xml_text(xml2::xml_find_first(x, sprintf("%scatStat", dns)))
+                    }))
+
+                    if (!all(is.na(frequencies))) {
+                        if (admisc::possibleNumeric(frequencies)) {
+                            frequencies <- admisc::asNumeric(frequencies)
+                        }
+                        
+                        names(frequencies) <- labl
+                        codeBook$dataDscr[[i]][["frequencies"]] <- frequencies
+                    }
                 }
 
                 if (length(na_values) > 0) {
@@ -311,10 +327,10 @@
                     }
                 }
                 else {
-                    if (is.element(measurement, c("nominal", "ordinal"))) {
+                    if (grepl("nominal|ordinal", measurement)) {
                         codeBook$dataDscr[[i]]$type <- "cat"
                     }
-                    else if (is.element(measurement, c("interval", "ratio"))) {
+                    else if (grepl("interval|ratio", measurement)) {
                         codeBook$dataDscr[[i]]$type <- "num"
                     }
                     else if (!is.na(type)) {
@@ -403,19 +419,29 @@
     names(result) <- tp$filenames
 
     if (singlefile) {
-        if (!is.na(notes)) {
-            if (grepl("# start data #", notes)) {
+        if (length(notes) > 0) {
+            wdata <- which(grepl("# start data #", notes))
+            if (length(wdata) > 0) {
+                notes <- notes[wdata]
                 # this can only be possible from an XML, DDI Codebook
                 # therefore the varFormat should always be of an SPSS type
                 notes <- unlist(strsplit(notes, split = "\\n"))
-                data <- notes[
+                data <- admisc::trimstr(notes[
                     seq(
                         which(grepl("# start data #", notes)) + 1,
                         which(grepl("# end data #", notes)) - 1
                     )
-                ]
+                ], side = "left")
 
-                data <- read.csv(text = paste(data, collapse = "\n"), as.is = TRUE)
+                tc <- admisc::tryCatchWEM(
+                    data <- read.csv(text = paste(data, collapse = "\n"), as.is = TRUE)
+                )
+
+                if (!is.null(tc$error)) {
+                    admisc::stopError("The <notes> tag does not contain a valid CSV dataset.")
+                }
+
+                
                 # return(list(data, codeBook$dataDscr, declared = declared, spss = spss))
 
                 # make_labelled is always and only about SPSS type of variables

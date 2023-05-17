@@ -1,34 +1,10 @@
-# Copyright (c) 2022, Adrian Dusa
-# All rights reserved.
-# 
-# Redistribution and use in source and binary forms, with or without
-# modification, in whole or in part, are permitted provided that the
-# following conditions are met:
-#     * Redistributions of source code must retain the above copyright
-#       notice, this list of conditions and the following disclaimer.
-#     * Redistributions in binary form must reproduce the above copyright
-#       notice, this list of conditions and the following disclaimer in the
-#       documentation and/or other materials provided with the distribution.
-#     * The names of its contributors may NOT be used to endorse or promote products
-#       derived from this software without specific prior written permission.
-# 
-# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-# ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-# WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-# DISCLAIMED. IN NO EVENT SHALL ADRIAN DUSA BE LIABLE FOR ANY
-# DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
-# (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
-# LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
-# ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-# (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
-# SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
-#' @description Determine which specific type of files are present in a certain directory.
-#' @return A list with four components: the complete path, the files, the file names and the file extensions
+#' @description Determine which specific type of files are present in a certain
+#' directory.
+#' @return A list with four components: the complete path, the files, the file
+#' names and the file extensions
 #' @noRd
 `treatPath` <- function(path, type = "*", single = FALSE, check = TRUE) {
     if (length(path) > 1) {
-        cat("\n")
         # if (type == "R") {
         #     admisc::stopError("The <codeBook> argument should contain a single path to the list object.")
         # }
@@ -44,8 +20,10 @@
     }
     currdir <- getwd()
 
+
     lastpart <- basename(path)
-    # normalizePath() deals with the symbolic links, relative paths and absolute paths
+    # normalizePath() deals with the symbolic links, relative paths and
+    # absolute paths
     pathname <- suppressWarnings(normalizePath(dirname(path), winslash = "/"))
 
     # check if a path exists, before the lastpart
@@ -60,7 +38,8 @@
                         "Cannot find the path up to \"",
                         pathname,
                         "\".\n",
-                        "Please check that path, or try changing the working directory.",
+                        "Please check that path, or try changing the",
+                        "working directory.",
                         sep = ""
                     )
                 )
@@ -71,6 +50,7 @@
         }
 
     }
+
 
     allfiles <- FALSE
     if (!file.exists(file.path(pathname, lastpart))) {
@@ -128,15 +108,26 @@
                 )
             }
 
-            fileobj <- getFiles(path = file.path(pathname, lastpart), type = type)
+            fileobj <- getFiles(
+                path = file.path(pathname, lastpart),
+                type = type
+            )
         }
         else {
 
-            if (type != "*" && toupper(type) != toupper(tools::file_ext(file.path(pathname, lastpart)))) {
+            if (
+                type != "*" &&
+                toupper(type) != toupper(
+                    tools::file_ext(file.path(pathname, lastpart))
+                )
+            ) {
                 return(paste0("Wrong file type, it should be ", type, "."))
             }
 
-            fileobj <- getFiles(path = file.path(pathname, lastpart), type = type)
+            fileobj <- getFiles(
+                path = file.path(pathname, lastpart),
+                type = type
+            )
         }
 
     }

@@ -1,3 +1,13 @@
+Version 0.14
+    o package documentation system converted to roxygen2
+    o argument "codebook" renamed to "obj" in function setupfile()
+    o when a path to a single file is provided, setupfile() outputs in the same
+      directory, otherwise in the current working directory
+    o improved, corrected and finally tested setup file for SAS
+    o the "<notes>" element in the DDI XML file is now augmented with two
+      attributes "level" and "subject" to differentiate it from other possible
+      "<notes>" elements and make it obvious this one contains the CSV dataset
+
 Version 0.13
     o new argument "stringnum" in function setupfile()
     o the R data frame gains a new attribute "stdyDscr" when importing from DDI

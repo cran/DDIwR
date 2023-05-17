@@ -1,28 +1,3 @@
-# Copyright (c) 2022, Adrian Dusa
-# All rights reserved.
-# 
-# Redistribution and use in source and binary forms, with or without
-# modification, in whole or in part, are permitted provided that the
-# following conditions are met:
-#     * Redistributions of source code must retain the above copyright
-#       notice, this list of conditions and the following disclaimer.
-#     * Redistributions in binary form must reproduce the above copyright
-#       notice, this list of conditions and the following disclaimer in the
-#       documentation and/or other materials provided with the distribution.
-#     * The names of its contributors may NOT be used to endorse or promote products
-#       derived from this software without specific prior written permission.
-# 
-# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-# ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-# WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-# DISCLAIMED. IN NO EVENT SHALL ADRIAN DUSA BE LIABLE FOR ANY
-# DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
-# (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
-# LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
-# ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-# (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
-# SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
 #' @name recodeMissings
 #'
 #' @title Consistent recoding of (extended) missing values
@@ -33,12 +8,12 @@
 #'
 #' @details
 #' When a dictionary is not provided, it is automatically constructed from the
-#' available data and metadata, using negative numbers starting from -91 and up to
-#' 27 letters starting with "a".
+#' available data and metadata, using negative numbers starting from -91 and up
+#' to 27 letters starting with "a".
 #'
 #' If the dataset contains mixed variables with SPSS and Stata style missing
-#' values, unless otherwise specified in a dictionary it uses other codes than the
-#' existing ones.
+#' values, unless otherwise specified in a dictionary it uses other codes than
+#' the existing ones.
 #'
 #' For the SPSS type of missing values, the resulting variables are coerced to a
 #' declared labelled format.
@@ -46,8 +21,9 @@
 #' Unlike SPSS, Stata does not allow labels for character values. Both cannot be
 #' transported from SPSS to Stata, it is either one or another. If labels are
 #' more important to preserve than original values (especially the information
-#' about the missing values), the argument \code{chartonum} replaces all character
-#' values with suitable, non-overlapping numbers and adjusts the labels accordingly.
+#' about the missing values), the argument `chartonum` replaces all character
+#' values with suitable, non-overlapping numbers and adjusts the labels
+#' accordingly.
 #'
 #' If no labels are found in the metadata, the original values are preserved.
 #'
@@ -91,8 +67,9 @@
 #'
 #' @export
 
+
 `recodeMissings` <- function(
-    dataset, to = c("SPSS", "Stata"), dictionary = NULL, ...
+    dataset, to = c("SPSS", "Stata", "SAS"), dictionary = NULL, ...
 ) {
 
     to <- toupper(match.arg(to))
@@ -102,6 +79,7 @@
 
     error_null <- ifelse(isFALSE(dots$error_null), FALSE, TRUE)
     to_declared <- ifelse(isFALSE(dots$to_declared), FALSE, TRUE)
+
 
     if (is.data.frame(dataset)) {
         error <- TRUE
@@ -137,12 +115,14 @@
     }
 
     dataDscr <- collectMetadata(dataset, error_null = error_null)
+    spss <- !logical(ncol(dataset))
+    names(spss) <- names(dataset)
 
     spss <- unlist(lapply(dataset, function(x) {
-        # it makes sense to check for character variables, since
-        # neither Stata nor SAS do not accept missing values for chars
-        # technically, a char var with missing value would be "valid" in SPSS
-        # but it doesn't matter if recoding to Stata, it's like it would not exist
+        # it makes sense to check for character variables, since neither
+        # Stata nor SAS do not accept missing values for chars technically,
+        # a char var with missing value would be "valid" in SPSS but it doesn't
+        # matter if recoding to Stata or SAS, it's like it would not exist
         !is.character(x) &&
         !is.null(attr(x, "labels", exact = TRUE)) &&
         (
@@ -150,7 +130,10 @@
         )
     }))
 
-    if ((sum(spss) == 0 & to == "STATA") | (sum(spss) == ncol(dataset) & to == "SPSS")) {
+    if (
+        (sum(spss) == 0 & (to == "STATA" | to == "SAS")) |
+        (sum(spss) == ncol(dataset) & to == "SPSS")
+    ) {
         if (isTRUE(dots$return_dictionary)) {
             return(NULL)
         }
@@ -205,14 +188,16 @@
 
     }
 
-    missingSPSS <- missingStata <- NULL
+
+    missingSPSS <- missingSAS <- missingStata <- NULL
 
     # just to initiate
     umis <- data.frame(labels = c(), codes = c(), rec = c())
 
     if (sum(spss) > 0) {
         umis <- unlist(unname(allMissing[names(spss)[spss]]))
-        umis <- unique(data.frame(labels = names(umis), codes = umis))
+        umis <- umis[!duplicated(umis)]
+        umis <- data.frame(labels = names(umis), codes = umis)
 
         if (nrow(umis) == 0) {
             # There is no information about missing values
@@ -269,14 +254,18 @@
         }
 
         if (!is.null(torecode)) {
-            toreplace <- 90 + seq(length(missingStata) + length(all_neg) + length(missingSPSS))
+            toreplace <- 90 + seq(length(missingStata) +
+                        length(all_neg) + length(missingSPSS))
             toreplace <- -1 * setdiff(toreplace, missingSPSS)
             toreplace <- setdiff(toreplace, all_neg)
-            torecode <- setNames(toreplace[seq(length(missingStata))], missingStata)
+            torecode <- setNames(
+                toreplace[seq(length(missingStata))],
+                missingStata
+            )
             # names(torecode) <- missingStata
         }
     }
-    else if (to == "STATA") {
+    else if (to == "STATA" | to == "SAS") {
 
         torecode <- missingSPSS
 
@@ -371,16 +360,21 @@
         if (!is.null(na_values_i) | !is.null(na_range_i)) {
             if (to == "SPSS") {
                 if (!spss[i] && !is.null(dictionary)) {
-
-                    na_values_i <- na_values[is.element(nms, metadata[["na_values"]])]
-                    nms_i <- nms[is.element(nms, metadata[["na_values"]])]
+                    isel <- is.element(nms, metadata[["na_values"]])
+                    na_values_i <- na_values[isel]
+                    nms_i <- nms[isel]
 
                     # if (i == 10) print(na_values_i)
                     if (length(na_values_i) > 0) {
                         for (d in seq(length(na_values_i))) {
                             if (nchar(nms[d]) == 1) {
-                                x[haven::is_tagged_na(x, nms_i[d])] <- na_values_i[d]
-                                labels[haven::is_tagged_na(labels, nms_i[d])] <- na_values_i[d]
+                                x[
+                                    haven::is_tagged_na(x, nms_i[d])
+                                ] <- na_values_i[d]
+
+                                labels[
+                                    haven::is_tagged_na(labels, nms_i[d])
+                                ] <- na_values_i[d]
                             }
                         }
                     }
@@ -453,10 +447,12 @@
                         selection <- is.element(dictionary, na_values_i)
                     }
                     else if (!is.null(na_range_i)) {
-                        selection <- as.numeric(dictionary) >= na_range_i[1] & as.numeric(dictionary) <= na_range_i[2]
+                        selection <- as.numeric(dictionary) >= na_range_i[1] &
+                                     as.numeric(dictionary) <= na_range_i[2]
                     }
 
                     dic_i <- dictionary[selection]
+
 
                     if (any(duplicated(dic_i))) {
                         # multiple missing labels with the same code
@@ -466,14 +462,19 @@
                             na_labels <- names(labels)[
                                 is.element(
                                     labels,
-                                    if (is.numeric(labels)) as.numeric(na_values_i) else na_values_i
+                                    if (is.numeric(labels)) {
+                                        as.numeric(na_values_i)
+                                    } else {
+                                        na_values_i
+                                    }
                                 )
                             ]
                         }
                         else if (!is.null(na_range_i)) {
                             num_labels <- as.numeric(labels)
                             na_labels <- names(labels)[
-                                num_labels >= na_range_i[1] & num_labels <= na_range_i[2]
+                                num_labels >= na_range_i[1] &
+                                num_labels <= na_range_i[2]
                             ]
                         }
 

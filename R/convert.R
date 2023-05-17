@@ -1,38 +1,14 @@
-# Copyright (c) 2022, Adrian Dusa
-# All rights reserved.
-# 
-# Redistribution and use in source and binary forms, with or without
-# modification, in whole or in part, are permitted provided that the
-# following conditions are met:
-#     * Redistributions of source code must retain the above copyright
-#       notice, this list of conditions and the following disclaimer.
-#     * Redistributions in binary form must reproduce the above copyright
-#       notice, this list of conditions and the following disclaimer in the
-#       documentation and/or other materials provided with the distribution.
-#     * The names of its contributors may NOT be used to endorse or promote products
-#       derived from this software without specific prior written permission.
-# 
-# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-# ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-# WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-# DISCLAIMED. IN NO EVENT SHALL ADRIAN DUSA BE LIABLE FOR ANY
-# DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
-# (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
-# LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
-# ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-# (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
-# SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
 #' @name convert
 #'
 #' @title
 #' Converts a dataset from one statistical software to another
 #'
 #' @description
-#' This function converts (or transfers) between R, Stata, SPSS, SAS, Excel and DDI
-#' XML files. Unlike the regular import / export functions from packages
-#' \bold{\pkg{haven}} or \bold{\pkg{rio}}, this function uses the DDI standard as
-#' an exchange platform and facilitates a consistent conversion of the missing values.
+#' This function converts (or transfers) between R, Stata, SPSS, SAS, Excel and
+#' DDI XML files. Unlike the regular import / export functions from packages
+#' \bold{\pkg{haven}} or \bold{\pkg{rio}}, this function uses the DDI standard
+#' as an exchange platform and facilitates a consistent conversion of the
+#' missing values.
 #'
 #' @details
 #' When the argument **`to`** specifies a certain statistical package
@@ -40,13 +16,14 @@
 #' destination file will be identical to the one in the argument **`from`**,
 #' with an automatically added software specific extension.
 #'
-#' SPSS portable file (with the extension `".por"`) can only be read, and SAS
-#' Transport files (with the extension `".xpt"`) can be both read and written.
+#' SPSS portable file (with the extension `".por"`) can only be read, but not
+#' written.
 #'
-#' Alternatively, the argument **`to`** can be specified as a path to a specific
-#' file, in which case the software package is determined from its file extension.
-#' The following extentions are currently recognized: `.xml` for DDI, `.rds` for R,
-#' `.dta` for Stata, `.sav` for SPSS, `.sas7bdat` for SAS, and `.xlsx` for Excel.
+#' The argument **`to`** can also be specified as a path to a specific file,
+#' in which case the software package is determined from its file extension.
+#' The following extentions are currently recognized: `.xml` for DDI,
+#' `.rds` for R, `.dta` for Stata, `.sav` for SPSS, `.xpt` for SAS, and
+#' `.xlsx` for Excel.
 #'
 #' Additional parameters can be specified via the three dots argument
 #' **`...`**, that are passed to the respective functions from packages
@@ -55,29 +32,29 @@
 #' **`version`** when writing a Stata file.
 #'
 #' The most important argument to consider is called **`user_na`**, part of
-#' the function \bold{\code{\link[haven]{read_sav}()}}. Although it is defaulted
-#' to `FALSE` in package \bold{\pkg{haven}}, in package \bold{\pkg{DDIwR}} it
-#' is used as having the value of `TRUE`. Users who really want to deactivate
-#' it should explicitly specify `use_na = FALSE` in function **`convert()`**.
+#' the function \bold{\code{\link[haven]{read_sav}()}}. Defaulted to `FALSE` in
+#' package \bold{\pkg{haven}}, in package \bold{\pkg{DDIwR}} it is used as
+#' having the value of `TRUE`, and it can be deactivated by explicitly
+#' specifying `user_na = FALSE` in function **`convert()`**.
 #'
 #' The same three dots argument is used to pass additional parameters to other
-#' functions in this package, for instance **`exportDDI()`** when
-#' converting to a DDI file. One of its argument **`embed`** (activated by
-#' default) can be used to control embedding the data in the XML file. Deactivating
-#' it will create a CSV file in the same directory, using the same file name as the
+#' functions in this package, for instance **`exportDDI()`** when converting to
+#' a DDI file. One of its argument **`embed`** (activated by default) can be
+#' used to control embedding the data in the XML file. Deactivating it will
+#' create a CSV file in the same directory, using the same file name as the
 #' XML file.
 #'
 #' When converting from DDI, if the dataset is not embedded in the XML file, the
-#' CSV file is expected to be found in the same directory as the DDI Codebook, and
-#' it should have the same file name as the XML file. Alternatively, the path to
-#' the CSV file can be provided via the **`csv`** argument. Additional formal
-#' parameters of the function \bold{\code{\link[utils]{read.csv}()}} can be
-#' passed via the same three dots **`...`** argument.
+#' CSV file is expected to be found in the same directory as the DDI Codebook,
+#' and it should have the same file name as the XML file. Alternatively, the
+#' path to the CSV file can be provided via the **`csv`** argument. Additional
+#' formal parameters of the function \bold{\code{\link[utils]{read.csv}()}} can
+#' be passed via the same three dots **`...`** argument.
 #'
 #' The argument **`chartonum`** signals recoding character categorical
-#' variables, and employs the function \bold{\code{\link{recodeCharcat}()}}. This
-#' only makes sense when recoding to Stata, which does not allow allocating labels
-#' for anything but integer variables.
+#' variables, and employs the function \bold{\code{\link{recodeCharcat}()}}.
+#' This only makes sense when recoding to Stata, which does not allow allocating
+#' labels for anything but integer variables.
 #'
 #' If the argument **`to`** is left to `NULL`, the data is (invisibly) returned
 #' to the R enviroment. Conversion to R, either in the working space or as
@@ -85,32 +62,45 @@
 #' labelled variables, as defined in package \bold{\pkg{declared}}.
 #'
 #' The current version reads and creates DDI Codebook version 2.5, with future
-#' versions to extend the functionality for DDI Lifecycle versions 3.x and link to
-#' the future package \bold{DDI4R} for the UML model based version 4. It extends
-#' the standard DDI Codebook by offering the possibility to embed a CSV version of
-#' the raw data into the XML file containing the Codebook, into a `notes`
-#' child of the `fileDscr` component. This type of codebook is unique to this
-#' package and automatically detected when converting to another statistical
-#' software.
+#' versions to extend the functionality for DDI Lifecycle versions 3.x and link
+#' to the future package \bold{DDI4R} for the UML model based version 4. It
+#' extends the standard DDI Codebook by offering the possibility to embed a CSV
+#' version of the raw data into the XML file containing the Codebook, into a
+#' `notes` child of the `fileDscr` component. This type of codebook is unique to
+#' this package and automatically detected when converting to another
+#' statistical software.
 #'
-#' Converting the missing values to SAS is not tested, but it relies on the same
-#' package \bold{\pkg{haven}} using the ReadStat C library. Should it not work, it
-#' is also possible to use a setup file produced by function
+#' Converting to SAS is experimental, and it relies on the same package
+#' \bold{\pkg{haven}} that uses the ReadStat C library. The safest way to
+#' convert, which at the same time consistently converts the missing values, is
+#' to export the data to a CSV file and create a setup file produced by function
 #' \bold{\code{\link{setupfile}()}} and run the commands manually.
 #'
-#' The argument **`recode`** controls how missing values are treated. If
-#' the input file has SPSS like numeric codes, they will be recoded to extended
-#' (a-z) missing types when converting to Stata or SAS. If the input has Stata like
-#' extended codes, they will be recoded to SPSS like numeric codes.
+#' Converting data from SAS is possible, however reading the metadata is also
+#' experimental (the current version of \bold{haven} only partially imports the
+#' metadata). Either specify the path to the catalog file using the argument
+#' **`catalog_file`** from the function \bold{\code{\link[haven]{read_sas}()}},
+#' or have the catalog file in the same directory as the data set, with the same
+#' file name and the extension `.sas7bcat`
 #'
-#' The character **`encoding`** is usually passed to the corresponding
-#' functions from package \bold{\pkg{haven}}. It can be set to \code{NULL} to reset
-#' at the default in that package.
+#' The argument **`recode`** controls how missing values are treated. If the
+#' input file has SPSS like numeric codes, they will be recoded to extended
+#' (a-z) missing types when converting to Stata or SAS. If the input has Stata
+#' like extended codes, they will be recoded to SPSS like numeric codes.
+#'
+#' The character **`encoding`** is usually passed to the corresponding functions
+#' from package \bold{\pkg{haven}}. It can be set to \code{NULL} to reset at the
+#' default in that package.
+#'
+#' @return An invisible R data frame, when the argument **`to`** is NULL.
 #'
 #' @examples
 #' \dontrun{
 #' # Assuming an SPSS file called test.sav is located in the working directory
-#' # the following command will extract the metadata in a DDI Codebook and
+#' # The following command imports the file into the R environment:
+#' test <- convert("test.sav")
+#'
+#' # The following command will extract the metadata in a DDI Codebook and
 #' # produce a test.xml file in the same directory
 #' convert("test.sav", to = "DDI")
 #'
@@ -140,13 +130,17 @@
 #' @author Adrian Dusa
 #'
 #' @param from A path to a file, or a data.frame object
-#' @param to Character, the name of a software package or a path to a specific file
+#' @param to Character, the name of a software package or a path to a specific
+#' file
 #' @param declared Logical, return the resulting dataset as a declared object
-#' @param chartonum Logical, recode character categorical variables to numerical categorical variables
+#' @param chartonum Logical, recode character categorical variables to numerical
+#' categorical variables
 #' @param recode Logical, recode missing values
 #' @param encoding The character encoding used to read a file
-#' @param csv Path to the CSV file, if not embedded in XML file containing the DDI Codebook
-#' @param ... Additional parameters passed to exporting functions, see the Details section
+#' @param csv Path to the CSV file, if not embedded in XML file containing the
+#' DDI Codebook
+#' @param ... Additional parameters passed to other functions, see the
+#' Details section
 #'
 #' @export
 
@@ -166,10 +160,7 @@
 
     dots <- list(...)
 
-    dictionary <- NULL
-    if (is.element("dictionary" , names(dots))) {
-        dictionary <- dots$dictionary
-    }
+    dictionary <- dots$dictionary
 
     Robject <- FALSE
     if (is.character(from)) {
@@ -234,12 +225,12 @@
         else if (identical(toupper(to), "SAS")) {
             to <- file.path(
                 tp_from$completePath,
-                paste(tp_from$filenames, "sas7bdat", sep = ".")
-            )
-        }
-        else if (identical(toupper(to), "XPT")) {
-            to <- file.path(
-                tp_from$completePath,
+        #         paste(tp_from$filenames, "sas7bdat", sep = ".")
+        #     )
+        # }
+        # else if (identical(toupper(to), "XPT")) {
+        #     to <- file.path(
+        #         tp_from$completePath,
                 paste(tp_from$filenames, "xpt", sep = ".")
             )
         }
@@ -255,14 +246,22 @@
             tp_to$fileext <- "XLSX"
         }
 
-        known_extensions <- c("RDS", "SAV", "DTA", "XML", "SAS7BDAT", "XPT", "XLSX") #
-
         if (is.na(tp_to$fileext)) {
             admisc::stopError(
                 "Cannot determine the destination software without a file extension."
             )
         }
-        else if (!is.element(tp_to$fileext, known_extensions)) {
+        else if (tp_to$fileext == "SAS7BDAT") {
+            admisc::stopError(
+                "The extension .sas7bdat is deprecated, please use .xpt instead."
+            )
+        }
+        else if (
+            !is.element(
+                tp_to$fileext,
+                c("RDS", "SAV", "DTA", "XML", "XPT", "XLSX")
+            )
+        ) {
             admisc::stopError("Unknown destination software.")
         }
     }
@@ -271,8 +270,7 @@
         codeBook <- getMetadata(
             from,
             declared = declared,
-            encoding = encoding,
-            toext = tp_to$fileext
+            encoding = encoding
         )
 
         if (is.element("datafile", names(codeBook[["fileDscr"]]))) {
@@ -346,6 +344,7 @@
                 )
                 # data <- data[, -1, drop = FALSE]
             }
+
 
             # return(list(data = data, codeBook = codeBook))
             data <- make_labelled(data, codeBook$dataDscr)
@@ -464,8 +463,18 @@
             arglist <- dots[is.element(names(dots), fargs)]
             arglist$data_file <- from
             arglist$encoding <- encoding
-            data <- do.call(haven::read_sas, arglist)
 
+            if (is.null(arglist$catalog_file)) {
+                cats <- treatPath(tp_from$completePath, type = "sas7bcat")
+                if (any(is.element(cats$filenames, tp_from$filenames))) {
+                    arglist$catalog_file <- file.path(
+                        tp_from$completePath,
+                        paste(tp_from$filenames, "sas7bcat", sep = ".")
+                    )
+                }
+            }
+
+            data <- do.call(haven::read_sas, arglist)
             if (recode) {
                 data <- recodeMissings(
                     dataset = data,
@@ -570,7 +579,11 @@
                 codeBook$stdyDscr <- attrdata$stdyDscr
             }
 
-            exportDDI(codeBook, to, ... = ...) # embed = FALSE would go in three dots
+            exportDDI(
+                codebook = codeBook,
+                file = to,
+                ... = ...  # embed = FALSE would go in three dots
+            )
         }
         else if (identical(tp_to$fileext, "SAV")) {
             data[] <- lapply(data, function(x) {
@@ -619,7 +632,7 @@
                         rechars <- c(rechars, i)
                         # Stata does not allow labels for character variables
                         if (chartonum && !is.null(labels)) {
-                            x <- recodeCharcat(x, metadata = metadata)
+                            x <- recodeCharcat(declared::as.declared(x), metadata = metadata)
                         }
                         else {
                             label <- attr(x, "label", exact = TRUE)
@@ -632,9 +645,10 @@
                 }
             }
 
+
             if (recode) {
                 data <- recodeMissings(
-                    data,
+                    dataset = data,
                     to = "Stata",
                     dictionary = dictionary,
                     to_declared = FALSE,
@@ -661,6 +675,7 @@
             if (is.element("version", names(dots))) {
                 arglist$version <- dots$version
             }
+
 
             # if (requireNamespace("readstata13", quietly = TRUE)) {
 
@@ -756,37 +771,42 @@
             writexl::write_xlsx(x, path = to)
         }
         else {
-            if (identical(tp_to$fileext, "SAS7BDAT")) {
-                fargs <- names(formals(haven::write_sas))
-                arglist <- dots[is.element(names(dots), fargs)]
-                arglist$data <- declared::as.haven(data)
-                arglist$path <- to
-                do.call(haven::write_sas, arglist)
-            }
-            else if (identical(tp_to$fileext, "XPT")) {
+            # if (identical(tp_to$fileext, "SAS7BDAT")) {
+            #     fargs <- names(formals(haven::write_sas))
+            #     arglist <- dots[is.element(names(dots), fargs)]
+            #     arglist$data <- declared::as.haven(data)
+            #     arglist$path <- to
+            #     do.call(haven::write_sas, arglist)
+            # }
+            # else if (identical(tp_to$fileext, "XPT")) {
                 fargs <- names(formals(haven::write_xpt))
                 arglist <- dots[is.element(names(dots), fargs)]
                 arglist$data <- declared::as.haven(data)
                 arglist$path <- to
                 do.call(haven::write_xpt, arglist)
-            }
+            # }
 
             to <- file.path(
                 tp_from$completePath,
                 paste(tp_from$filenames, "sas", sep = ".")
             )
 
-            ### TODO: recodeMissings() for the dictionary, only if recode = TRUE?
+            if (is.null(dictionary) & recode) {
+                dictionary <- recodeMissings(
+                    dataset = arglist$data,
+                    to = "SAS",
+                    return_dictionary = TRUE
+                )
+            }
 
             setupfile(
-                codeBook = getMetadata(arglist$data),
+                obj = getMetadata(arglist$data),
                 file = to,
                 type = "SAS",
+                csv = arglist$data,
                 recode = recode,
                 catalog = TRUE,
-                dictionary = recodeMissings(
-                    arglist$data, to = "Stata", return_dictionary = TRUE
-                )
+                dictionary = dictionary
             )
         }
     }
