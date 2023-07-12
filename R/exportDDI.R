@@ -243,18 +243,25 @@
     `replaceChars` <- function(x) {
         x <- replaceTicks(x)
         x <- gsub(
-            rawToChar(as.raw(c(194, 160))), " ",
+            "<", "&lt;",
             gsub(
-                "<", "&lt;",
+                ">", "&gt;",
                 gsub(
-                    ">", "&gt;",
-                    gsub(
-                        "&", "&amp;",
-                        x
-                    )
+                    "&", "&amp;",
+                    x
                 )
             )
         )
+        
+        tc <- admisc::tryCatchWEM({
+            # use case: StatConverter in Electron, the terminal that opens R
+            # probably doesn't have a suitable locale and it outputs an error
+            # this does the same thing (using hexadecimal code) and is better
+            
+            # weird space character: gsub(rawToChar(as.raw(c(194, 160))), " ", x)
+            x <- gsub("\u00a0", " ", x)
+        })
+        
         return(x)
     }
 

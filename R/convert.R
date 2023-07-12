@@ -448,14 +448,9 @@
                     to = "SPSS",
                     dictionary = dictionary,
                     chartonum = chartonum,
-                    to_declared = FALSE,
+                    to_declared = declared,
                     error_null = FALSE
                 )
-            }
-            else {
-                if (admisc::anyTagged(data)) {
-                    declared <- FALSE
-                }
             }
         }
         else if (tp_from$fileext == "SAS7BDAT") {
@@ -481,7 +476,7 @@
                     to = "SPSS",
                     dictionary = dictionary,
                     chartonum = chartonum,
-                    to_declared = FALSE,
+                    to_declared = declared,
                     error_null = FALSE
                 )
             }
@@ -589,6 +584,25 @@
             data[] <- lapply(data, function(x) {
                 if (!is.element("format.spss", names(attributes(x)))) {
                     attr(x, "format.spss") <- getFormat(x, type = "SPSS")
+                }
+                
+                na_values <- attr(x, "na_values")
+                na_range <- attr(x, "na_range")
+                
+                if (is.character(x)) {
+                    if (length(na_values) > 3) {
+                        attr(x, "na_values") <- na_values[1:3]
+                    }
+                }
+                else {
+                    if (
+                        length(na_values) > 3 &
+                        length(na_range) == 0
+                    ) {
+                        na_range <- range(na_values)
+                        attr(x, "na_values") <- NULL
+                        attr(x, "na_range") <- na_range
+                    }
                 }
                 return(x)
             })
@@ -779,10 +793,18 @@
             #     do.call(haven::write_sas, arglist)
             # }
             # else if (identical(tp_to$fileext, "XPT")) {
+                lnms <- nchar(colnames(data))
+                if (any(lnms > 8)) {
+                    admisc::stopError("SAS .xpt files do not allow more than 8 characters for column names.")
+                }
                 fargs <- names(formals(haven::write_xpt))
                 arglist <- dots[is.element(names(dots), fargs)]
                 arglist$data <- declared::as.haven(data)
                 arglist$path <- to
+                if (is.null(arglist$version)) {
+                    # hardcode XPT version 5, since 8 doesn't work
+                    arglist$version <- 5
+                }
                 do.call(haven::write_xpt, arglist)
             # }
 

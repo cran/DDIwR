@@ -2754,7 +2754,7 @@
                 }
             }
 
-            cat(paste(enter, "run;", enter, enter, sep = ""))
+            cat(paste("    ;", enter, "run;", enter, enter, sep = ""))
             #     paste(c("* ", rep("-", 76), " ;"), collapse = ""), enter, enter, enter, sep = "")
         }
 
@@ -2845,13 +2845,7 @@
             }
         }
 
-        cat(paste(
-            "    ;",
-            enter, enter,
-            "run;",
-            enter, enter,
-            sep = ""
-        ))
+        cat(paste("    ;", enter, "run;", enter, enter, sep = "" ))
         # paste(c("* ", rep("-", 76), " ;"), collapse = ""), enter, enter, enter, sep = "")
 
 
