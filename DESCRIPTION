@@ -1,6 +1,6 @@
 Package: DDIwR
 Title: DDI with R
-Version: 0.15
+Version: 0.16
 Authors@R: person(
     "Adrian", "Dusa",
     email = "dusa.adrian@unibuc.ro",
@@ -19,11 +19,11 @@ Suggests: knitr, labelled, rmarkdown, spelling, testthat (>= 3.0.0),
         tibble
 Language: en-US
 Encoding: UTF-8
-RoxygenNote: 7.2.3
+RoxygenNote: 7.2.3.9000
 Config/testthat/edition: 3
 NeedsCompilation: no
-Packaged: 2023-07-12 21:59:35 UTC; dusadrian
+Packaged: 2023-10-01 16:31:43 UTC; dusadrian
 Author: Adrian Dusa [aut, cre, cph] (<https://orcid.org/0000-0002-3525-9253>)
 Maintainer: Adrian Dusa <dusa.adrian@unibuc.ro>
 Repository: CRAN
-Date/Publication: 2023-07-12 22:30:19 UTC
+Date/Publication: 2023-10-01 16:50:02 UTC
