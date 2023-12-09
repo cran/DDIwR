@@ -1,6 +1,6 @@
 Package: DDIwR
 Title: DDI with R
-Version: 0.16
+Version: 0.17
 Authors@R: person(
     "Adrian", "Dusa",
     email = "dusa.adrian@unibuc.ro",
@@ -13,8 +13,8 @@ Description: Useful functions for various DDI (Data Documentation Initiative)
     Stata, SAS, R and Excel, including user declared missing values.
 License: GPL (>= 3)
 Depends: R (>= 3.5.0)
-Imports: admisc (>= 0.32), declared (>= 0.22), tools, xml2, haven,
-        readxl, writexl
+Imports: admisc (> 0.33), base64enc, declared (> 0.23), digest, tools,
+        xml2, haven, readxl, writexl
 Suggests: knitr, labelled, rmarkdown, spelling, testthat (>= 3.0.0),
         tibble
 Language: en-US
@@ -22,8 +22,8 @@ Encoding: UTF-8
 RoxygenNote: 7.2.3.9000
 Config/testthat/edition: 3
 NeedsCompilation: no
-Packaged: 2023-10-01 16:31:43 UTC; dusadrian
+Packaged: 2023-12-09 08:57:50 UTC; dusadrian
 Author: Adrian Dusa [aut, cre, cph] (<https://orcid.org/0000-0002-3525-9253>)
 Maintainer: Adrian Dusa <dusa.adrian@unibuc.ro>
 Repository: CRAN
-Date/Publication: 2023-10-01 16:50:02 UTC
+Date/Publication: 2023-12-09 09:10:02 UTC

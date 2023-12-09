@@ -97,14 +97,15 @@ to the R enviroment. Conversion to R, either in the working space or as
 a data file, will result (by default) in a data frame containing declared
 labelled variables, as defined in package \bold{\pkg{declared}}.
 
-The current version reads and creates DDI Codebook version 2.5, with future
+The current version reads and creates DDI Codebook version 2.6, with future
 versions to extend the functionality for DDI Lifecycle versions 3.x and link
 to the future package \bold{DDI4R} for the UML model based version 4. It
-extends the standard DDI Codebook by offering the possibility to embed a CSV
-version of the raw data into the XML file containing the Codebook, into a
-\code{notes} child of the \code{fileDscr} component. This type of codebook is unique to
-this package and automatically detected when converting to another
-statistical software.
+extends the standard DDI Codebook by offering the possibility to embed a
+serialized version of the R dataset into the XML file containing the
+Codebook, within a \code{notes} child of the \code{fileDscr} component. This type of
+generated codebook is unique to this package and automatically detected when
+converting to another statistical software. This will likely be replaced with
+a time insensitive text version.
 
 Converting to SAS is experimental, and it relies on the same package
 \bold{\pkg{haven}} that uses the ReadStat C library. The safest way to
@@ -127,6 +128,12 @@ like extended codes, they will be recoded to SPSS like numeric codes.
 The character \strong{\code{encoding}} is usually passed to the corresponding functions
 from package \bold{\pkg{haven}}. It can be set to \code{NULL} to reset at the
 default in that package.
+
+Converting to SPSS works with numerical and character labelled vectors, with
+or without labels. Date/Time variables are partially supported by package
+\strong{haven}: either having such a variable with no labels and missing values,
+or if labels and missing values are declared the variable is automatically
+coerced to numeric, and users may have to make the proper settings in SPSS.
 }
 \examples{
 \dontrun{
@@ -153,8 +160,8 @@ convert("test.sav", to = "Excel")
 
 }
 \references{
-DDI - Data Documentation Initiative, see
-\href{https://ddialliance.org/}{https://ddialliance.org/}
+DDI - Data Documentation Initiative, see the
+\href{https://ddialliance.org/}{DDI Alliance} website.
 }
 \seealso{
 \code{\link{setupfile}},
