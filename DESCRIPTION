@@ -1,6 +1,6 @@
 Package: DDIwR
 Title: DDI with R
-Version: 0.17
+Version: 0.18
 Authors@R: person(
     "Adrian", "Dusa",
     email = "dusa.adrian@unibuc.ro",
@@ -15,15 +15,12 @@ License: GPL (>= 3)
 Depends: R (>= 3.5.0)
 Imports: admisc (> 0.33), base64enc, declared (> 0.23), digest, tools,
         xml2, haven, readxl, writexl
-Suggests: knitr, labelled, rmarkdown, spelling, testthat (>= 3.0.0),
-        tibble
 Language: en-US
 Encoding: UTF-8
 RoxygenNote: 7.2.3.9000
-Config/testthat/edition: 3
 NeedsCompilation: no
-Packaged: 2023-12-09 08:57:50 UTC; dusadrian
+Packaged: 2024-01-08 07:33:23 UTC; dusadrian
 Author: Adrian Dusa [aut, cre, cph] (<https://orcid.org/0000-0002-3525-9253>)
 Maintainer: Adrian Dusa <dusa.adrian@unibuc.ro>
 Repository: CRAN
-Date/Publication: 2023-12-09 09:10:02 UTC
+Date/Publication: 2024-01-08 09:30:02 UTC

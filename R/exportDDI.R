@@ -157,17 +157,16 @@
         
         addChildren(makeElement("dataDscr"), to = codeBook)
 
-        XMLhashes <- makeXMLcodeBook(
-            variables,
-            data = data,
-            DDI = FALSE,
-            ... = ...
-        )
+        XMLhashes <- makeXMLcodeBook(DDI = FALSE, ... = ...)
 
         attr(data, "hashes") <- XMLhashes[[2]]
 
         if (embed) {
-            addChildren(makeNotes(data), to = codeBook$fileDscr)
+            uuid <- XMLhashes[[3]]
+            for (i in seq(length(uuid))) {
+                attr(data[[i]], "ID") <- uuid[i]
+            }
+            addChildren(makeDataNotes(data), to = codeBook$fileDscr)
         }
         else {
             tp_file <- treatPath(file, type = "*", single = TRUE)
@@ -182,15 +181,20 @@
                 row.names = FALSE
             )
         }
-        
+
         codeBook <- as_xml_document(
             list(codeBook = removeExtra(codeBook))
         )
-        dns <- getDNS(codeBook)
 
-        tmp <- xml2::xml_replace(
-            xml_find_first(codeBook, sprintf("/%scodeBook/dataDscr", dns)),
-            xml_find_first(XMLhashes[[1]], "/d1:codeBook/d1:dataDscr")
+        xml2::xml_replace(
+            xml2::xml_find_first(codeBook, "/d1:codeBook/dataDscr"),
+            xml2::xml_find_first(XMLhashes[[1]], "/d1:codeBook/d1:dataDscr")
+        )
+        
+        xml2::xml_set_attr(
+            xml2::xml_find_first(codeBook, "/d1:codeBook/d1:dataDscr"),
+            "xmlns",
+            NULL
         )
     }
     else {
@@ -213,11 +217,6 @@
         xmlfile <- paste(
             prespace(xmlfile, indent),
             collapse = enter
-        )
-
-        writeLines(
-            xmlfile,
-            con = file
         )
     }
 }
