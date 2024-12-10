@@ -30,8 +30,7 @@ categorical variables}
 
 \item{encoding}{The character encoding used to read a file}
 
-\item{csv}{Path to the CSV file, if not embedded in XML file containing the
-DDI Codebook}
+\item{csv}{Complex argument, see the Details section}
 
 \item{...}{Additional parameters passed to other functions, see the
 Details section}
@@ -74,18 +73,23 @@ having the value of \code{TRUE}, and it can be deactivated by explicitly
 specifying \code{user_na = FALSE} in function \strong{\code{convert()}}.
 
 The same three dots argument is used to pass additional parameters to other
-functions in this package, for instance \strong{\code{exportDDI()}} when converting to
-a DDI file. One of its argument \strong{\code{embed}} (activated by default) can be
+functions in this package, for instance \strong{\code{exportCodebook()}} when writing
+to a DDI file. One of its argument \strong{\code{embed}} (activated by default) can be
 used to control embedding the data in the XML file. Deactivating it will
 create a CSV file in the same directory, using the same file name as the
 XML file.
 
 When converting from DDI, if the dataset is not embedded in the XML file, the
 CSV file is expected to be found in the same directory as the DDI Codebook,
-and it should have the same file name as the XML file. Alternatively, the
-path to the CSV file can be provided via the \strong{\code{csv}} argument. Additional
-formal parameters of the function \bold{\code{\link[utils]{read.csv}()}} can
-be passed via the same three dots \strong{\code{...}} argument.
+and it should have the same file name as the XML file. The path to the CSV
+file can be provided via the \strong{\code{csv}} argument. Additional formal
+parameters of the function \bold{\code{\link[utils]{read.csv}()}} can
+be passed via the same three dots \strong{\code{...}} argument. Alternatively, the
+\strong{\code{csv}} argument can also be an R data frame.
+
+When converting to DDI, if the argument \strong{\code{embed}} is set to \code{FALSE}, users
+have the option to save the data in a separate CSV file (the default) or not
+to save the data at all, by setting \strong{\code{csv}} to \code{FALSE}.
 
 The DDI .xml file generates unique IDs for all variables, if not already
 present in the attributes. These IDs are useful for newer versions of the DDI
@@ -169,9 +173,8 @@ DDI - Data Documentation Initiative, see the
 }
 \seealso{
 \code{\link{setupfile}},
-\code{\link{getMetadata}},
-\code{\link[declared]{declared}},
-\code{\link[haven]{labelled}}
+\code{\link{getCodebook}},
+\code{\link[declared]{declared}}
 }
 \author{
 Adrian Dusa

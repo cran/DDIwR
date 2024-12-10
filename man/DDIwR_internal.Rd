@@ -40,6 +40,8 @@
 \alias{writeMetadata}
 \alias{XMLtoRmetadata}
 \alias{makeNotes}
+\alias{getMetadata}
+\alias{exportDDI}
 \alias{writeRlist}
 \title{DDIwR internal functions}
 \usage{
@@ -63,13 +65,13 @@ cleanup(x, cdata = TRUE)
 
 coerceDDI(element, name = NULL)
 
-collectMetadata(dataset, ...)
+collectMetadata(from, ...)
 
-collectRMetadata(dataset, ...)
+collectRMetadata(from, ...)
 
 extractData(xml)
 
-formatExample(xml_node, level = 0, indent = 2)
+formatExample(xml_node, level = 0, indent = 2, output = NULL, ...)
 
 generateID(x, nchars = 16)
 
@@ -118,6 +120,10 @@ writeMetadata(variables, OS = "", indent = 4)
 XMLtoRmetadata(xmlvar, dns)
 
 makeNotes(data)
+
+getMetadata(...)
+
+exportDDI(...)
 
 writeRlist(variables, OS = "windows", indent = 4, dirpath = "", filename = "")
 }

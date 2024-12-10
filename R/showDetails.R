@@ -13,63 +13,145 @@
 #'
 #' @examples
 #' showDetails("codeBook")
-#' 
+#'
 #' showAttributes("catgry")
-#' 
+#'
 #' showExamples("abstract")
-#' 
+#'
 #' showLineages("titl")
-#' 
+#'
 #' @export
 `showDetails` <- function(x, ...) {
-    showDescription(x, endWith = "")
-    showAttributes(x, endWith = "")
-    showExamples(x, endWith = "")
-    showRelations(x)
+    description <- showDescription(x, return = TRUE)
+    attributes <- showAttributes(x, return = TRUE)
+    examples <- showExamples(x, return = TRUE)
+    relations <- showRelations(x, return = TRUE)
+
+    toprint <- character(0)
+    noprint <- character(0)
+    nodesc <- any(grepl("does not have a description", description))
+    noatts <- any(grepl("does not have any specific attributes", attributes))
+    noexls <- any(grepl("no examples for this element", examples))
+
+    prefix <- FALSE
+
+    if (nodesc) {
+        noprint <- c(noprint, "This element does not have a description")
+        prefix <- TRUE
+    } else {
+        toprint <- c(toprint, description)
+    }
+
+    if (noatts) {
+        if (prefix) {
+            noprint <- c(noprint, ifelse(noexls, ",", " and"), " it has no specific attributes")
+        } else {
+            noprint <- c(noprint, "This element does not have any specific attributes")
+        }
+
+        prefix <- TRUE
+    } else {
+        toprint <- c(toprint, attributes)
+    }
+
+    if (noexls) {
+        if (prefix) {
+            noprint <- c(noprint, " and it has no examples")
+        } else {
+            noprint <- c(noprint, "This element has no examples")
+        }
+    } else {
+        toprint <- c(toprint, examples)
+    }
+
+    noprint <- c(noprint, ".\n\n")
+
+    if (sum(c(nodesc, noatts, noexls)) == 0) {
+        noprint <- character(0)
+    }
+
+    toprint <- c(toprint, relations, noprint)
+
+    cat(paste(toprint, collapse = ""))
 }
 
 #' @rdname showDetails
 #' @export
 `showDescription` <- function(x, ...) {
+
+    DDIC <- get("DDIC", envir = cacheEnv)
+
     checkElement(x)
     dots <- list(...)
-    endWith <- ifelse(is.null(dots$endWith), "\n", dots$endWith)
-    cat("\n")
-    writeLines(strwrap(
-        paste0(
-            DDIC[[x]]$title,
-            " (",
-            ifelse (DDIC[[x]]$optional, "optional, ", "mandatory, "),
-            ifelse (DDIC[[x]]$repeatable, "repeatable", "non-repeatable"),
-            ")"
+    endWith <- ifelse(isTRUE(dots$return), "", "\n")
+
+    toprint <- "\n"
+    toprint <- c(
+        toprint,
+        paste(
+            strwrap(
+                paste0(
+                    DDIC[[x]]$title,
+                    " (",
+                    ifelse (DDIC[[x]]$optional, "optional, ", "mandatory, "),
+                    ifelse (DDIC[[x]]$repeatable, "repeatable", "non-repeatable"),
+                    ")"
+                )
+            ),
+            collapse = "\n"
+        ),
+        "\n"
+    )
+
+    if (identical(DDIC[[x]]$description, "")) {
+        toprint <- c(toprint, "\nThis element does not have a description.\n")
+    } else {
+        toprint <- c(
+            toprint,
+            paste(
+                strwrap(
+                    unlist(strsplit(DDIC[[x]]$description, split = "\n"))
+                ),
+                collapse = "\n"
+            ),
+            "\n"
         )
-    ))
+    }
 
-    writeLines(strwrap(
-        unlist(strsplit(DDIC[[x]]$description, split = "\n"))
-    ))
+    toprint <- c(toprint, endWith)
 
-    cat(endWith)
+    if (isTRUE(dots$return)) {
+        return(toprint)
+    } else {
+        cat(paste(toprint, collapse = ""))
+    }
 }
 
 #' @rdname showDetails
 #' @param name Character, print only a specific element (name)
 #' @export
 `showAttributes` <- function(x, name = NULL, ...) {
+
+    DDIC <- get("DDIC", envir = cacheEnv)
+    toprint <- character(0)
+
     dots <- list(...)
     if (is.list(x)) {
         attrs <- attributes(x)
         attrs$names <- NULL
         nms <- names(attrs)
         for (n in nms) {
-            cat(sprintf("%s: %s\n", n, attrs[[n]]))
+            toprint <- c(
+                toprint,
+                sprintf("%s: %s\n", n, attrs[[n]])
+            )
         }
     }
     else {
-        endWith <- ifelse(is.null(dots$endWith), "\n", dots$endWith)
+        endWith <- ifelse(isTRUE(dots$return), "", "\n")
 
         if (identical(x, "_global_")) {
-            attributes <- DDIC_global_attributes
+            attributes <- get("DDIC_global_attributes", envir = cacheEnv)
             message <- "\nGlobal attributes:\n"
         }
         else {
@@ -79,7 +161,7 @@
         }
 
         if (length(attributes) > 0) {
-            cat(message)
+            toprint <- c(toprint, message)
 
             if (is.null(name)) {
                 name <- names(attributes)
@@ -115,23 +197,45 @@
                     }
                 }
 
-                cat(paste0("- ", nm, ": ", type, "\n"))
+                toprint <- c(
+                    toprint,
+                    paste(
+                        strwrap(
+                            paste0("- ", nm, ": ", type, "\n"),
+                            exdent = 4
+                        ),
+                        collapse = "\n"
+                    ),
+                    "\n"
+                )
 
                 description <- attributes[[n]]$description
 
                 for (i in seq(length(description))) {
                     if (nzchar(description[i]) & !is.na(description[i])) {
-                        writeLines(strwrap(description[i], prefix = "  "))
+                        toprint <- c(
+                            toprint,
+                            paste(
+                                strwrap(description[i], prefix = "  "),
+                                collapse = "\n"
+                            ),
+                            "\n"
+                        )
                     }
                 }
-
             }
         }
         else {
-            cat("\nThis element does not have any specific attributes.\n")
+            toprint <- c(toprint, "\nThis element does not have any specific attributes.\n")
         }
 
-        cat(endWith)
+        toprint <- c(toprint, endWith)
+    }
+
+    if (isTRUE(dots$return)) {
+        return(toprint)
+    } else {
+        cat(paste(toprint, collapse = ""))
     }
 }
 
@@ -144,37 +248,50 @@
 #' @rdname showDetails
 #' @export
 `showExamples` <- function(x, ...) {
+
+    DDIC <- get("DDIC", envir = cacheEnv)
+
     checkElement(x)
     dots <- list(...)
-    endWith <- ifelse(is.null(dots$endWith), "\n", dots$endWith)
-    cat("\n")
+    endWith <- ifelse(isTRUE(dots$return), "", "\n")
     examples <- DDIC[[x]]$examples
 
-    cat("Examples:\n")
 
     if (length(examples) == 0) {
-        cat("There are no examples for this element.\n")
+        toprint <- "\nThere are no examples for this element.\n"
     }
     else {
+        toprint <- "\nExamples:\n"
         for (i in seq(length(examples))) {
-            formatExample(xml2::read_xml(examples[i]))
-            cat(ifelse(i < length(examples), "\n", ""))
+            toprint <- c(
+                toprint,
+                formatExample(xml2::read_xml(examples[i]), ... = ...)
+            )
         }
     }
 
-    cat(endWith)
+    toprint <- c(toprint, endWith)
+
+    if (isTRUE(dots$return)) {
+        return(toprint)
+    } else {
+        cat(paste(toprint, collapse = ""))
+    }
 }
 
 #' @rdname showDetails
 #' @export
 `showRelations` <- function(x, ...) {
+
+    DDIC <- get("DDIC", envir = cacheEnv)
+
     checkElement(x)
     dots <- list(...)
     endWith <- ifelse(is.null(dots$endWith), "\n", dots$endWith)
-    cat("\n")
+    toprint <- "\n"
     parents <- DDIC[[x]]$parents
     parents2 <- parents
-    children <- DDIC[[x]]$children
+    children <- unlist(DDIC[[x]]$children)
     children2 <- children
 
     if (is.element(x, children)) {
@@ -183,8 +300,8 @@
     }
 
     if (length(children) > 0) {
-        cat(
-            "Children:\n-",
+        toprint <- c(toprint,
+            "Children:\n- ",
             paste(
                 children2,
                 sapply(
@@ -205,8 +322,8 @@
     }
 
     if (length(parents) > 0) {
-        cat(
-            "Parents:\n-",
+        toprint <- c(toprint,
+            "Parents:\n- ",
             paste(
                 parents2,
                 sapply(
@@ -221,12 +338,21 @@
         )
     }
 
-    cat(endWith)
+    toprint <- c(toprint, endWith)
+
+    if (isTRUE(dots$return)) {
+        return(toprint)
+    } else {
+        cat(paste(toprint, collapse = ""))
+    }
 }
 
 #' @rdname showDetails
 #' @export
 `showLineages` <- function(x, ...) {
+
+    DDIC <- get("DDIC", envir = cacheEnv)
+
     checkElement(x)
 
     if (identical(x, "codeBook")) {
@@ -260,11 +386,11 @@
 
     getLineage(x)
 
+    first <- sapply(all_lineages, "[[", 1)
     all_lineages <- lapply(all_lineages, function(x) {
         return(c("codeBook", x))
     })
-    first <- sapply(all_lineages, "[[", 2)
-    all_lineages <- all_lineages[order(match(first, DDIC$codeBook$children))]
+    all_lineages <- all_lineages[order(match(first, unlist(DDIC$codeBook$children)))]
 
     x <- structure(unique(all_lineages), class = "lineage")
     attr(x, "endWith") <- endWith

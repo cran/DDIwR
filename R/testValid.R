@@ -35,6 +35,8 @@
 #' @export
 `testValid` <- function(element, monolang = TRUE) {
 
+    DDIC <- get("DDIC", envir = cacheEnv)
+
     # mandatory elements
     melements <- setdiff(
         names(which(sapply(DDIC, function(x) !x$optional))),
@@ -62,7 +64,7 @@
 
     second <- sapply(xpaths_elements, "[[", 2)
     xpaths_elements <- xpaths_elements[
-        order(match(second, DDIC$codeBook$children))
+        order(match(second, unlist(DDIC$codeBook$children)))
     ]
 
     xpaths_attributes <- list()
@@ -72,7 +74,7 @@
 
     second <- sapply(xpaths_attributes, "[[", 2)
     xpaths_attributes <- xpaths_attributes[
-        order(match(second, DDIC$codeBook$children))
+        order(match(second, unlist(DDIC$codeBook$children)))
     ]
 
     xpaths_attributes <- setdiff(xpaths_attributes, xpaths_elements)

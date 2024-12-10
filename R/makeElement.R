@@ -32,14 +32,19 @@
 #' Codebook.
 #'
 #' By default, the Codebook is assumed to have a single language for all
-#' elements. This argument `monolang` can be deactivated through the `...` gate,
-#' in which situation the appropriate elements will receive a default argument
-#' `xmlang = "en"`. For other languages, that argument can also be provided
-#' through the `...` gate.
+#' elements. The argument `monolang` can be deactivated through the "`...`"
+#' gate, in which situation the appropriate elements will receive a default
+#' argument `xmlang = "en"`. For other languages, that argument can also be
+#' provided through the "`...`" gate.
 #'
 #' One such DDI Codebook element is the `stdyDscr` (Study Description), with the
 #' associated mandatory children, for instance title, ID number, distributor,
 #' citation, abstract etc.
+#'
+#' The complete list of elements for which default values are added is: "IDNo",
+#' "titl", "titlStmt", "distrbtr", "distStmt", "holdings", "citation",
+#' "abstract", "stdyInfo", "stdyDscr", "prodDate", "software", "prodStmt",
+#' "docDscr" and "otherMat".
 #'
 #' @author Adrian Dusa
 #'
@@ -52,7 +57,7 @@
 #' stdyDscr <- makeElement("stdyDscr", fill = TRUE)
 #'
 #' # easier to extract with:
-#' getChildren("stdyDscr/citation/titlStmt/titl", from = stdyDscr)
+#' getChildren("citation/titlStmt/titl", from = stdyDscr)
 #'
 #' @export
 `makeElement` <- function(
@@ -196,24 +201,27 @@
         else if (identical(name, "otherMat")) {
             return(makeElement("otherMat", attributes = c(level = level)))
         }
-        else {
-            admisc::stopError("No default for this element.")
+        else if (!isFALSE(dots$message)) {
+            message("\nThis element does not have any defaults.\n")
         }
     }
 
     if (!is.null(children)) {
         addChildren(children, element)
     }
-    
+
     if (!is.null(attributes)) {
         addAttributes(attributes, element)
     }
-    
+
     if (!is.null(content)) {
         addContent(content, element)
     }
 
     if (name == "codeBook") {
+
+        DDIC <- get("DDIC", envir = cacheEnv)
+
         if (anyAttributes(element)) {
             attnms <- names(DDIC$codeBook$attributes)
             for (name in attnms) {

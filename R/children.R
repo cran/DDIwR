@@ -50,6 +50,9 @@
 #'
 #' @export
 `addChildren` <- function(children, to, overwrite = TRUE, ...) {
+
+    DDIC <- get("DDIC", envir = cacheEnv)
+
     objname <- deparse1(substitute(to))
     dots <- list(...)
 
@@ -76,7 +79,7 @@
     childnames <- sapply(children, function(x) x$.extra$name)
     names(children) <- childnames
 
-    all_children <- DDIC[[to$.extra$name]]$children
+    all_children <- unlist(DDIC[[to$.extra$name]]$children)
 
     if (!all(is.element(childnames, all_children))) {
         admisc::stopError("One or more children do not belong to this element.")
@@ -95,16 +98,48 @@
             )
         )
     }
-    
-    uchildren <- intersect(uchildren[!repeatable], names(to))
 
-    if (length(uchildren)) {
+    nonrep <- intersect(uchildren[!repeatable], names(to))
+
+    if (length(nonrep)) {
         admisc::stopError(
             sprintf(
                 "These children already exist and should not be repeated: %s.",
-                paste(uchildren, collapse = ", ")
+                paste(nonrep, collapse = ", ")
             )
         )
+    }
+
+    choice <- NULL
+    tochildren <- DDIC[[to$.extra$name]]$children
+    if (!is.null(tochildren)) {
+        choice <- tochildren$choice
+    }
+
+
+    if (!is.null(choice)) {
+        existing <- names(to)
+        uchildren <- setdiff(uchildren, existing)
+
+        restriction <- FALSE
+
+        if (identical(existing, ".extra")) {
+            if (length(uchildren) > 1) {
+                restriction <- TRUE
+            }
+        }
+        else if (length(uchildren) && any(is.element(uchildren, choice))) {
+            restriction <- TRUE
+        }
+
+        if (restriction) {
+            admisc::stopError(
+                sprintf(
+                    "Choice restriction, only one of these children should be added: %s.",
+                    paste(choice, collapse = ", ")
+                )
+            )
+        }
     }
 
     attrbs <- attributes(to)
@@ -402,6 +437,9 @@
     objname <- deparse1(substitute(to))
     attrnames <- names(attrs)
 
+    DDIC <- get("DDIC", envir = cacheEnv)
+    DDIC_global_attributes <- get("DDIC_global_attributes", envir = cacheEnv)
+
     if (missing(attrs) || is.null(attrnames) || !is.atomic(attrs)) {
         admisc::stopError(
             "The argument 'attrs' should be a vector of named values."
@@ -465,6 +503,9 @@
 #' @export
 `changeAttributes` <- function(attrs, from, overwrite = TRUE) {
     objname <- deparse1(substitute(from))
+
+    DDIC <- get("DDIC", envir = cacheEnv)
+    DDIC_global_attributes <- get("DDIC_global_attributes", envir = cacheEnv)
 
     attrnames <- names(attrs)
     if (missing(attrs) || is.null(attrnames) || !is.atomic(attrs)) {
@@ -530,6 +571,9 @@
 #' @export
 `removeAttributes` <- function(name, from, overwrite = TRUE) {
     objname <- deparse1(substitute(from))
+
+    DDIC <- get("DDIC", envir = cacheEnv)
+    DDIC_global_attributes <- get("DDIC_global_attributes", envir = cacheEnv)
 
     if (
         missing(name) ||

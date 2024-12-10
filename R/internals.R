@@ -31,7 +31,7 @@ NULL
     if (!remove && hasAttributes(x, "xmlang")) {
         xmlang <- attr(x, "xmlang")
     }
-    
+
     x <- removeAttributes("xmlang", from = x)
     attr(x, "xml:lang") <- xmlang
 
@@ -113,6 +113,9 @@ NULL
 #' @keywords internal
 #' @export
 `checkElement` <- function(x) {
+
+    DDIC <- get("DDIC", envir = cacheEnv)
+
     if (is.null(x) || !is.atomic(x) || !is.character(x)) {
         admisc::stopError("'x' should be an atomic character input.")
     }
@@ -261,6 +264,9 @@ NULL
 #' @rdname DDIwR_internal
 #' @export
 `checkXMList` <- function(xmlist) {
+
+    DDIC <- get("DDIC", envir = cacheEnv)
+
     nms <- c()
     extractNames <- function(x) {
         if (is.list(x)) {
@@ -323,19 +329,23 @@ NULL
         if (is.element(".extra", nms)) {
             admisc::stopError("The element is already DDI structured.")
         }
-        
+
         attrs <- attributes(element)
         lang <- names(attrs) == "lang"
         if (any(lang)) {
             names(attrs)[lang] <- "xmlang"
         }
-        
+
         if (is.null(nms)) {
+            attrs$names <- c("", ".extra")
+            if (length(element) == 0) {
+                attrs$names <- ".extra"
+            }
+
             element <- c(
                 element,
                 list(list(name = name))
             )
-            attrs$names <- c("", ".extra")[seq(length(element))]
         }
         else {
             if (is.null(name)) {
@@ -348,14 +358,14 @@ NULL
 
                 return(coerceDDI(element[[1]], name = nms))
             }
-            
+
             element <- c(
                 lapply(seq_along(nms), function(i) {
                     coerceDDI(element[[i]], nms[i])
                 }),
                 list(list(name = name))
             )
-            
+
             attrs$names <- c(nms, ".extra")
         }
 
@@ -371,14 +381,14 @@ NULL
 #' @rdname DDIwR_internal
 #' @keywords internal
 #' @export
-`collectMetadata` <- function(dataset, ...) {
+`collectMetadata` <- function(from, ...) {
     dots <- list(...)
 
-    if (is.data.frame(dataset)) {
+    if (is.data.frame(from)) {
         error <- TRUE
         i <- 1
-        while (i <= ncol(dataset) & error) {
-            attrx <- attributes(dataset[[i]])
+        while (i <= ncol(from) & error) {
+            attrx <- attributes(from[[i]])
             if (any(is.element(
                 c("label", "labels", "na_value", "na_range"),
                 names(attrx)
@@ -405,7 +415,7 @@ NULL
 
     return(
         makeXMLcodeBook(
-            data = dataset,
+            data = from,
             ... = ...
         )[[1]]$dataDscr
     )
@@ -417,14 +427,14 @@ NULL
 #' @rdname DDIwR_internal
 #' @keywords internal
 #' @export
-`collectRMetadata` <- function(dataset, ...) {
+`collectRMetadata` <- function(from, ...) {
     dots <- list(...)
 
-    if (is.data.frame(dataset)) {
+    if (is.data.frame(from)) {
         error <- TRUE
         i <- 1
-        while (i <= ncol(dataset) & error) {
-            attrx <- attributes(dataset[[i]])
+        while (i <= ncol(from) & error) {
+            attrx <- attributes(from[[i]])
             if (any(is.element(
                 c("label", "labels", "na_value", "na_range"),
                 names(attrx)
@@ -449,7 +459,7 @@ NULL
         )
     }
 
-    output <- lapply(dataset, function(x) {
+    output <- lapply(from, function(x) {
         result <- list(
             classes = class(x)
         )
@@ -515,7 +525,7 @@ NULL
             result$na_range
         )
 
-        
+
         if (is.element("Date", getElement(result, "classes"))) {
             result[["varFormat"]] <- "date"
         }
@@ -559,6 +569,11 @@ NULL
         dns <- getDNS(xml) # default name space
         xpath <- sprintf("/%scodeBook/%sfileDscr/%snotes", dns, dns, dns)
         elements <- xml2::xml_find_all(xml, xpath)
+
+        if (length(elements) == 0) {
+            return(NULL)
+        }
+
         attrs <- lapply(elements, xml2::xml_attrs)
 
         wdata <- which(sapply(elements, function(x) {
@@ -620,7 +635,10 @@ NULL
 #' @rdname DDIwR_internal
 #' @keywords internal
 #' @export
-`formatExample` <- function(xml_node, level = 0, indent = 2) {
+`formatExample` <- function(xml_node, level = 0, indent = 2, output = NULL, ...) {
+    if (is.null(output)) {
+        output <- ""
+    }
     prespace <- repeatSpace(level, indent = indent)
     element <- paste0("<", xml2::xml_name(xml_node))
     attrs <- unlist(xml2::xml_attrs(xml_node))
@@ -641,62 +659,94 @@ NULL
 
     if (length(children) > 0) {
         element <- paste0(element, ">")
-        cat(paste(
-            strwrap(
-                element,
-                width = width,
-                prefix = prespace
-            ),
-            collapse = "\n"
-        ))
-        cat("\n")
-        for (child in children) {
-            formatExample(child, level + 1)
-            xml2::xml_remove(child)
-        }
-    }
-
-    text <- xml2::xml_text(xml_node)
-    if (nzchar(text)) {
-        if (length(children) == 0) {
-            element <- paste0(element, ">")
-            cat(paste(
+        output <- paste0(
+            output,
+            paste(
                 strwrap(
                     element,
                     width = width,
                     prefix = prespace
                 ),
                 collapse = "\n"
-            ))
-            cat("\n")
+            )
+        )
+        output <- paste0(output, "\n")
+        childoutput <- ""
+        for (child in children) {
+            childoutput <- paste0(
+                childoutput,
+                formatExample(child, level + 1, output = childoutput)
+            )
+            xml2::xml_remove(child)
         }
+        output <- paste0(output, childoutput)
+    }
+
+
+    text <- xml2::xml_text(xml_node)
+
+    if (nzchar(text)) {
+        if (length(children) == 0) {
+            element <- paste0(element, ">")
+            output <- paste0(
+                output,
+                paste(
+                    strwrap(
+                        element,
+                        width = width,
+                        prefix = prespace
+                    ),
+                    collapse = "\n"
+                )
+            )
+            output <- paste0(output, "\n")
+        }
+
         prespaceplus <- repeatSpace(level + 1, indent = indent)
-        writeLines(strwrap(
-            text,
-            width = width,
-            prefix = prespaceplus
-        ))
+
+        output <- paste0(
+            output,
+            paste(
+                strwrap(
+                    text,
+                    width = width,
+                    prefix = prespaceplus
+                ),
+                collapse = "\n"
+            )
+        )
+        output <- paste0(output, "\n")
     }
 
     if (text == "" & length(children) == 0) {
         element <- paste0(element, "/>")
-        cat(paste(
-            strwrap(
-                element,
-                width = width,
-                prefix = prespace
-            ),
-            collapse = "\n"
-        ))
+        output <- paste0(
+            output,
+            paste(
+                strwrap(
+                    element,
+                    width = width,
+                    prefix = prespace
+                ),
+                collapse = "\n"
+            )
+        )
     }
     else {
-        cat(strwrap(
-            paste0("</", xml2::xml_name(xml_node), ">"),
-            width = width,
-            prefix = prespace
-        ))
+        output <- paste0(
+            output,
+            paste(
+                strwrap(
+                    paste0("</", xml2::xml_name(xml_node), ">"),
+                    width = width,
+                    prefix = prespace
+                ),
+                collapse = "\n"
+            )
+        )
     }
-    cat("\n")
+
+    return(paste0(output, "\n"))
 }
 
 
@@ -783,7 +833,7 @@ NULL
 #' @export
 `getDNS` <- function(xml) {
     xmlns <- xml2::xml_ns(xml)
-    wns <- which(xmlns == "ddi:codebook:2_5")
+    wns <- which(xmlns == "ddi:codebook:2_5" | xmlns == "ddi:codebook:2_6")
     if (length(wns) == 0) {
         admisc::stopError("The XML document does not contain a DDI namespace.")
     }
@@ -804,7 +854,7 @@ NULL
     if (target_os == "WINDOWS" | target_os == "WIN") {
         enter <- ifelse(current_os == "Windows", "\n", "\r\n")
     }
-    else if (target_os == "LINUX") {
+    else if (target_os == "LINUX" | target_os == "EMSCRIPTEN") {
         enter <- "\n"
     }
     else if (
@@ -1154,13 +1204,13 @@ NULL
         #------------------------------------------------------------------
         # attrx$label, if not existing, takes from attrx$labels
         # attrx[["label"]] is something like attr(x, "label", exact = TRUE)
-        label <- variables[[i]]$.extra[["label"]]
-        labels <- variables[[i]]$.extra[["labels"]]
+        label <- variables[[i]][["label"]]
+        labels <- variables[[i]][["labels"]]
         #------------------------------------------------------------------
 
-        na_values <- variables[[i]]$.extra[["na_values"]]
-        na_range <- variables[[i]]$.extra[["na_range"]]
-        measurement <- variables[[i]]$.extra[["measurement"]]
+        na_values <- variables[[i]][["na_values"]]
+        na_range <- variables[[i]][["na_range"]]
+        measurement <- variables[[i]][["measurement"]]
 
         v <- x[[i]]
         attributes(v) <- NULL
@@ -1238,7 +1288,7 @@ NULL
 # completely internal function, not designed for general use
 `makeXMLcodeBook` <- function(variables = NULL, data = NULL, indent = 2, ...) {
     dots <- list(...)
-    
+
     if (is.null(variables)) {
         if (is.null(data)) {
             admisc::stopError("Both variables and dataset are NULL.")
@@ -1249,7 +1299,7 @@ NULL
     varxmlang <- any(sapply(variables, function(x) {
         is.element("xmlang", names(x))
     }))
-    
+
     xmlang <- ""
     if (isFALSE(getElement(dots, "monolang")) | varxmlang) {
         xmlang <- paste0(
@@ -1269,31 +1319,28 @@ NULL
         suppressWarnings(sink())
         # close(tcon)
     })
-    
+
     dates <- sapply(variables, function(x) {
         identical(x$varFormat, "date")
     })
 
-    pN <- logical(length(variables))
+    pN <- wN <- logical(length(variables))
     if (!is.null(data)) {
         pN <- sapply(data[names(variables)], function(x) {
             admisc::possibleNumeric(unclass(x))
         })
 
+        wN <- sapply(data[names(variables)], function(x) {
+            admisc::wholeNumeric(unclass(x))
+        })
+
         aN <- lapply(
-            subset(
-                data,
-                select = is.element(
-                    names(data),
-                    names(pN)[pN]
-                )
-            ),
-            # data[, names(pN)[pN], drop = FALSE],
+            subset(data, select = pN),
             function(x) admisc::asNumeric(unclass(x))
         )
     }
 
-    
+
     # uuid for all variables
     uuid <- generateID(length(variables))
     varnames <- names(variables)
@@ -1306,14 +1353,14 @@ NULL
 
     tmp <- tempdir()
     sink(file.path(tmp, "codeBook.xml"))
-    
+
     cat(paste0("<?xml version=\"1.0\" encoding=\"UTF-8\"?>", enter))
     cat(paste0(
         "<codeBook ",
         "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" ",
         "xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" ",
-        "xmlns=\"ddi:codebook:2_5\" version=\"2.5\" ",
-        "xsi:schemaLocation=\"ddi:codebook:2_5 codebook.xsd\">",
+        "xmlns=\"ddi:codebook:2_6\" version=\"2.6\" ",
+        "xsi:schemaLocation=\"ddi:codebook:2_6 codebook.xsd\">",
         enter
     ))
 
@@ -1332,7 +1379,7 @@ NULL
         if (!is.null(varFormat)) {
             varFormat <- varFormat[1]
         }
-        
+
         lxmlang <- getElement(metadata, "xmlang")
         if (is.null(lxmlang)) {
             lxmlang <- rep(xmlang, length.out = length(lbls))
@@ -1360,6 +1407,12 @@ NULL
             )
         }
 
+        files <- ifelse(
+            is.null(dots$file_id),
+            "",
+            paste0(" files=\"", dots$file_id, "\"")
+        )
+
         dcml <- ""
         if (!is.null(data) && pN[i]) {
             dcml <- paste0(
@@ -1383,6 +1436,7 @@ NULL
 
         cat(paste0(
             "<", ns, "var ID=\"", uuid[i], "\"",
+            files,
             " name=\"", varnames[i], "\"",
             dcml, nature, ">",
             enter
@@ -1404,8 +1458,8 @@ NULL
                 if (identical(na_range[1], -Inf)) {
                     cat(paste0(
                         sprintf(
-                            "<%srange UNITS=\"INT\" max=\"%s\"/>",
-                            ns, na_range[2]
+                            "<%srange UNITS=\"%s\" max=\"%s\"/>",
+                            ns, ifelse(wN[i], "INT", "REAL"), na_range[2]
                         ),
                         enter
                     ))
@@ -1413,8 +1467,8 @@ NULL
                 else {
                     cat(paste0(
                         sprintf(
-                            "<%srange UNITS=\"INT\" min=\"%s\"/>",
-                            ns, na_range[1]
+                            "<%srange UNITS=\"%s\" min=\"%s\"/>",
+                            ns, ifelse(wN[i], "INT", "REAL"), na_range[1]
                         ),
                         enter
                     ))
@@ -1423,8 +1477,8 @@ NULL
             else {
                 cat(paste0(
                     sprintf(
-                        "<%srange UNITS=\"INT\" min=\"%s\" max=\"%s\"/>",
-                        ns, na_range[1], na_range[2]
+                        "<%srange UNITS=\"%s\" min=\"%s\" max=\"%s\"/>",
+                        ns, ifelse(wN[i], "INT", "REAL"), na_range[1], na_range[2]
                     ),
                     enter
                 ))
@@ -1433,6 +1487,7 @@ NULL
             cat(paste0("</", ns, "invalrng>", enter))
         }
 
+        vals <- sumna <- NULL
         # even if the data is not present, pN is FALSE for all variables
         if (pN[i] & !dates[i]) {
             vals <- aN[[names(variables)[i]]]
@@ -1445,6 +1500,7 @@ NULL
                 vals[is.element(vals, lbls[ismiss])] <- NA
             }
 
+            sumna <- sum(is.na(vals))
             vals <- na.omit(vals)
 
             # this is a test if a variable truly is numeric
@@ -1457,67 +1513,116 @@ NULL
                 printnum <- printnum | (length(vals) > 2 & grepl("num", type))
             }
 
-            if (printnum) { # numeric variable
+            if (length(unique(vals)) > 1) {
+                valrng <- range(vals)
+                cat(paste("<", ns, "valrng>", enter, sep = ""))
                 cat(paste0(
-                    "<", ns, "sumStat type=\"min\">",
-                    format(
-                        min(vals, na.rm = TRUE),
-                        scientific = FALSE
+                    sprintf(
+                        "<%srange UNITS=\"%s\" min=\"%s\" max=\"%s\"/>",
+                        ns, ifelse(wN[i], "INT", "REAL"), valrng[1], valrng[2]
                     ),
-                    "</", ns, "sumStat>",
                     enter
                 ))
+                cat(paste0("</", ns, "valrng>", enter))
 
-                cat(paste0(
-                    "<", ns, "sumStat type=\"max\">",
-                    format(
-                        max(vals, na.rm = TRUE),
-                        scientific = FALSE
-                    ),
-                    "</", ns, "sumStat>",
-                    enter
-                ))
+                if (printnum) { # numeric variable
+                    cat(paste0(
+                        "<", ns, "sumStat type=\"min\">",
+                        format(
+                            min(vals, na.rm = TRUE),
+                            scientific = FALSE
+                        ),
+                        "</", ns, "sumStat>",
+                        enter
+                    ))
 
-                cat(paste0(
-                    "<", ns, "sumStat type=\"mean\">",
-                    format(
-                        mean(vals, na.rm = TRUE),
-                        scientific = FALSE
-                    ),
-                    "</", ns, "sumStat>",
-                    enter
-                ))
+                    cat(paste0(
+                        "<", ns, "sumStat type=\"max\">",
+                        format(
+                            max(vals, na.rm = TRUE),
+                            scientific = FALSE
+                        ),
+                        "</", ns, "sumStat>",
+                        enter
+                    ))
 
-                cat(paste0(
-                    "<", ns, "sumStat type=\"medn\">",
-                    format(
-                        median(vals, na.rm = TRUE),
-                        scientific = FALSE
-                    ),
-                    "</", ns, "sumStat>",
-                    enter,
-                    sep = ""
-                ))
+                    cat(paste0(
+                        "<", ns, "sumStat type=\"mean\">",
+                        format(
+                            mean(vals, na.rm = TRUE),
+                            scientific = FALSE
+                        ),
+                        "</", ns, "sumStat>",
+                        enter
+                    ))
 
-                cat(paste0(
-                    "<", ns, "sumStat type=\"stdev\">",
-                    format(
-                        sd(vals, na.rm = TRUE),
-                        scientific = FALSE
-                    ),
-                    "</", ns, "sumStat>",
-                    enter
-                ))
+                    cat(paste0(
+                        "<", ns, "sumStat type=\"medn\">",
+                        format(
+                            median(vals, na.rm = TRUE),
+                            scientific = FALSE
+                        ),
+                        "</", ns, "sumStat>",
+                        enter,
+                        sep = ""
+                    ))
 
+                    cat(paste0(
+                        "<", ns, "sumStat type=\"stdev\">",
+                        format(
+                            sd(vals, na.rm = TRUE),
+                            scientific = FALSE
+                        ),
+                        "</", ns, "sumStat>",
+                        enter
+                    ))
+                }
             }
         }
+        else if (!is.null(data)){
+            vals <- data[[names(variables)[i]]]
 
+            if (!is.null(lbls)) {
+                ismiss <- is.element(lbls, na_values)
+                if (length(na_range) > 0) {
+                    ismiss <- ismiss | (lbls >= na_range[1] & lbls <= na_range[2])
+                }
+                vals[is.element(vals, lbls[ismiss])] <- NA
+            }
+
+            sumna <- sum(is.na(vals))
+            vals <- na.omit(vals)
+        }
+
+        if (!is.null(vals)) {
+            cat(paste0(
+                "<", ns, "sumStat type=\"vald\" wgtd=\"not-wgtd\">",
+                format(
+                    length(vals),
+                    scientific = FALSE
+                ),
+                "</", ns, "sumStat>",
+                enter
+            ))
+        }
+
+        if (!is.null(sumna)) {
+            cat(paste0(
+                "<", ns, "sumStat type=\"invd\" wgtd=\"not-wgtd\">",
+                format(
+                    sumna,
+                    scientific = FALSE
+                ),
+                "</", ns, "sumStat>",
+                enter
+            ))
+        }
 
         if (!is.null(lbls)) {
-            
+
             tbl <- declared::w_table(data[[varnames[i]]])
             # print(tbl)
-            
+
             nms <- names(lbls)
             for (v in seq(length(lbls))) {
                 ismiss <- is.element(lbls[v], na_values)
@@ -1577,9 +1682,9 @@ NULL
                     }
                 }
             }
-            
+
         }
-        
+
 
         if (!is.null(type) | !is.null(varFormat)) {
             vartype <- NULL
@@ -1594,12 +1699,12 @@ NULL
                     "\""
                 )
             }
-            
+
             if (identical(varFormat, "date")) {
                 vartype <- " type=\"numeric\" schema=\"ISO\" category=\"date\""
                 varFormat <- "ISO dates"
             }
-            
+
             if (!is.null(vartype)) {
                 cat(paste0(
                     "<", ns, "varFormat",
@@ -1642,7 +1747,7 @@ NULL
             hashes
         ))
     }
-    
+
     return(list(codeBook, hashes, uuid))
 }
 
@@ -1761,7 +1866,7 @@ NULL
             )
         )
     )
-    
+
     x <- gsub("\\n", " ", x)
     x <- gsub(paste(admisc::dashes(), collapse = "|"), "-", x)
     x <- gsub(paste(admisc::singlequotes(), collapse = "|"), "'", x)
@@ -2077,13 +2182,13 @@ NULL
 
     # xpath <- sprintf("/%scodeBook/%sdataDscr/%svar[%s]", dns, dns, dns, i)
     # vars_i <- xml2::xml_find_first(xml, xpath)
-    
+
     label <- cleanup(
         xml2::xml_text(
             xml2::xml_find_first(xmlvar, sprintf("%slabl", dns))
         )
     )
-    
+
     if (!is.na(label)) {
         result$label <- label
     }
@@ -2206,7 +2311,7 @@ NULL
             result$txt <- txt
         }
     }
-    
+
     return(result)
 }
 
@@ -2219,6 +2324,26 @@ NULL
     message("Function makeNotes() was deprecated, use makeDataNotes() instead.")
     makeDataNotes(data)
 }
+
+
+
+#' @rdname DDIwR_internal
+#' @keywords internal
+#' @export
+`getMetadata` <- function(...) {
+    message("Function getMetadata() was deprecated, use getCodebook() instead.")
+    getCodebook(...)
+}
+
+
+#' @rdname DDIwR_internal
+#' @keywords internal
+#' @export
+`exportDDI` <- function(...) {
+    message("Function exportDDI() was deprecated, use exportCodebook() instead.")
+    exportCodebook(...)
+}
+
 
 
 
@@ -2434,6 +2559,6 @@ makedfm <- function() {
     dfm$fweight <- weights[
       match(10 * dfm$Area + dfm$Gender, c(11, 12, 21, 22))
     ]
-    
+
     return(dfm)
 }

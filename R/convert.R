@@ -38,18 +38,23 @@
 #' specifying `user_na = FALSE` in function **`convert()`**.
 #'
 #' The same three dots argument is used to pass additional parameters to other
-#' functions in this package, for instance **`exportDDI()`** when converting to
-#' a DDI file. One of its argument **`embed`** (activated by default) can be
+#' functions in this package, for instance **`exportCodebook()`** when writing
+#' to a DDI file. One of its argument **`embed`** (activated by default) can be
 #' used to control embedding the data in the XML file. Deactivating it will
 #' create a CSV file in the same directory, using the same file name as the
 #' XML file.
 #'
 #' When converting from DDI, if the dataset is not embedded in the XML file, the
 #' CSV file is expected to be found in the same directory as the DDI Codebook,
-#' and it should have the same file name as the XML file. Alternatively, the
-#' path to the CSV file can be provided via the **`csv`** argument. Additional
-#' formal parameters of the function \bold{\code{\link[utils]{read.csv}()}} can
-#' be passed via the same three dots **`...`** argument.
+#' and it should have the same file name as the XML file. The path to the CSV
+#' file can be provided via the **`csv`** argument. Additional formal
+#' parameters of the function \bold{\code{\link[utils]{read.csv}()}} can
+#' be passed via the same three dots **`...`** argument. Alternatively, the
+#' **`csv`** argument can also be an R data frame.
+#'
+#' When converting to DDI, if the argument **`embed`** is set to `FALSE`, users
+#' have the option to save the data in a separate CSV file (the default) or not
+#' to save the data at all, by setting **`csv`** to `FALSE`.
 #'
 #' The DDI .xml file generates unique IDs for all variables, if not already
 #' present in the attributes. These IDs are useful for newer versions of the DDI
@@ -98,7 +103,7 @@
 #' default in that package.
 #'
 #' Converting to SPSS works with numerical and character labelled vectors, with
-#' or without labels. Date/Time variables are partially supported by package 
+#' or without labels. Date/Time variables are partially supported by package
 #' **haven**: either having such a variable with no labels and missing values,
 #' or if labels and missing values are declared the variable is automatically
 #' coerced to numeric, and users may have to make the proper settings in SPSS.
@@ -134,9 +139,8 @@
 #'
 #' @seealso
 #' \code{\link{setupfile}},
-#' \code{\link{getMetadata}},
-#' \code{\link[declared]{declared}},
-#' \code{\link[haven]{labelled}}
+#' \code{\link{getCodebook}},
+#' \code{\link[declared]{declared}}
 #'
 #' @author Adrian Dusa
 #'
@@ -148,8 +152,7 @@
 #' categorical variables
 #' @param recode Logical, recode missing values
 #' @param encoding The character encoding used to read a file
-#' @param csv Path to the CSV file, if not embedded in XML file containing the
-#' DDI Codebook
+#' @param csv Complex argument, see the Details section
 #' @param ... Additional parameters passed to other functions, see the
 #' Details section
 #'
@@ -159,6 +162,7 @@
     from, to = NULL, declared = TRUE, chartonum = FALSE, recode = TRUE,
     encoding = "UTF-8", csv = NULL, ...
 ) {
+
     if (missing(from)) {
         admisc::stopError("Argument 'from' is missing.")
     }
@@ -169,19 +173,26 @@
     )
 
     # if (missing(to)) {
-    #     admisc::stopError("sprintf("Argument %s is missing.", dQuote("to").")
+    #     admisc::stopError(sprintf("Argument %s is missing.", dQuote("to").)
     # }
 
     dots <- list(...)
     embed <- !isFALSE(dots$embed)
+
+    file_extension <- dots$file_extension
+    file_name <- dots$file_name
+    file_id <- dots$file_id
+    dots$file_extension <- NULL
+    dots$file_name <- NULL
+    dots$file_id <- NULL
+
     codeBook <- NULL
     dictionary <- dots$dictionary
 
     Robject <- FALSE
     if (is.character(from)) {
         tp_from <- treatPath(from, type = "*", single = TRUE)
-    }
-    else if (is.element("data.frame", class(from))) {
+    } else if (is.element("data.frame", class(from))) {
         Robject <- TRUE
         # filename <- as.character(substitute(from))
         # filename <- admisc::getName(funargs["from"], object = TRUE)
@@ -198,8 +209,10 @@
             filenames = filename,
             fileext = "RDS"
         )
-    }
-    else {
+
+        dots$file_extension <- NULL
+
+    } else {
         admisc::stopError("Unsuitable input.")
     }
 
@@ -284,26 +297,29 @@
     if (tp_from$fileext == "XML") {
         xml <- getXML(from, encoding = encoding)
         data <- extractData(xml)
-        
+
         dns <- getDNS(xml) # default name space
         xpath <- sprintf("/%scodeBook/%sdataDscr/%svar", dns, dns, dns)
         xmlvars <- xml2::xml_find_all(xml, xpath)
-        
+
         if (length(xmlvars) == 0) {
             admisc::stopError(
                 "This DDI Codebook file does not contain any variable level metadata."
             )
         }
 
+        header <- TRUE
+
         # if not present in the codeBook, maybe it is on a separate .csv file
         # in the same directory as the DDI .xml Codebook
         if (is.null(data)) {
-
+            csvisdata <- FALSE
             if (is.null(csv)) {
                 files <- getFiles(tp_from$completePath, "*")
 
                 csvexists <- FALSE
                 csvfiles <- files$fileext == "CSV"
+
                 if (any(csvfiles)) {
                     csvexists <- is.element(
                         toupper(tp_from$filenames),
@@ -324,37 +340,56 @@
                 csv <- file.path(tp_from$completePath, csvfile)
             }
             else {
-                # test if the csv is a path
-                treatPath(csv)
-            }
+                if (inherits(csv, "tibble")) {
+                    csv <- as.data.frame(csv)
+                }
 
-            callist <- list(file = csv)
-            for (f in names(formals(utils::read.csv))) {
-                if (is.element(f, names(dots))) {
-                    callist[[f]] <- dots[[f]]
+                if (csvisdata <- inherits(csv, "data.frame")) {
+                    data <- csv
+                } else {
+                    # test if the csv is a path
+                    treatPath(csv)
                 }
             }
 
-            header <- ifelse(isFALSE(callist$header), FALSE, TRUE)
-            data <- do.call("read.csv", callist)
+            if (!csvisdata) {
+                callist <- list(file = csv)
+                for (f in names(formals(utils::read.csv))) {
+                    if (is.element(f, names(dots))) {
+                        callist[[f]] <- dots[[f]]
+                    }
+                }
+
+                header <- ifelse(isFALSE(callist$header), FALSE, TRUE)
+                data <- do.call("read.csv", callist)
+            }
 
             variables <- lapply(xmlvars, XMLtoRmetadata, dns = dns)
+
+            xpath <- sprintf("/%scodeBook/%sdataDscr/%svar/@name", dns, dns, dns)
+            names(variables) <- admisc::trimstr(
+                xml2::xml_text(xml2::xml_find_all(xml, xpath))
+            )
 
             if (ncol(data) == length(variables)) {
                 if (header) {
                     if (!identical(names(data), names(variables))) {
-                        admisc::stopError("The .csv file does not match the DDI Codebook")
+                        admisc::stopError(
+                            sprintf(
+                                "The .csv file does not match the DDI Codebook%s.",
+                                ifelse(
+                                    identical(tolower(names(data)), tolower(names(variables))),
+                                    ", the variable names have differences in upper / lower case",
+                                    ""
+                                )
+                            )
+                        )
                     }
                 }
                 else {
                     names(data) <- names(variables)
                 }
             }
-            
-            xpath <- sprintf("/%scodeBook/%sdataDscr/%svar/@name", dns, dns, dns)
-            names(variables) <- admisc::trimstr(
-                xml2::xml_text(xml2::xml_find_all(xml, xpath))
-            )
 
             if (ncol(data) == length(variables) + 1) {
                 if (header) {
@@ -566,6 +601,12 @@
     filetypes <- c("SPSS", "SPSS", "SPSS", "Stata", "SAS", "XPT", "R", "DDI", "Excel", "Excel")
     fileexts <- c("SAV", "ZSAV", "POR", "DTA", "SAS7BDAT", "XPT", "RDS", "XML", "XLS", "XLSX")
 
+    if (!is.null(dots$varIDs) && length(dots$varIDs) == ncol(data)) {
+        for (i in seq(ncol(data))) {
+            attr(data[[i]], "ID") <- dots$varIDs[i]
+        }
+    }
+
     variables <- collectRMetadata(data)
 
     if (tp_to$fileext == "XML") {
@@ -578,16 +619,41 @@
 
         fileName <- makeElement(
             "fileName",
-            content = tp_from$filenames
+            content = ifelse(
+                is.null(file_name),
+                tp_from$filenames,
+                file_name
+            )
         )
+
+        if (is.null(file_extension)) {
+            file_extension <- tp_from$fileext
+        }
 
         fileType <- makeElement(
             "fileType",
-            content = filetypes[which(fileexts == tp_from$fileext)]
+            content = filetypes[which(fileexts == file_extension)]
         )
 
-        fileTxt <- makeElement("fileTxt", children = list(fileName, fileType))
+        dimensns <- makeElement(
+            "dimensns",
+            children = list(
+                makeElement("caseQnty", content = nrow(data)),
+                makeElement("varQnty", content = ncol(data))
+            )
+        )
+
+        fileTxt <- makeElement("fileTxt", children = list(fileName, fileType, dimensns))
         fileDscr <- makeElement("fileDscr", children = list(fileTxt))
+
+        if (!is.null(file_id)) {
+            if (!is.atomic(file_id) || !is.character(file_id) || length(file_id) != 1) {
+                admisc::stopError("The argument 'fileid' must be a single character string.")
+            }
+
+            names(file_id) <- "ID"
+            addAttributes(file_id, to = fileDscr)
+        }
 
         data[] <- lapply(data, function(x) {
             if (is.factor(x)) {
@@ -598,13 +664,14 @@
 
         addChildren(fileDscr, to = codeBook)
 
-        exportDDI(
+        exportCodebook(
             codeBook,
             file = to,
             data = data,
             embed = embed,
             dataDscr_directly_in_XML = TRUE,
             variables = variables,
+            csv = csv,
             ... = ...
         )
     }
@@ -853,7 +920,7 @@
         }
 
         setupfile(
-            obj = getMetadata(arglist$data),
+            obj = getCodebook(arglist$data),
             file = to,
             type = "SAS",
             csv = arglist$data,
