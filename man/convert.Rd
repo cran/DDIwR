@@ -12,6 +12,8 @@ convert(
   recode = TRUE,
   encoding = "UTF-8",
   csv = NULL,
+  n_max = -1L,
+  skip = 0L,
   ...
 )
 }
@@ -32,8 +34,15 @@ categorical variables}
 
 \item{csv}{Complex argument, see the Details section}
 
-\item{...}{Additional parameters passed to other functions, see the
-Details section}
+\item{n_max}{Integer, maximum number of rows to import from SPSS, Stata or
+SAS files}
+
+\item{skip}{Integer, number of rows to skip when importing from SPSS, Stata
+or SAS files}
+
+\item{...}{Additional options specific to the source or destination format,
+including \code{language} when importing translated DDI labels; see the Details
+section}
 }
 \value{
 An invisible R data frame, when the argument \strong{\code{to}} is NULL.
@@ -66,6 +75,12 @@ Additional parameters can be specified via the three dots argument
 \bold{\code{\link[haven]{write_dta}()}} has an additional argument called
 \strong{\code{version}} when writing a Stata file.
 
+The formal arguments \strong{\code{n_max}} and \strong{\code{skip}} are used only when importing
+foreign data files through the direct ReadStat readers, namely SPSS (\code{.sav},
+\code{.zsav}, \code{.por}), Stata (\code{.dta}) and SAS (\code{.sas7bdat}, \code{.xpt}). They can be
+used to read only the first \code{n_max} rows or to import large files in batches
+by skipping the first \code{skip} rows.
+
 The most important argument to consider is called \strong{\code{user_na}}, part of
 the function \bold{\code{\link[haven]{read_sav}()}}. Defaulted to \code{FALSE} in
 package \bold{\pkg{haven}}, in package \bold{\pkg{DDIwR}} it is used as
@@ -87,13 +102,22 @@ parameters of the function \bold{\code{\link[utils]{read.csv}()}} can
 be passed via the same three dots \strong{\code{...}} argument. Alternatively, the
 \strong{\code{csv}} argument can also be an R data frame.
 
+A multilingual DDI Codebook is imported in one language at a time. The
+DDI-specific \strong{\code{language}} option is supplied via \strong{\code{...}}, for example
+\code{convert("codebook.xml", language = "en")}. When it is omitted, the
+effective \code{xml:lang} of the first variable label is used. Supplying it selects
+that translation throughout the variable and category labels. Language
+declarations inherited from a parent DDI element are honored. An unqualified
+label is used as a neutral fallback, but a label in a different language is
+not substituted.
+
 When converting to DDI, if the argument \strong{\code{embed}} is set to \code{FALSE}, users
 have the option to save the data in a separate CSV file (the default) or not
 to save the data at all, by setting \strong{\code{csv}} to \code{FALSE}.
 
 The DDI .xml file generates unique IDs for all variables, if not already
-present in the attributes. These IDs are useful for newer versions of the DDI
-Codebook, for referencing purposes.
+present in the attributes. These IDs are useful for referencing purposes, in
+newer versions of the DDI Codebook.
 
 The argument \strong{\code{chartonum}} signals recoding character categorical
 variables, and employs the function \bold{\code{\link{recodeCharcat}()}}.
@@ -105,7 +129,8 @@ to the R enviroment. Conversion to R, either in the working space or as
 a data file, will result (by default) in a data frame containing declared
 labelled variables, as defined in package \bold{\pkg{declared}}.
 
-The current version reads and creates DDI Codebook version 2.6, with future
+The current version reads DDI Codebook versions 1.2.2, 2.5 and 2.6, and
+creates version 2.6, with future
 versions to extend the functionality for DDI Lifecycle versions 3.x and link
 to the future package \bold{DDI4R} for the UML model based version 4. It
 extends the standard DDI Codebook by offering the possibility to embed a
@@ -133,6 +158,12 @@ input file has SPSS like numeric codes, they will be recoded to extended
 (a-z) missing types when converting to Stata or SAS. If the input has Stata
 like extended codes, they will be recoded to SPSS like numeric codes.
 
+Missing values are harmonized across the entire dataset by default when
+exporting to Stata or SAS. This automatically builds a dataset-level missing
+value dictionary when possible. Use \strong{\code{harmonize = FALSE}} via the three
+dots argument to deactivate this behavior. The alias
+\strong{\code{harmonise = FALSE}} is also accepted.
+
 The character \strong{\code{encoding}} is usually passed to the corresponding functions
 from package \bold{\pkg{haven}}. It can be set to \code{NULL} to reset at the
 default in that package.
@@ -155,6 +186,10 @@ convert("test.sav", to = "DDI")
 
 # The data may be saved separately from the DDI file, using:
 convert("test.sav", to = "DDI", embed = FALSE)
+
+# Format-specific options are supplied through the three dots. For example,
+# import the English labels from a multilingual DDI Codebook using:
+test <- convert("test.xml", language = "en")
 
 # To produce a Stata file:
 convert("test.sav", to = "Stata")

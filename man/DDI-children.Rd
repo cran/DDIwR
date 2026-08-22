@@ -9,6 +9,9 @@
 \alias{indexChildren}
 \alias{removeChildren}
 \alias{addContent}
+\alias{makePath}
+\alias{moveChild}
+\alias{replaceChild}
 \alias{changeContent}
 \alias{removeContent}
 \alias{addAttributes}
@@ -33,6 +36,12 @@ removeChildren(name, from, overwrite = TRUE, ...)
 
 addContent(content, to, overwrite = TRUE)
 
+makePath(xpath, from, overwrite = TRUE, ...)
+
+moveChild(xpath, from, to, overwrite = TRUE, ...)
+
+replaceChild(xpath, with, overwrite = TRUE, ...)
+
 changeContent(content, to, overwrite = TRUE)
 
 removeContent(from, overwrite = TRUE)
@@ -50,7 +59,8 @@ removeAttributes(name, from, overwrite = TRUE)
 \arguments{
 \item{children}{A standard element of class \code{"DDI"}, or a list of such elements.}
 
-\item{to}{A standard element of class \code{"DDI"}.}
+\item{to}{A standard element of class \code{"DDI"}, or an xpath string pointing
+to a target element.}
 
 \item{overwrite}{Logical, overwrite the original object in the parent frame.}
 
@@ -58,13 +68,19 @@ removeAttributes(name, from, overwrite = TRUE)
 
 \item{element}{A standard element of class \code{"DDI"}.}
 
-\item{xpath}{Character, a path to a DDI Codebook element.}
+\item{xpath}{Character, an xpath to a DDI Codebook element. Indexed segments
+are supported using square brackets, e.g. \code{codeBook/dataDscr/var[3]}.
+Missing indexes default to the first matching element.}
 
-\item{from}{A standard element of class \code{"DDI"}.}
+\item{from}{A standard element of class \code{"DDI"}, or an xpath string pointing
+to a target element.}
 
 \item{name}{Character, name(s) of specific child element / attribute.}
 
 \item{content}{Character, the text content of a DDI element.}
+
+\item{with}{A standard element of class \code{"DDI"}, or an xpath string pointing
+to a target element.}
 
 \item{attrs}{A list of specific attribute names and values.}
 }
@@ -84,21 +100,21 @@ there are dedicated functions to \verb{add*()}, \verb{remove*()} and \verb{chang
 Although an XML list generally allows for multiple contents, sometimes spread
 between the children elements, it is preferable to maintain a single content
 (eventually separated with carriage return characters for separate lines).
+XPath resolution accepts indexed segments using \verb{[n]}. When an index is
+missing, the first matching element is selected.
 
 Arguments are unique, and can be changed by simply referring to their names.
 
-Elements, however, can be repeated. For instance element \code{var} to describe
-variables, within the \code{dataDscr} (data description) sub-element in the
-\code{codeBook}. There are as many such \code{var} elements as the number of variables
-in the dataset, in which case it is not possible to change a specific \code{var}
-element by referring to its name. For this purpose, it is useful to extract
-the positions of all \code{var} elements to iterate through, which is the purpose
-of the function \code{indexChildren()}.
-
-Future versions will allow deep manipulations of child elements using the
-\code{xpath} argument.
+Elements can be repeated. For example, \code{dataDscr} contains one \code{var} element
+per dataset variable. When multiple \code{var} elements exist, referring only to
+the name is ambiguous. Use indexed xpaths like \code{var[3]} to target a specific
+instance, or use \code{indexChildren()} to list all positions for iteration.
 
 If more than one children, they should be grouped into a list.
+Functions \code{addContent}, \code{changeContent}, \code{removeContent}, \code{addAttributes},
+\code{changeAttributes}, and \code{removeAttributes} accept either a standard DDI element
+or a character \code{xpath}. When an xpath is provided, the target element is
+resolved and replaced in the root element.
 }
 \author{
 Adrian Dusa

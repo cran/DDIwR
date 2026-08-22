@@ -167,52 +167,6 @@ assign(
             description = "Formatting element: marks a word or phrase as graphically distinct from the surrounding text, while making no claim for the reasons.",
             examples = c()
         ),
-        list = list(
-            type = "listType",
-            optional = TRUE,
-            repeatable = TRUE,
-            recommended = FALSE,
-            deprecated = FALSE,
-            attributes = list(
-                type = list(
-                    type = "NMTOKEN",
-                    description = "",
-                    values = c("ordered", "bulleted", "simple", "gloss"),
-                    default = "simple",
-                    optional = TRUE,
-                    recommended = FALSE,
-                    deprecated = FALSE
-                )
-            ),
-            parents = c("emph", "head", "hi", "itm", "p"),
-            children = list(choice = c("itm", "label")),
-            title = "List",
-            description = "Formatting element: contains any sequence of items (entries) organized as a list.",
-            examples = c()
-        ),
-        itm = list(
-            type = "itmType",
-            optional = TRUE,
-            repeatable = TRUE,
-            recommended = FALSE,
-            deprecated = FALSE,
-            attributes = list(
-                type = list(
-                    type = "string",
-                    description = "",
-                    values = c(),
-                    default = c(),
-                    optional = TRUE,
-                    recommended = FALSE,
-                    deprecated = FALSE
-                )
-            ),
-            parents = "list",
-            children = list(choice = c("emph", "hi", "list", "p", "label")),
-            title = "Item",
-            description = "Formatting element: marks entries (items) in a list.",
-            examples = c()
-        ),
         label = list(
             type = "labelType",
             optional = TRUE,
@@ -327,6 +281,30 @@ assign(
             description = "Summary of actions taken to minimize data loss. Includes information on actions such as follow-up visits, supervisory checks, historical matching, estimation, etc. This element contains the sub-element \"concept\" to support the use of an external controlled vocabulary. PLEASE NOTE A CHANGE IN USAGE INSTRUCTIONS: The string content of the element now contains the language specific label obtained from the controlled vocabulary. This allows for multiple languages through the repeated entry of the \"concept\" element. The attribute \"vocabInstanceCodeTerm\" has been added to accommodate the code term as it appears in the controlled vocabulary. See the high level documentation for a complete description of usage. Additional textual description is entered in the mixed text content or using the sub-element \"txt\".",
             examples = "<actMin>To minimize the number of unresolved cases and reduce the potential nonresponse bias, four follow-up contacts were made with agencies that had not responded by various stages of the data collection process.</actMin>"
         ),
+        algorithmSpecification = list(
+            optional = TRUE,
+            repeatable = FALSE,
+            recommended = FALSE,
+            deprecated = FALSE,
+            attributes = list(),
+            parents = "dataFingerprint",
+            children = list(),
+            title = "",
+            description = "",
+            examples = c()
+        ),
+        algorithmVersion = list(
+            optional = TRUE,
+            repeatable = FALSE,
+            recommended = FALSE,
+            deprecated = FALSE,
+            attributes = list(),
+            parents = "dataFingerprint",
+            children = list(),
+            title = "",
+            description = "",
+            examples = c()
+        ),
         altTitl = list(
             type = "simpleTextType",
             optional = TRUE,
@@ -391,6 +369,19 @@ assign(
             title = "Analysis Unit",
             description = "",
             examples = c("<var><anlysUnit><concept vocabInstanceCodeTerm=\"constituency\">constituency level</concept>This variable reports election returns at the constituency level.</anlysUnit></var>")
+        ),
+        attribute = list(
+            type = "attributeType",
+            optional = TRUE,
+            repeatable = FALSE,
+            recommended = FALSE,
+            deprecated = FALSE,
+            attributes = list(),
+            parents = "usage",
+            children = list(),
+            title = "Attribute",
+            description = "Identifies an attribute within the element(s) identified by the selector or specificElements in which the controlled vocabulary is used. The fully qualified name used here must correspond to that in the instance, which is to say that if the attribute is namespace qualified, the prefix used here must match that which is defined in the instance.",
+            examples = "<attribute>type</attribute>"
         ),
         AuthEnty = list(
             type = "AuthEntyType",
@@ -468,6 +459,87 @@ assign(
                 "<AuthEnty affiliation=\"European Commission\">Rabier, Jacques-Rene</AuthEnty>",
                 "<AuthEnty personalID=\"0000-0002-4402-9644\" typeOfAgentIdentifier=\"ORCID\">Shepherdson, John</AuthEnty>"
             )
+        ),
+        authorizingAgency = list(
+            type = "authorizingAgencyType",
+            optional = TRUE,
+            repeatable = TRUE,
+            recommended = FALSE,
+            deprecated = FALSE,
+            attributes = list(
+                affiliation = list(
+                    type = "string",
+                    description = "Institutional affiliation of the authorizing agent or agency.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                abbr = list(
+                    type = "string",
+                    description = "Abbreviation for the authorizing agent's or agency's name",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                agentIdentifier = list(
+                    type = "string",
+                    description = "Identifier of the authorizing agency.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                typeOfAgentIdentifier = list(
+                    type = "string",
+                    description = "Type of identifier, should be provided if agentIdentifier is used.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                isPersistantIdentifier = list(
+                    type = "boolean",
+                    description = "Indicate if the agent identifier is intended to be a persistent identifier",
+                    values = c("true", "false"),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                agentType = list(
+                    type = "NMTOKEN",
+                    description = "Type of authorizing agency: organization or individual.",
+                    values = c("organization", "individual"),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                )
+            ),
+            parents = "studyAuthorization",
+            children = list(),
+            title = "Authorizing Agency",
+            description = "Name of the agent or agency that authorized the study.",
+            examples = "<authorizingAgency affiliation=\"Purdue University\" abbr=\"OUHS\">Office for Use of Human Subjects</authorizingAgency>"
+        ),
+        authorizationStatement = list(
+            type = "simpleTextType",
+            optional = TRUE,
+            repeatable = TRUE,
+            recommended = FALSE,
+            deprecated = FALSE,
+            attributes = list(),
+            parents = "studyAuthorization",
+            children = list(),
+            title = "Authorization Statement",
+            description = "The text of the authorization. Use XHTML to capture significant structure in the document.",
+            examples = "<authorizationStatement>Required documentation covering the study purpose, disclosure information, questionnaire content, and consent statements was delivered to the OUHS on 2010-10-01 and was reviewed by the compliance officer. Statement of authorization for the described study was issued on 2010-11-04</authorizationStatement>"
         ),
         avlStatus = list(
             type = "conceptualTextType",
@@ -638,7 +710,7 @@ assign(
                 ),
                 sdatrefs = list(
                     type = "IDREFS",
-                    description = "Summary data description references that record the ID values of all elements within the summary data description section of the Study Description that might apply to this element.",
+                    description = "Summary data description references that record the ID values of all elements within the summary data description section of the Study Description that might apply to this element. These include: time period covered, date of collection, nation or country, geographic coverage, geographic unit, unit of analysis, universe, and kind of data.",
                     values = c(),
                     default = c(),
                     optional = TRUE,
@@ -752,7 +824,7 @@ assign(
                 ),
                 sdatrefs = list(
                     type = "IDREFS",
-                    description = "Records the ID values of all elements within the summary data description that apply to this element.",
+                    description = "Summary data description references that record the ID values of all elements within the summary data description section of the Study Description that might apply to this element. These include: time period covered, date of collection, nation or country, geographic coverage, geographic unit, unit of analysis, universe, and kind of data.",
                     values = c(),
                     default = c(),
                     optional = TRUE,
@@ -1721,76 +1793,40 @@ assign(
             description = "Identifies the code list scheme using a URN.",
             examples = "<codeListSchemeURN>http://www.ddialliance.org/Specification/DDI-CV/TimeMethod_1.1_Genericode1.0_DDI-CVProfile1.0.xml</codeListSchemeURN>"
         ),
-        usage = list(
-            type = "usageType",
+        collectorTraining = list(
+            type = "collectorTrainingType",
+            optional = TRUE,
+            repeatable = TRUE,
+            recommended = FALSE,
+            deprecated = FALSE,
+            attributes = list(
+                type = list(
+                    type = "string",
+                    description = "Type of training being described. DEPRECATED.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = TRUE
+                )
+            ),
+            parents = "dataColl",
+            children = list("concept", "txt"),
+            title = "Collector Training",
+            description = "Describes the training provided to data collectors including interviewer training, process testing, compliance with standards etc. This is repeatable for language and to capture different aspects of the training process. The use of the attribute \"type\" as a means of specifying a controlled vocabulary concept is DEPRECATED. To specify the use of a Controlled Vocabulary or standard concept use the internal element \"concept\". If multiple concepts are needed the parent element should be replicated. Internal text related to each concept should be allocated to accompany the relevant concept.",
+            examples = "<collectorTraining><concept vocab=\"TrainingObject\" vocabURI=\"http://xyzdatacollection.org/vocabularies/TrainingObject\" vocabInstanceURI=\"http://xyzdatacollection.org/vocabularies/TrainingObject#InterviewerTraining\">InterviewerTraining</concept>Describe research project, describe population and sample, suggest methods and language for approaching subjects, explain questions and key terms of survey instrument.</collectorTraining>"
+        ),
+        complianceDescription = list(
             optional = TRUE,
             repeatable = TRUE,
             recommended = FALSE,
             deprecated = FALSE,
             attributes = list(),
-            parents = "controlledVocabUsed",
-            children = list(choice = c("selector", "specificElements"), "attribute"),
-            title = "Usage",
-            description = "Defines where in the instance the controlled vocabulary which is identified is utilized. A controlled vocabulary may occur either in the content of an element or in an attribute on an element. The usage can either point to a collection of elements using an XPath via the selector element or point to a more specific collection of elements via their identifier using the specificElements element. If the controlled vocabulary occurs in an attribute within the element, the attribute element identifies the specific attribute. When specific elements are specified, an authorized code value may also be provided. If the current value of the element or attribute identified is not in the controlled vocabulary or is not identical to a code value, the authorized code value identifies a valid code value corresponding to the meaning of the content in the element or attribute.",
+            parents = "standardsCompliance",
+            children = list(),
+            title = "",
+            description = "",
             examples = c()
-        ),
-        selector = list(
-            type = "selectorType",
-            optional = FALSE,
-            repeatable = FALSE,
-            recommended = FALSE,
-            deprecated = FALSE,
-            attributes = list(),
-            parents = "usage",
-            children = list(),
-            title = "Selector",
-            description = "Identifies a collection of elements in which a controlled vocabulary is used. This is a simplified XPath which must correspond to the actual instance in which it occurs, which is to say that the fully qualified element names here must correspond to those in the instance. This XPath can only identify elements and does not allow for any predicates. The XPath must either be rooted or deep.",
-            examples = c()
-        ),
-        specificElements = list(
-            type = "specificElementsType",
-            optional = FALSE,
-            repeatable = FALSE,
-            recommended = FALSE,
-            deprecated = FALSE,
-            attributes = list(
-                refs = list(
-                    type = "IDREFS",
-                    description = "IDs of the specific elements.",
-                    values = c(),
-                    default = c(),
-                    optional = FALSE,
-                    recommended = FALSE,
-                    deprecated = FALSE
-                ),
-                authorizedCodeValue = list(
-                    type = "NMTOKEN",
-                    description = "A valid code value corresponding to the meaning of the content in the element or attribute when the identified element or attribute does not use an actual valid value from the controlled vocabulary.",
-                    values = c(),
-                    default = c(),
-                    optional = TRUE,
-                    recommended = FALSE,
-                    deprecated = FALSE
-                )
-            ),
-            parents = "usage",
-            children = list(),
-            title = "Specific Elements",
-            description = "Identifies a collection of specific elements via their identifiers in the refs attribute, which allows for a tokenized list of identifier values which must correspond to identifiers which exist in the instance.",
-            examples = "<specificElements refs=\"ICPSR4328timeMeth\" authorizedCodeValue=\"CrossSection\"/>"
-        ),
-        attribute = list(
-            type = "attributeType",
-            optional = TRUE,
-            repeatable = FALSE,
-            recommended = FALSE,
-            deprecated = FALSE,
-            attributes = list(),
-            parents = "usage",
-            children = list(),
-            title = "Attribute",
-            description = "Identifies an attribute within the element(s) identified by the selector or specificElements in which the controlled vocabulary is used. The fully qualified name used here must correspond to that in the instance, which is to say that if the attribute is namespace qualified, the prefix used here must match that which is defined in the instance.",
-            examples = "<attribute>type</attribute>"
         ),
         copyright = list(
             type = "simpleTextType",
@@ -1849,369 +1885,6 @@ assign(
                 "<CubeCoord coordNo=\"2\" coordVal=\"7\"/>",
                 "<CubeCoord coordNo=\"3\" coordVal=\"2\" coordValRef=\"AGE-3\"/>"
             )
-        ),
-        dataAccs = list(
-            type = "dataAccsType",
-            optional = TRUE,
-            repeatable = TRUE,
-            recommended = FALSE,
-            deprecated = FALSE,
-            attributes = list(),
-            parents = "stdyDscr",
-            children = list("typeOfAccess", "setAvail", "license", "useStmt", "notes"),
-            title = "Data Access",
-            description = "This section describes access conditions and terms of use for the data collection. In cases where access conditions differ across individual files or variables, multiple access conditions can be specified. In cases where access conditions differ across individual files, variables, or categories multiple access conditions can be specified. The access conditions applying to a study, file, variable group, variable or category can be indicated by an IDREF attribute on the study, file, variable group, nCube group, variable, category, or data item elements called \"access\". The member element \"typeOfAccss\" is of the type \"concept\" and is intended to provide a specific type of access. If a license applies to the data access, use the optional \"license\" element.",
-            examples = c()
-        ),
-        dataAppr = list(
-            type = "dataApprType",
-            optional = TRUE,
-            repeatable = TRUE,
-            recommended = FALSE,
-            deprecated = FALSE,
-            attributes = list(
-                type = list(
-                    type = "string",
-                    description = "Used to specify a controlled vocabulary concept. DEPRECATED.",
-                    values = c(),
-                    default = c(),
-                    optional = TRUE,
-                    recommended = FALSE,
-                    deprecated = TRUE
-                )
-            ),
-            parents = "anlyInfo",
-            children = list("concept", "txt"),
-            title = "Other Forms of Data Appraisal",
-            description = "Other issues pertaining to data appraisal. Describe here issues such as response variance, nonresponse rate and testing for bias, interviewer and response bias, confidence levels, question bias, etc. The use of the attribute \"type\" as a means of specifying a controlled vocabulary concept is DEPRECATED. To specify the use of a Controlled Vocabulary or standard concept use the internal element \"concept\". If multiple concepts are needed the parent element should be replicated. Internal text related to each concept should be allocated to accompany the relevant concept.",
-            examples = "<dataAppr><concept vocab=\"IPUMS\" vocabInstanceCodeType=\"ProducerAppraised\">Appraised by Producer</concept>These data files were obtained from the United States House of Representatives, who received them from the Census Bureau accompanied by the following caveats: \"The numbers contained herein are not official 1990 decennial Census counts. The numbers represent estimates of the population based on a statistical adjustment method applied to the official 1990 Census figures using a sample survey intended to measure overcount or undercount in the Census results. On July 15, 1991, the Secretary of Commerce decided not to adjust the official 1990 decennial Census counts (see 56 Fed. Reg. 33582, July 22, 1991). In reaching his decision, the Secretary determined that there was not sufficient evidence that the adjustment method accurately distributed the population across and within states. The numbers contained in these tapes, which had to be produced prior to the Secretary's decision, are now known to be biased. Moreover, the tapes do not satisfy standards for the publication of Federal statistics, as established in Statistical Policy Directive No. 2, 1978, Office of Federal Statistical Policy and Standards. Accordingly, the Department of Commerce deems that these numbers cannot be used for any purpose that legally requires use of data from the decennial Census and assumes no responsibility for the accuracy of the data for any purpose whatsoever. The Department will provide no assistance in interpretation or use of these numbers.\"</dataAppr>"
-        ),
-        dataChck = list(
-            type = "conceptualTextType",
-            optional = TRUE,
-            repeatable = TRUE,
-            recommended = FALSE,
-            deprecated = FALSE,
-            attributes = list(),
-            parents = "fileTxt",
-            children = list(choice = c("concept", "txt")),
-            title = "Extent of Processing Checks",
-            description = "Indicate here, at the file level, the types of checks and operations performed on the data file. Use the internal \"concept\" to make use of a controlled vocabulary The following examples, except for the last, are based on ICPSR's Extent of Processing scheme:",
-            examples = c(
-                "<dataChck>The archive produced a codebook for this collection.</dataChck>",
-                "<dataChck><concept vocab=\"GSBPM\" vocabAgency=\"UNECE\" vocabVersionID=\"5.1\" vocabInstanceCodeTerm=\"5.3\">Review &amp; validate</concept>Consistency checks were performed by Data Producer/ Principal Investigator.</dataChck>",
-                "<dataChck>The archive generated SAS and/or SPSS data definition  statements for this collection.</dataChck>",
-                "<dataChck>Frequencies were provided by Data Producer/Principal Investigator.</dataChck>",
-                "<dataChck>Frequencies provided by the archive.</dataChck>",
-                "<dataChck>Missing data codes were standardized by Data  Producer/ Principal Investigator.</dataChck>",
-                "<dataChck>Missing data codes were standardized by the archive.</dataChck>",
-                "<dataChck>The archive performed recodes and/or calculated derived variables. </dataChck>",
-                "<dataChck>Data were reformatted by the archive.</dataChck>",
-                "<dataChck>Checks for undocumented codes were performed by  Data Producer/Principal Investigator.</dataChck>",
-                "<dataChck>Checks for undocumented codes were performed by the archive.</dataChck>",
-                "<dataChck><concept vocab=\"EOSDIS\" vocabURI=\"https://ghrc.nsstc.nasa.gov/uso/proc_level.html\" vocabInstanceCodeTerm=\"2\">Level 2</concept>Derived geophysical variables at the same resolution and location as the Level 1 source data.</dataChck>"
-            )
-        ),
-        dataColl = list(
-            type = "dataCollType",
-            optional = TRUE,
-            repeatable = TRUE,
-            recommended = FALSE,
-            deprecated = FALSE,
-            attributes = list(),
-            parents = "method",
-            children = list("timeMeth", "dataCollector", "collectorTraining", "frequenc", "sampProc", "sampleFrame", "targetSampleSize", "deviat", "collMode", "resInstru", "instrumentDevelopment", "sources", "collSitu", "actMin", "ConOps", "weight", "cleanOps"),
-            title = "Data Collection Methodology",
-            description = "Information about the methodology employed in a data collection.",
-            examples = c()
-        ),
-        sampleFrame = list(
-            type = "sampleFrameType",
-            optional = TRUE,
-            repeatable = TRUE,
-            recommended = FALSE,
-            deprecated = FALSE,
-            attributes = list(),
-            parents = "dataColl",
-            children = list("sampleFrameName", "labl", "txt", "validPeriod", "custodian", "useStmt", "universe", "frameUnit", "referencePeriod", "updateProcedure"),
-            title = "Sample Frame",
-            description = "Sample frame describes the sampling frame used for identifying the population from which the sample was taken. For example, a telephone book may be a sample frame for a phone survey. In addition to the name, label and text describing the sample frame, this structure lists who maintains the sample frame, the period for which it is valid, a use statement, the universe covered, the type of unit contained in the frame as well as the number of units available, the reference period of the frame and procedures used to update the frame. Use multiple use statements to provide different uses under different conditions. Repeat elements within the use statement to support multiple languages.",
-            examples = c()
-        ),
-        sampleFrameName = list(
-            type = "stringType",
-            optional = TRUE,
-            repeatable = TRUE,
-            recommended = FALSE,
-            deprecated = FALSE,
-            attributes = list(),
-            parents = "sampleFrame",
-            children = list(),
-            title = "Sample Frame Name",
-            description = "Name of the sample frame.",
-            examples = "<sampleFrameName>City of St. Paul Directory</sampleFrameName>"
-        ),
-        validPeriod = list(
-            type = "eventDateType",
-            optional = TRUE,
-            repeatable = TRUE,
-            recommended = FALSE,
-            deprecated = FALSE,
-            attributes = list(
-                event = list(
-                    type = "NMTOKEN",
-                    description = "",
-                    values = c("start", "end", "single"),
-                    default = c(),
-                    optional = TRUE,
-                    recommended = FALSE,
-                    deprecated = FALSE
-                )
-            ),
-            parents = "sampleFrame",
-            children = list(),
-            title = "Valid Period",
-            description = "Defines a time period for the validity of the sampling frame. Enter dates in YYYY-MM-DD format.",
-            examples = "<sampleFrame><validPeriod event=\"start\">2009-07-01</validPeriod><validPeriod event=\"end\">2011-06-30</validPeriod></sampleFrame>"
-        ),
-        referencePeriod = list(
-            type = "eventDateType",
-            optional = TRUE,
-            repeatable = TRUE,
-            recommended = FALSE,
-            deprecated = FALSE,
-            attributes = list(
-                event = list(
-                    type = "NMTOKEN",
-                    description = "",
-                    values = c("start", "end", "single"),
-                    default = c(),
-                    optional = TRUE,
-                    recommended = FALSE,
-                    deprecated = FALSE
-                )
-            ),
-            parents = "sampleFrame",
-            children = list(),
-            title = "Reference Period",
-            description = "Indicates the period of time in which the sampling frame was actually used for the study in question. Use ISO 8601 date/time formats to enter the relevant date(s).",
-            examples = "<referencePeriod event=\"single\">2009-06-01</referencePeriod>"
-        ),
-        frameUnit = list(
-            type = "frameUnitType",
-            optional = TRUE,
-            repeatable = TRUE,
-            recommended = FALSE,
-            deprecated = FALSE,
-            attributes = list(
-                isPrimary = list(
-                    type = "boolean",
-                    description = "Boolean, indicates whether the unit is primary or not.",
-                    values = c("true", "false"),
-                    default = "true",
-                    optional = TRUE,
-                    recommended = FALSE,
-                    deprecated = FALSE
-                )
-            ),
-            parents = "sampleFrame",
-            children = list("unitType", "txt"),
-            title = "Frame Unit",
-            description = "Provides information about the sampling frame unit.",
-            examples = "<frameUnit isPrimary=\"true\"><unitType numberOfUnits=\"150000\">Primary listed owners of published phone numbers in the City of St. Paul</unitType></frameUnit>"
-        ),
-        unitType = list(
-            type = "unitTypeType",
-            optional = FALSE,
-            repeatable = FALSE,
-            recommended = FALSE,
-            deprecated = FALSE,
-            attributes = list(
-                numberOfUnits = list(
-                    type = "integer",
-                    description = "Number of units in the sampling frame.",
-                    values = c(),
-                    default = c(),
-                    optional = TRUE,
-                    recommended = FALSE,
-                    deprecated = FALSE
-                )
-            ),
-            parents = "frameUnit",
-            children = list("concept", "txt"),
-            title = "Unit Type",
-            description = "Describes the type of sampling frame unit using a conceptualText structure supporting a description and the use of an external controlled Vocabulary. PLEASE NOTE A CHANGE IN USAGE INSTRUCTIONS: The string content of \"concept\" now contains the language specific label obtained from the controlled vocabulary. This allows for multiple languages through the repeated entry of the \"concept\" element. See the high level documentation for a complete description of usage.",
-            examples = "<unitType numberOfUnits=\"150000\"><concept vocab=\"SampleFrame_UnitType\" vocabInstanceCodeTerm=\"telephoneNumber\">Telephone Number</concept>Primary listed owners of published phone numbers in the City of St. Paul</unitType>"
-        ),
-        targetSampleSize = list(
-            type = "targetSampleSizeType",
-            optional = TRUE,
-            repeatable = TRUE,
-            recommended = FALSE,
-            deprecated = FALSE,
-            attributes = list(),
-            parents = "dataColl",
-            children = list("sampleSize", "sampleSizeFormula"),
-            title = "Target Sample Size",
-            description = "Provides both the target size of the sample (this is the number in the original sample, not the number of respondents) as well as the formula used for determining the sample size.",
-            examples = c()
-        ),
-        sampleSize = list(
-            type = "integerType",
-            optional = TRUE,
-            repeatable = FALSE,
-            recommended = FALSE,
-            deprecated = FALSE,
-            attributes = list(),
-            parents = "targetSampleSize",
-            children = list(),
-            title = "Sample Size",
-            description = "This element provides the targeted sample size in integer format.",
-            examples = "<sampleSize>385</sampleSize>"
-        ),
-        sampleSizeFormula = list(
-            type = "stringType",
-            optional = TRUE,
-            repeatable = TRUE,
-            recommended = FALSE,
-            deprecated = FALSE,
-            attributes = list(),
-            parents = "targetSampleSize",
-            children = list(),
-            title = "Sample Size Formula",
-            description = "This element includes the formula that was used to determine the sample size.",
-            examples = "<sampleSizeFormula>n0=Z2pq/e2=(1.96)2(.5)(.5)/(.05)2=385 individuals</sampleSizeFormula>"
-        ),
-        generalDataFormat = list(
-            type = "conceptType",
-            optional = TRUE,
-            repeatable = TRUE,
-            recommended = FALSE,
-            deprecated = FALSE,
-            attributes = list(
-                vocab = list(
-                    type = "string",
-                    description = "Indicates the name of the controlled vocabulary, if any, used in the element, e.g., LCSH (Library of Congress Subject Headings), MeSH (Medical Subject Headings), etc.",
-                    values = c(),
-                    default = c(),
-                    optional = TRUE,
-                    recommended = FALSE,
-                    deprecated = FALSE
-                ),
-                vocabURI = list(
-                    type = "string",
-                    description = "Specifies the location for the full controlled vocabulary.",
-                    values = c(),
-                    default = c(),
-                    optional = TRUE,
-                    recommended = FALSE,
-                    deprecated = FALSE
-                ),
-                vocabInstanceURI = list(
-                    type = "string",
-                    description = "Specifies the identification URI of the term/code within the controlled vocabulary if available.",
-                    values = c(),
-                    default = c(),
-                    optional = TRUE,
-                    recommended = FALSE,
-                    deprecated = FALSE
-                ),
-                vocabID = list(
-                    type = "string",
-                    description = "Another form of identification (do not use for URI).",
-                    values = c(),
-                    default = c(),
-                    optional = TRUE,
-                    recommended = FALSE,
-                    deprecated = FALSE
-                ),
-                vocabAgencyName = list(
-                    type = "string",
-                    description = "Agency managing the controlled vocabulary.",
-                    values = c(),
-                    default = c(),
-                    optional = TRUE,
-                    recommended = FALSE,
-                    deprecated = FALSE
-                ),
-                vocabVersionID = list(
-                    type = "string",
-                    description = "Version of controlled vocabulary, if needed",
-                    values = c(),
-                    default = c(),
-                    optional = TRUE,
-                    recommended = FALSE,
-                    deprecated = FALSE
-                ),
-                otherValue = list(
-                    type = "string",
-                    description = "If the controlled vocabulary term is \"other\", provide a more specific value.",
-                    values = c(),
-                    default = c(),
-                    optional = TRUE,
-                    recommended = FALSE,
-                    deprecated = FALSE
-                ),
-                vocabSchemeURN = list(
-                    type = "string",
-                    description = "The URN of the controlled vocabulary.",
-                    values = c(),
-                    default = c(),
-                    optional = TRUE,
-                    recommended = FALSE,
-                    deprecated = FALSE
-                ),
-                vocabInstanceCodeTerm = list(
-                    type = "string",
-                    description = "Added to accommodate the code term as it appears in the controlled vocabulary.",
-                    values = c(),
-                    default = c(),
-                    optional = TRUE,
-                    recommended = FALSE,
-                    deprecated = FALSE
-                )
-            ),
-            parents = "sumDscr",
-            children = list(),
-            title = "General Data Format",
-            description = "Expresses the variety of data formats covered i.e. Numeric, Text, Audio, Visual, Geospatial, StillImage, Software, 3D, other. Supports the use of an external controlled vocabulary. DDI provides a Controlled Vocabulary for this location: \"GeneralDataFormat\"",
-            examples = "<generalDataFormat vocab=\"GeneralDataFormat\" vocabURI=\"urn:ddi:int.ddi.cv:GeneralDataFormat:2.0\" vocabInstanceURI=\"urn:ddi:int.ddi.cv:GeneralDataFormat:2.0\">Geospatial</generalDataFormat>"
-        ),
-        instrumentDevelopment = list(
-            type = "instrumentDevelopmentType",
-            optional = TRUE,
-            repeatable = TRUE,
-            recommended = FALSE,
-            deprecated = FALSE,
-            attributes = list(
-                type = list(
-                    type = "string",
-                    description = "Specify a controlled vocabulary concept. DEPRECATED.",
-                    values = c(),
-                    default = c(),
-                    optional = TRUE,
-                    recommended = FALSE,
-                    deprecated = TRUE
-                )
-            ),
-            parents = "dataColl",
-            children = list("concept", "txt"),
-            title = "Instrument Development",
-            description = "Describe any development work on the data collection instrument. The use of the attribute \"type\" as a means of specifying a controlled vocabulary concept is DEPRECATED. To specify the use of a Controlled Vocabulary or standard concept use the internal element \"concept\". If multiple concepts are needed the parent element should be replicated. Internal text related to each concept should be allocated to accompany the relevant concept.",
-            examples = "<instrumentDevelopment><concept vocab=\"123surveys\" vocabURI=\"http://123surveys.com/internal/developmentProtocal\" vocabInstanceURI=\"http://123surveys.com/internal/developmentProtocal#Pretest.SplitPanel\">Pretest.SplitPanel</concept>The questionnaire was pre-tested with split-panel tests, as well as an analysis of non-response rates for individual items, and response distributions.</instrumentDevelopment>"
-        ),
-        updateProcedure = list(
-            type = "conceptualTextType",
-            optional = TRUE,
-            repeatable = TRUE,
-            recommended = FALSE,
-            deprecated = FALSE,
-            attributes = list(),
-            parents = "sampleFrame",
-            children = list(choice = c("concept", "txt")),
-            title = "Instrument Development",
-            description = "Description of how and with what frequency the sample frame is updated. This element contains the sub-element \"concept\" to support the use of an external controlled vocabulary. PLEASE NOTE A CHANGE IN USAGE INSTRUCTIONS: The string content of the element now contains the language specific label obtained from the controlled vocabulary. This allows for multiple languages through the repeated entry of the \"concept\" element. The attribute \"vocabInstanceCodeTerm\" has been added to accommodate the code term as it appears in the controlled vocabulary. See the high level documentation for a complete description of usage. Additional textual description is entered in the mixed text content or using the sub-element \"txt\".",
-            examples = "<updateProcedure>Changes are collected as they occur through registration and loss of phone number from the specified geographic area. Data are compiled for the date June 1st of odd numbered years, and published on July 1st for the following two-year period.</updateProcedure>"
         ),
         custodian = list(
             type = "custodianType",
@@ -2290,8 +1963,21 @@ assign(
             description = "Custodian identifies the agency or individual who is responsible for creating or maintaining the sample frame.",
             examples = "<custodian abbr=\"DEX\">DEX Publications</custodian>"
         ),
-        collectorTraining = list(
-            type = "collectorTrainingType",
+        dataAccs = list(
+            type = "dataAccsType",
+            optional = TRUE,
+            repeatable = TRUE,
+            recommended = FALSE,
+            deprecated = FALSE,
+            attributes = list(),
+            parents = "stdyDscr",
+            children = list("typeOfAccess", "setAvail", "license", "useStmt", "notes"),
+            title = "Data Access",
+            description = "This section describes access conditions and terms of use for the data collection. In cases where access conditions differ across individual files or variables, multiple access conditions can be specified. In cases where access conditions differ across individual files, variables, or categories multiple access conditions can be specified. The access conditions applying to a study, file, variable group, variable or category can be indicated by an IDREF attribute on the study, file, variable group, nCube group, variable, category, or data item elements called \"access\". The member element \"typeOfAccss\" is of the type \"concept\" and is intended to provide a specific type of access. If a license applies to the data access, use the optional \"license\" element.",
+            examples = c()
+        ),
+        dataAppr = list(
+            type = "dataApprType",
             optional = TRUE,
             repeatable = TRUE,
             recommended = FALSE,
@@ -2299,7 +1985,7 @@ assign(
             attributes = list(
                 type = list(
                     type = "string",
-                    description = "Type of training being described. DEPRECATED.",
+                    description = "Used to specify a controlled vocabulary concept. DEPRECATED.",
                     values = c(),
                     default = c(),
                     optional = TRUE,
@@ -2307,11 +1993,50 @@ assign(
                     deprecated = TRUE
                 )
             ),
-            parents = "dataColl",
+            parents = "anlyInfo",
             children = list("concept", "txt"),
-            title = "Collector Training",
-            description = "Describes the training provided to data collectors including interviewer training, process testing, compliance with standards etc. This is repeatable for language and to capture different aspects of the training process. The use of the attribute \"type\" as a means of specifying a controlled vocabulary concept is DEPRECATED. To specify the use of a Controlled Vocabulary or standard concept use the internal element \"concept\". If multiple concepts are needed the parent element should be replicated. Internal text related to each concept should be allocated to accompany the relevant concept.",
-            examples = "<collectorTraining><concept vocab=\"TrainingObject\" vocabURI=\"http://xyzdatacollection.org/vocabularies/TrainingObject\" vocabInstanceURI=\"http://xyzdatacollection.org/vocabularies/TrainingObject#InterviewerTraining\">InterviewerTraining</concept>Describe research project, describe population and sample, suggest methods and language for approaching subjects, explain questions and key terms of survey instrument.</collectorTraining>"
+            title = "Other Forms of Data Appraisal",
+            description = "Other issues pertaining to data appraisal. Describe here issues such as response variance, nonresponse rate and testing for bias, interviewer and response bias, confidence levels, question bias, etc. The use of the attribute \"type\" as a means of specifying a controlled vocabulary concept is DEPRECATED. To specify the use of a Controlled Vocabulary or standard concept use the internal element \"concept\". If multiple concepts are needed the parent element should be replicated. Internal text related to each concept should be allocated to accompany the relevant concept.",
+            examples = "<dataAppr><concept vocab=\"IPUMS\" vocabInstanceCodeType=\"ProducerAppraised\">Appraised by Producer</concept>These data files were obtained from the United States House of Representatives, who received them from the Census Bureau accompanied by the following caveats: \"The numbers contained herein are not official 1990 decennial Census counts. The numbers represent estimates of the population based on a statistical adjustment method applied to the official 1990 Census figures using a sample survey intended to measure overcount or undercount in the Census results. On July 15, 1991, the Secretary of Commerce decided not to adjust the official 1990 decennial Census counts (see 56 Fed. Reg. 33582, July 22, 1991). In reaching his decision, the Secretary determined that there was not sufficient evidence that the adjustment method accurately distributed the population across and within states. The numbers contained in these tapes, which had to be produced prior to the Secretary's decision, are now known to be biased. Moreover, the tapes do not satisfy standards for the publication of Federal statistics, as established in Statistical Policy Directive No. 2, 1978, Office of Federal Statistical Policy and Standards. Accordingly, the Department of Commerce deems that these numbers cannot be used for any purpose that legally requires use of data from the decennial Census and assumes no responsibility for the accuracy of the data for any purpose whatsoever. The Department will provide no assistance in interpretation or use of these numbers.\"</dataAppr>"
+        ),
+        dataChck = list(
+            type = "conceptualTextType",
+            optional = TRUE,
+            repeatable = TRUE,
+            recommended = FALSE,
+            deprecated = FALSE,
+            attributes = list(),
+            parents = "fileTxt",
+            children = list(choice = c("concept", "txt")),
+            title = "Extent of Processing Checks",
+            description = "Indicate here, at the file level, the types of checks and operations performed on the data file. Use the internal \"concept\" to make use of a controlled vocabulary The following examples, except for the last, are based on ICPSR's Extent of Processing scheme:",
+            examples = c(
+                "<dataChck>The archive produced a codebook for this collection.</dataChck>",
+                "<dataChck><concept vocab=\"GSBPM\" vocabAgency=\"UNECE\" vocabVersionID=\"5.1\" vocabInstanceCodeTerm=\"5.3\">Review &amp; validate</concept>Consistency checks were performed by Data Producer/ Principal Investigator.</dataChck>",
+                "<dataChck>The archive generated SAS and/or SPSS data definition  statements for this collection.</dataChck>",
+                "<dataChck>Frequencies were provided by Data Producer/Principal Investigator.</dataChck>",
+                "<dataChck>Frequencies provided by the archive.</dataChck>",
+                "<dataChck>Missing data codes were standardized by Data  Producer/ Principal Investigator.</dataChck>",
+                "<dataChck>Missing data codes were standardized by the archive.</dataChck>",
+                "<dataChck>The archive performed recodes and/or calculated derived variables. </dataChck>",
+                "<dataChck>Data were reformatted by the archive.</dataChck>",
+                "<dataChck>Checks for undocumented codes were performed by  Data Producer/Principal Investigator.</dataChck>",
+                "<dataChck>Checks for undocumented codes were performed by the archive.</dataChck>",
+                "<dataChck><concept vocab=\"EOSDIS\" vocabURI=\"https://ghrc.nsstc.nasa.gov/uso/proc_level.html\" vocabInstanceCodeTerm=\"2\">Level 2</concept>Derived geophysical variables at the same resolution and location as the Level 1 source data.</dataChck>"
+            )
+        ),
+        dataColl = list(
+            type = "dataCollType",
+            optional = TRUE,
+            repeatable = TRUE,
+            recommended = FALSE,
+            deprecated = FALSE,
+            attributes = list(),
+            parents = "method",
+            children = list("timeMeth", "dataCollector", "collectorTraining", "frequenc", "sampProc", "sampleFrame", "targetSampleSize", "deviat", "collMode", "resInstru", "instrumentDevelopment", "sources", "collSitu", "actMin", "ConOps", "weight", "cleanOps"),
+            title = "Data Collection Methodology",
+            description = "Information about the methodology employed in a data collection.",
+            examples = c()
         ),
         dataCollector = list(
             type = "dataCollectorType",
@@ -2412,6 +2137,33 @@ assign(
             title = "Variable Description",
             description = "Description of variables, variable groups, nCubes, and nCube groups.",
             examples = c()
+        ),
+        dataFingerprint = list(
+            type = "dataFingerprintType",
+            optional = TRUE,
+            repeatable = TRUE,
+            recommended = FALSE,
+            deprecated = FALSE,
+            attributes = list(
+                type = list(
+                    type = "NMTOKEN",
+                    description = c(
+                        "Set this attribute to:",
+                        "| \"data\", when the hash value provides a digital fingerprint to the data contained in the file regardless of the storage format (ASCII, SAS, binary, etc.).",
+                        "| \"dataFile\", if the digital fingerprint is only for the data file in its current storage format."
+                    ),
+                    values = c("data", "dataFile"),
+                    default = c(),
+                    optional = FALSE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                )
+            ),
+            parents = "fileTxt",
+            children = list("digitalFingerprintValue", "algorithmSpecification", "algorithmVersion"),
+            title = "Data Fingerprint",
+            description = "Allows for assigning a hash value (digital fingerprint) to the data or data file. One approach to compute a data fingerprint is the Universal Numerical Fingerprint (UNF). Provide the digital fingerprint in \"digitalFingerprintValue\" and identify the algorithm specification used in \"algorithmSpecification\" (adding a version number in \"algorithmVersion\" as a separate entry if it is not part of the specification entry).",
+            examples = "<dataFingerprint type=\"data\"><digitalFingerprintValue>UNF:3:DaYlT6QSX9r0D50ye+tXpA== </digitalFingerprintValue><algorithmSpecification>UNF v5.0 Calculation Production [http://thedata.org/book/unf-version-5-0]</algorithmSpecification><algorithmVersion>UNF V5</algorithmVersion></dataFingerprint>"
         ),
         dataItem = list(
             type = "dataItemType",
@@ -2655,6 +2407,41 @@ assign(
             description = "Used only in the case of a derived variable, this element provides both a description of how the derivation was performed and the command used to generate the derived variable, as well as a specification of the other variables in the study used to generate the derivation. Alternatively the variables may be expressed as a range using the varRange element. Note that use of varRange is implementation dependent. Since the order of variables can change during the execution of a script, it is computationally difficult to identify which variables belong to a variable range.  It has been provided to support the automated creation of derivation information. Order should be determined by the physical order expressed in location as opposed to the order expressed in the metadata document. varRange should only be used when the physical order of variables is available and machine-actionable.",
             examples = "<derivation var=\"V4 V9\"><drvdesc>Taxible Income (V10) expressed as a combination of wage and salary income (V4) plus interest income (V9)</drvdesc><drvcmd syntax=\"SPSS\">V10=V4+V9</drvcmd></derivation>"
         ),
+        description = list(
+            optional = TRUE,
+            repeatable = TRUE,
+            recommended = FALSE,
+            deprecated = FALSE,
+            attributes = list(),
+            parents = "developmentActivity",
+            children = list(),
+            title = "",
+            description = "",
+            examples = c()
+        ),
+        developmentActivity = list(
+            type = "developmentActivityType",
+            optional = TRUE,
+            repeatable = TRUE,
+            recommended = FALSE,
+            deprecated = FALSE,
+            attributes = list(
+                type = list(
+                    type = "string",
+                    description = "Used to specify a controlled vocabulary concept. DEPRECATED.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = TRUE
+                )
+            ),
+            parents = "studyDevelopment",
+            children = list("typeOfDevelopmentActivity", "description", "participant", "resource", "outcome"),
+            title = "Development Activity",
+            description = "Information on the development activity including a description, set of participants, resources used, and outcomes. Use of the \"type\" attribute has been DEPRECATED. Use the element typeOfSetAvailability which supports the use of a controlled vocabulary. Repeat if multiple language labels are being provided directly within the documentation.",
+            examples = "<developmentActivity><typeOfDevelopmentActivity vocab=\"LifecycleEventType\" vocabURI=\"https://www.ddialliance.org/Specification/DDI-CV/LifecycleEventType_1.0.html\">QuestionnaireTranslation</typeOfDevelopmentActivity><typeOfDevelopmentActivity vocab=\"DIME Questionnaire Translation\" vocabURI=\"https://dimewiki.worldbank.org/index.php?title=Questionnaire_Translation&amp;oldid=8152\">Forward Translation</typeOfDevelopmentActivity><description>Translation from language A to language B of question and response text. Language experts are used. Translation is tested through round-trip translation practices. Translated question will be tested for response consistency with original language text.</description><participant affiliation=\"ISRDI\" role=\"language exert\">Ragi Yousef</participant><resource><srcCitation><titlStmt><titl>Labor Force Survey 2017-2018</titl></titlStmt><holding><URI>https://www.ilo.org/surveyLib/index.php/catalog/2549/related-materials</URI></holding></srcCitation></resource><outcome>Translated question resulted in valid replication of original language in the round trip test. Translated question resulted in statistically similar results as original language question following testing.</outcome></developmentActivity>"
+        ),
         deviat = list(
             type = "simpleTextType",
             optional = TRUE,
@@ -2668,32 +2455,17 @@ assign(
             description = "Information indicating correspondence as well as discrepancies between the sampled units (obtained) and available statistics for the population (age, sex-ratio, marital status, etc.) as a whole. XHTML formatting may be used in this element for forward-compatibility with DDI Lifecycle.",
             examples = "<deviat>The suitability of Ohio as a research site reflected its similarity to the United States as a whole. The evidence extended by Tuchfarber (1988) shows that Ohio is representative of the United States in several ways: percent urban and rural, percent of the population that is African American, median age, per capita income, percent living below the poverty level, and unemployment rate. Although results generated from an Ohio sample are not empirically generalizable to the United States, they may be suggestive of what might be expected nationally.</deviat>"
         ),
-        dataFingerprint = list(
-            type = "dataFingerprintType",
-            optional = TRUE,
-            repeatable = TRUE,
+        digitalFingerprintValue = list(
+            optional = FALSE,
+            repeatable = FALSE,
             recommended = FALSE,
             deprecated = FALSE,
-            attributes = list(
-                type = list(
-                    type = "NMTOKEN",
-                    description = c(
-                        "Set this attribute to:",
-                        "| \"data\", when the hash value provides a digital fingerprint to the data contained in the file regardless of the storage format (ASCII, SAS, binary, etc.).",
-                        "| \"dataFile\", if the digital fingerprint is only for the data file in its current storage format."
-                    ),
-                    values = c("data", "dataFile"),
-                    default = c(),
-                    optional = FALSE,
-                    recommended = FALSE,
-                    deprecated = FALSE
-                )
-            ),
-            parents = "fileTxt",
-            children = list("digitalFingerprintValue", "algorithmSpecification", "algorithmVersion"),
-            title = "Data Fingerprint",
-            description = "Allows for assigning a hash value (digital fingerprint) to the data or data file. One approach to compute a data fingerprint is the Universal Numerical Fingerprint (UNF). Provide the digital fingerprint in \"digitalFingerprintValue\" and identify the algorithm specification used in \"algorithmSpecification\" (adding a version number in \"algorithmVersion\" as a separate entry if it is not part of the specification entry).",
-            examples = "<dataFingerprint type=\"data\"><digitalFingerprintValue>UNF:3:DaYlT6QSX9r0D50ye+tXpA== </digitalFingerprintValue><algorithmSpecification>UNF v5.0 Calculation Production [http://thedata.org/book/unf-version-5-0]</algorithmSpecification><algorithmVersion>UNF V5</algorithmVersion></dataFingerprint>"
+            attributes = list(),
+            parents = "dataFingerprint",
+            children = list(),
+            title = "",
+            description = "",
+            examples = c()
         ),
         dimensns = list(
             type = "dimensnsType",
@@ -3220,6 +2992,128 @@ assign(
             description = "Measure of how precisely one can estimate a population value from a given sample.",
             examples = "<EstSmpErr> To assist NES analysts, the PC SUDAAN program was used to compute sampling errors for a wide-ranging example set of proportions estimated from the 1996 NES Pre-election Survey dataset. For each estimate, sampling errors were computed for the total sample and for twenty demographic and political affiliation subclasses of the 1996 NES Pre-election Survey sample. The results of these sampling error computations were then summarized and translated into the general usage sampling error table provided in Table 11. The mean value of deft, the square root of the design effect, was found to be 1.346. The design effect was primarily due to weighting effects (Kish, 1965) and did not vary significantly by subclass size. Therefore the generalized variance table is produced by multiplying the simple random sampling standard error for each proportion and sample size by the average deft for the set of sampling error computations.</EstSmpErr>"
         ),
+        evaluator = list(
+            type = "evaluatorType",
+            optional = TRUE,
+            repeatable = TRUE,
+            recommended = FALSE,
+            deprecated = FALSE,
+            attributes = list(
+                affiliation = list(
+                    type = "string",
+                    description = "Affiliation of the evaluator with an agency or organization.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                abbr = list(
+                    type = "string",
+                    description = "Abbreviation for the evaluator.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                role = list(
+                    type = "string",
+                    description = "The role played by the individual or organization in the evaluation process.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                agentIdentifier = list(
+                    type = "string",
+                    description = "Identifier of the evaluator.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                typeOfAgentIdentifier = list(
+                    type = "string",
+                    description = "Type of identifier, should be provided if agentIdentifier is used.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                isPersistantIdentifier = list(
+                    type = "boolean",
+                    description = "Indicate if the agent identifier is intended to be a persistent identifier",
+                    values = c("true", "false"),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                agentType = list(
+                    type = "NMTOKEN",
+                    description = "Type of evaluator: organization or individual.",
+                    values = c("organization", "individual"),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                )
+            ),
+            parents = "exPostEvaluation",
+            children = list(),
+            title = "Evaluator Type",
+            description = "The evaluator element identifies persons or organizations involved in the evaluation process.",
+            examples = "<evaluator affiliation=\"United Nations\" abbr=\"UNSD\" role=\"consultant\">United Nations Statistical Division</evaluator>"
+        ),
+        evaluationProcess = list(
+            type = "conceptualTextType",
+            optional = TRUE,
+            repeatable = TRUE,
+            recommended = FALSE,
+            deprecated = FALSE,
+            attributes = list(),
+            parents = "exPostEvaluation",
+            children = list(choice = c("concept", "txt")),
+            title = "Evaluation Process",
+            description = "Describes the evaluation process followed. Use the contained \"concept\" element when a controlled vocabulary is used.",
+            examples = "<evaluationProcess><concept>meta-evaluation</concept>An evaluation of the quality of this series of evaluations and its adherence to established good practice in evaluation. It is based on and presents summaries of existing evaluations of each instrument.</evaluationProcess>"
+        ),
+        exPostEvaluation = list(
+            type = "exPostEvaluationType",
+            optional = TRUE,
+            repeatable = TRUE,
+            recommended = FALSE,
+            deprecated = FALSE,
+            attributes = list(
+                completionDate = list(
+                    type = "dateSimpleType",
+                    description = "Holds the date the evaluation was completed.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                type = list(
+                    type = "string",
+                    description = "DEPRECATED.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = TRUE
+                )
+            ),
+            parents = "stdyInfo",
+            children = list("typeOfExPostEvaluation", "evaluator", "evaluationProcess", "outcomes"),
+            title = "Post Evaluation Procedures",
+            description = "Use this section to describe evaluation procedures not address in data evaluation processes. These may include issues such as timing of the study, sequencing issues, cost/budget issues, relevance, institutional or legal arrangements etc. of the study. The type attribute has been DEPRECATED. Use the element typeOfExPostEvaluation to identify the type of evaluation with or without the use of a controlled vocabulary.",
+            examples = "<exPostEvaluation completionDate=\"2003\" type=\"comprehensive\"><typeOfExPostEvaluation>comprehensive</typeOfExPostEvaluation><evaluator affiliation=\"United Nations\" abbr=\"UNSD\" role=\"consultant\">United Nations Statistical Division</evaluator><evaluationProcess>In-depth review of pre-collection and collection procedures</evaluationProcess><outcomes>The following steps were highly effective in increasing response rates, and should be repeated in the next collection cycle...</outcomes></exPostEvaluation>"
+        ),
         fileCommand = list(
             type = "fileCommandType",
             optional = TRUE,
@@ -3268,7 +3162,7 @@ assign(
             children = list("fileCommand"),
             title = "File Derivation",
             description = "The element allows for the description of the file commands used to creation the file derivation.",
-        examples = "<fileDerivation sourceFiles=\"F1\"><fileCommand><drvdesc>Delete AGE, MARITAL from the dataset.</drvdesc><drvcmd source=\"producer\" syntax=\"spss\">delete variables AGE MARITAL.</drvcmd><drvcmd source=\"archive\" syntax=\"sdtl-pojo\">{
+            examples = "<fileDerivation sourceFiles=\"F1\"><fileCommand><drvdesc>Delete AGE, MARITAL from the dataset.</drvdesc><drvcmd source=\"producer\" syntax=\"spss\">delete variables AGE MARITAL.</drvcmd><drvcmd source=\"archive\" syntax=\"sdtl-pojo\">{
                 \"$type\" : \"DeleteVariables\",
                 \"command\" : \"delete\",
                 \"sourceInformation\" : {
@@ -3364,7 +3258,7 @@ assign(
                 ),
                 sdatrefs = list(
                     type = "IDREFS",
-                    description = "Summary data description, references that record the ID values of all elements within the summary data description section of the Study Description that might apply to the file. These elements include: time period covered, date of collection, nation or country, geographic coverage, geographic unit, unit of analysis, universe, and kind of data.",
+                    description = "Summary data description references that record the ID values of all elements within the summary data description section of the Study Description that might apply to this element. These include: time period covered, date of collection, nation or country, geographic coverage, geographic unit, unit of analysis, universe, and kind of data.",
                     values = c(),
                     default = c(),
                     optional = TRUE,
@@ -3678,6 +3572,29 @@ assign(
             description = "Contains a reference to IDs of possible following questions.",
             examples = "<var><qstn><forward qstn=\"Q120 Q121 Q122 Q123 Q124\">If yes, please ask questions 120-124.</forward></qstn></var>"
         ),
+        frameUnit = list(
+            type = "frameUnitType",
+            optional = TRUE,
+            repeatable = TRUE,
+            recommended = FALSE,
+            deprecated = FALSE,
+            attributes = list(
+                isPrimary = list(
+                    type = "boolean",
+                    description = "Boolean, indicates whether the unit is primary or not.",
+                    values = c("true", "false"),
+                    default = "true",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                )
+            ),
+            parents = "sampleFrame",
+            children = list("unitType", "txt"),
+            title = "Frame Unit",
+            description = "Provides information about the sampling frame unit.",
+            examples = "<frameUnit isPrimary=\"true\"><unitType numberOfUnits=\"150000\">Primary listed owners of published phone numbers in the City of St. Paul</unitType></frameUnit>"
+        ),
         frequenc = list(
             type = "frequencType",
             optional = TRUE,
@@ -3874,6 +3791,101 @@ assign(
             title = "Geographic Unit",
             description = "Lowest level of geographic aggregation covered by the data.",
             examples = "<geogUnit>state</geogUnit>"
+        ),
+        generalDataFormat = list(
+            type = "conceptType",
+            optional = TRUE,
+            repeatable = TRUE,
+            recommended = FALSE,
+            deprecated = FALSE,
+            attributes = list(
+                vocab = list(
+                    type = "string",
+                    description = "Indicates the name of the controlled vocabulary, if any, used in the element, e.g., LCSH (Library of Congress Subject Headings), MeSH (Medical Subject Headings), etc.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                vocabURI = list(
+                    type = "string",
+                    description = "Specifies the location for the full controlled vocabulary.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                vocabInstanceURI = list(
+                    type = "string",
+                    description = "Specifies the identification URI of the term/code within the controlled vocabulary if available.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                vocabID = list(
+                    type = "string",
+                    description = "Another form of identification (do not use for URI).",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                vocabAgencyName = list(
+                    type = "string",
+                    description = "Agency managing the controlled vocabulary.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                vocabVersionID = list(
+                    type = "string",
+                    description = "Version of controlled vocabulary, if needed",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                otherValue = list(
+                    type = "string",
+                    description = "If the controlled vocabulary term is \"other\", provide a more specific value.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                vocabSchemeURN = list(
+                    type = "string",
+                    description = "The URN of the controlled vocabulary.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                vocabInstanceCodeTerm = list(
+                    type = "string",
+                    description = "Added to accommodate the code term as it appears in the controlled vocabulary.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                )
+            ),
+            parents = "sumDscr",
+            children = list(),
+            title = "General Data Format",
+            description = "Expresses the variety of data formats covered i.e. Numeric, Text, Audio, Visual, Geospatial, StillImage, Software, 3D, other. Supports the use of an external controlled vocabulary. DDI provides a Controlled Vocabulary for this location: \"GeneralDataFormat\"",
+            examples = "<generalDataFormat vocab=\"GeneralDataFormat\" vocabURI=\"urn:ddi:int.ddi.cv:GeneralDataFormat:2.0\" vocabInstanceURI=\"urn:ddi:int.ddi.cv:GeneralDataFormat:2.0\">Geospatial</generalDataFormat>"
         ),
         grantNo = list(
             type = "grantNoType",
@@ -4189,6 +4201,29 @@ assign(
                                 99 Inappropriate
                             </key></invalrng>"
         ),
+        instrumentDevelopment = list(
+            type = "instrumentDevelopmentType",
+            optional = TRUE,
+            repeatable = TRUE,
+            recommended = FALSE,
+            deprecated = FALSE,
+            attributes = list(
+                type = list(
+                    type = "string",
+                    description = "Specify a controlled vocabulary concept. DEPRECATED.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = TRUE
+                )
+            ),
+            parents = "dataColl",
+            children = list("concept", "txt"),
+            title = "Instrument Development",
+            description = "Describe any development work on the data collection instrument. The use of the attribute \"type\" as a means of specifying a controlled vocabulary concept is DEPRECATED. To specify the use of a Controlled Vocabulary or standard concept use the internal element \"concept\". If multiple concepts are needed the parent element should be replicated. Internal text related to each concept should be allocated to accompany the relevant concept.",
+            examples = "<instrumentDevelopment><concept vocab=\"123surveys\" vocabURI=\"http://123surveys.com/internal/developmentProtocal\" vocabInstanceURI=\"http://123surveys.com/internal/developmentProtocal#Pretest.SplitPanel\">Pretest.SplitPanel</concept>The questionnaire was pre-tested with split-panel tests, as well as an analysis of non-response rates for individual items, and response distributions.</instrumentDevelopment>"
+        ),
         item = list(
             type = "itemType",
             optional = TRUE,
@@ -4223,6 +4258,29 @@ assign(
                 "<valrng><item UNITS=\"INT\" VALUE=\"10\"/><item UNITS=\"INT\" VALUE=\"15\"/><item UNITS=\"INT\" VALUE=\"22\"/></valrng>",
                 "<valrng><item VALUE=\"1\"/><item VALUE=\"2\"/><item VALUE=\"3\"/></valrng>"
             )
+        ),
+        itm = list(
+            type = "itmType",
+            optional = TRUE,
+            repeatable = TRUE,
+            recommended = FALSE,
+            deprecated = FALSE,
+            attributes = list(
+                type = list(
+                    type = "string",
+                    description = "",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                )
+            ),
+            parents = "list",
+            children = list(choice = c("emph", "hi", "list", "p", "label")),
+            title = "Item",
+            description = "Formatting element: marks entries (items) in a list.",
+            examples = c()
         ),
         ivuInstr = list(
             type = "simpleTextType",
@@ -4392,7 +4450,7 @@ assign(
                 ),
                 sdatrefs = list(
                     type = "IDREFS",
-                    description = "ID values of all elements within the Summary Data Description section of the Study Description that might apply to the label. These elements include: time period covered, date of collection, nation or country, geographic coverage, geographic unit, unit of analysis, universe, and kind of data.",
+                    description = "Summary data description references that record the ID values of all elements within the summary data description section of the Study Description that might apply to this element. These include: time period covered, date of collection, nation or country, geographic coverage, geographic unit, unit of analysis, universe, and kind of data.",
                     values = c(),
                     default = c(),
                     optional = TRUE,
@@ -4491,6 +4549,29 @@ assign(
             title = "License",
             description = "A legal document giving official permission to something with the resource. Recommendation is to provide the license document URI. Equates to https://www.dublincore.org/specifications/dublin-core/dcmi-terms/terms/license/",
             examples = "<license type=\"metadata\" scope=\"study\" URI=\"https://creativecommons.org/licenses/by/4.0/legalcode\">CC by 4.0</license>"
+        ),
+        list = list(
+            type = "listType",
+            optional = TRUE,
+            repeatable = TRUE,
+            recommended = FALSE,
+            deprecated = FALSE,
+            attributes = list(
+                type = list(
+                    type = "NMTOKEN",
+                    description = "",
+                    values = c("ordered", "bulleted", "simple", "gloss"),
+                    default = "simple",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                )
+            ),
+            parents = c("emph", "head", "hi", "itm", "p"),
+            children = list(choice = c("itm", "label")),
+            title = "List",
+            description = "Formatting element: contains any sequence of items (entries) organized as a list.",
+            examples = c()
         ),
         locMap = list(
             type = "locMapType",
@@ -4824,7 +4905,7 @@ assign(
                 ),
                 sdatrefs = list(
                     type = "IDREFS",
-                    description = "Summary data description references which record the ID values of all elements within the summary data description section of the Study Description which might apply to the nCube. These elements include: time period covered, date of collection, nation or country, geographic coverage, geographic unit, unit of analysis, universe, and kind of data.",
+                    description = "Summary data description references that record the ID values of all elements within the summary data description section of the Study Description that might apply to this element. These include: time period covered, date of collection, nation or country, geographic coverage, geographic unit, unit of analysis, universe, and kind of data.",
                     values = c(),
                     default = c(),
                     optional = TRUE,
@@ -4946,7 +5027,7 @@ assign(
                 ),
                 sdatrefs = list(
                     type = "IDREFS",
-                    description = "Summary data description references that record the ID values of all elements within the summary data description section of the Study Description that might apply to the group. These elements include: time period covered, date of collection, nation or country, geographic coverage, geographic unit, unit of analysis, universe, and kind of data.",
+                    description = "Summary data description references that record the ID values of all elements within the summary data description section of the Study Description that might apply to this element. These include: time period covered, date of collection, nation or country, geographic coverage, geographic unit, unit of analysis, universe, and kind of data.",
                     values = c(),
                     default = c(),
                     optional = TRUE,
@@ -5155,7 +5236,7 @@ assign(
                 ),
                 sdatrefs = list(
                     type = "IDREFS",
-                    description = "Summary data description references that record the ID values of all elements within the summary data description section of the Study Description that might apply to the group. These elements include: time period covered, date of collection, nation or country, geographic coverage, geographic unit, unit of analysis, universe, and kind of data.",
+                    description = "Summary data description references that record the ID values of all elements within the summary data description section of the Study Description that might apply to this element. These include: time period covered, date of collection, nation or country, geographic coverage, geographic unit, unit of analysis, universe, and kind of data.",
                     values = c(),
                     default = c(),
                     optional = TRUE,
@@ -5449,6 +5530,120 @@ assign(
             children = list("relMat", "relStdy", "relPubl", "othRefs"),
             title = "Other Study Description Materials",
             description = "Other materials relating to the study description. This section describes other materials that are related to the study description that are primarily descriptions of the content and use of the study, such as appendices, sampling information, weighting details, methodological and technical details, publications based upon the study content, related studies or collections of studies, etc. This section may point to other materials related to the description of the study through use of the generic citation element, which is available for each element in this section. This maps to Dublin Core Relation element. Note that codeBook/otherMat (Other Study-Related Materials), should be used for materials used in the production of the study or useful in the analysis of the study. The materials in codeBook/otherMat may be entered as PCDATA (ASCII text) directly into the document (through use of the txt element). That section may also serve as a \"container\" for other electronic materials by providing a brief description of the study-related materials accompanied by the \"type\" and \"level\" attributes further defining the materials. Other Study-Related Materials in codeBook/otherMat may include: questionnaires, coding notes, SPSS/SAS/Stata setup files (and others), user manuals, continuity guides, sample computer software programs, glossaries of terms, interviewer/project instructions, maps, database schema, data dictionaries, show cards, coding information, interview schedules, missing values information, frequency files, variable maps, etc.",
+            examples = c()
+        ),
+        outcome = list(
+            optional = TRUE,
+            repeatable = TRUE,
+            recommended = FALSE,
+            deprecated = FALSE,
+            attributes = list(),
+            parents = "developmentActivity",
+            children = list(),
+            title = "",
+            description = "",
+            examples = c()
+        ),
+        outcomes = list(
+            type = "simpleTextType",
+            optional = TRUE,
+            repeatable = TRUE,
+            recommended = FALSE,
+            deprecated = FALSE,
+            attributes = list(),
+            parents = "exPostEvaluation",
+            children = list(),
+            title = "Evaluation Outcomes",
+            description = "Describe the outcomes of the evaluation.",
+            examples = "<outcomes>The following steps were highly effective in increasing response rates, and should be repeated in the next collection cycle...</outcomes>"
+        ),
+        otherQualityStatement = list(
+            optional = TRUE,
+            repeatable = TRUE,
+            recommended = FALSE,
+            deprecated = FALSE,
+            attributes = list(),
+            parents = "qualityStatement",
+            children = list(),
+            title = "",
+            description = "",
+            examples = c()
+        ),
+        participant = list(
+            type = "participantType",
+            optional = TRUE,
+            repeatable = TRUE,
+            recommended = FALSE,
+            deprecated = FALSE,
+            attributes = list(
+                affiliation = list(
+                    type = "string",
+                    description = "Affiliation of the participant with an agency or organization.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                abbr = list(
+                    type = "string",
+                    description = "Abbreviation for the participant.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                role = list(
+                    type = "string",
+                    description = "Role of the participant.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                agentIdentifier = list(
+                    type = "string",
+                    description = "Identifier of the participant.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                typeOfAgentIdentifier = list(
+                    type = "string",
+                    description = "Type of identifier, should be provided if agentIdentifier is used.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                isPersistantIdentifier = list(
+                    type = "boolean",
+                    description = "Indicate if the agent identifier is intended to be a persistent identifier",
+                    values = c("true", "false"),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                agentType = list(
+                    type = "NMTOKEN",
+                    description = "Type of participant: organization or individual.",
+                    values = c("organization", "individual"),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                )
+            ),
+            parents = "developmentActivity",
+            children = list(),
+            title = "Participant",
+            description = "Name of \"participant\" in the activity being described in the parent element.",
             examples = c()
         ),
         parTitl = list(
@@ -5828,7 +6023,7 @@ assign(
             attributes = list(
                 sdatrefs = list(
                     type = "IDREFS",
-                    description = "Summary data description references which record the ID values of all elements within the summary data description section of the Study Description which might apply to the nCube. These elements include: time period covered, date of collection, nation or country, geographic coverage, geographic unit, unit of analysis, universe, and kind of data.",
+                    description = "Summary data description references that record the ID values of all elements within the summary data description section of the Study Description that might apply to this element. These include: time period covered, date of collection, nation or country, geographic coverage, geographic unit, unit of analysis, universe, and kind of data.",
                     values = c(),
                     default = c(),
                     optional = TRUE,
@@ -5905,7 +6100,7 @@ assign(
                 ),
                 sdatrefs = list(
                     type = "IDREFS",
-                    description = "References the elements in the summary data description section of the Study Description which might apply to this question.",
+                    description = "Summary data description references that record the ID values of all elements within the summary data description section of the Study Description that might apply to this element. These include: time period covered, date of collection, nation or country, geographic coverage, geographic unit, unit of analysis, universe, and kind of data.",
                     values = c(),
                     default = c(),
                     optional = TRUE,
@@ -5958,7 +6153,7 @@ assign(
             attributes = list(
                 sdatrefs = list(
                     type = "IDREFS",
-                    description = "",
+                    description = "Summary data description references that record the ID values of all elements within the summary data description section of the Study Description that might apply to this element. These include: time period covered, date of collection, nation or country, geographic coverage, geographic unit, unit of analysis, universe, and kind of data.",
                     values = c(),
                     default = c(),
                     optional = TRUE,
@@ -5971,6 +6166,19 @@ assign(
             title = "Literal Question",
             description = "Text of the actual, literal question asked.",
             examples = "<var><qstn><qstnLit>Why didn't you go away in 1985?</qstnLit></qstn></var>"
+        ),
+        qualityStatement = list(
+            type = "qualityStatementType",
+            optional = TRUE,
+            repeatable = FALSE,
+            recommended = FALSE,
+            deprecated = FALSE,
+            attributes = list(),
+            parents = "stdyInfo",
+            children = list("standardsCompliance", "otherQualityStatement"),
+            title = "Quality Statement",
+            description = "This structure consists of two parts, \"standardsCompliance\" and \"otherQualityStatements\". In \"standardsCompliance\" list all specific standards complied with during the execution of this study. Note the standard name and producer and how the study complied with the standard. Enter any additional quality statements in \"otherQualityStatements\".",
+            examples = c()
         ),
         range = list(
             type = "rangeType",
@@ -6160,6 +6368,29 @@ assign(
             description = "Records per case in the file. This element should be used for card-image data or other files in which there are multiple records per case.",
             examples = "<dimensns><recPrCas>5</recPrCas></dimensns>"
         ),
+        referencePeriod = list(
+            type = "eventDateType",
+            optional = TRUE,
+            repeatable = TRUE,
+            recommended = FALSE,
+            deprecated = FALSE,
+            attributes = list(
+                event = list(
+                    type = "NMTOKEN",
+                    description = "",
+                    values = c("start", "end", "single"),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                )
+            ),
+            parents = "sampleFrame",
+            children = list(),
+            title = "Reference Period",
+            description = "Indicates the period of time in which the sampling frame was actually used for the study in question. Use ISO 8601 date/time formats to enter the relevant date(s).",
+            examples = "<referencePeriod event=\"single\">2009-06-01</referencePeriod>"
+        ),
         relMat = list(
             type = "relMatType",
             optional = TRUE,
@@ -6266,6 +6497,19 @@ assign(
             description = "The type of data collection instrument used. \"Structured\" indicates an instrument in which all respondents are asked the same questions/tests, possibly with precoded answers. If a small portion of such a questionnaire includes open-ended questions, provide appropriate comments. \"Semi-structured\" indicates that the research instrument contains mainly open-ended questions. \"Unstructured\" indicates that in-depth interviews were conducted. The use of the attribute \"type\" as a means of specifying a controlled vocabulary concept is DEPRECATED. To specify the use of a Controlled Vocabulary or standard concept use the internal element \"concept\". DDI provides a Controlled Vocabulary for this location: \"TypeOfInstrument\". If multiple concepts are needed the parent element should be replicated. Internal text related to each concept should be allocated to accompany the relevant concept.",
             examples = "<resInstru><concept vocab=\"TypeOfInstrument\" vocabURI=\"http://www.ddialiance.org/Specification/DDI-CV/TypeOfInstruent_1.1.html\"  vocabInstanceCodeTerm=\"Questionnaire.Structured\" xml:lang=\"it\">Questionario strutturato</concept>A structured questionnaire developed by ISTAT</resInstru>"
         ),
+        resource = list(
+            type = "resourceType",
+            optional = TRUE,
+            repeatable = TRUE,
+            recommended = FALSE,
+            deprecated = FALSE,
+            attributes = list(),
+            parents = "developmentActivity",
+            children = list("typeOfDataSrc", "dataSrc", "srcOrig", "srcChar", "srcDocu"),
+            title = "Resource",
+            description = "Resource provides the means of describing an external data source including a \"typeOfDataSrc\" which supports othe use of an external controllec vocabulary. DDI provides a Controlled Vocabulary for this location: \"DataSourceType\". Describe the data source using the \"dataSrc\" field, describe the original data source in \"dataOrig\" for secondary use data, source characteristics in \"scrChar\" to identify any particularities of the data source that may affect analysis, and the ability to provide the document source in \"srcDocu\".",
+            examples = c()
+        ),
         respRate = list(
             type = "simpleTextType",
             optional = TRUE,
@@ -6359,6 +6603,58 @@ assign(
             description = "Part of citation covering author (AuthEnty) and collaborators (othID). Responsibility for the creation of the work at the appropriate level: marked-up document; marked-up document source; study; study description, other material; other material for study.",
             examples = c()
         ),
+        sampleFrame = list(
+            type = "sampleFrameType",
+            optional = TRUE,
+            repeatable = TRUE,
+            recommended = FALSE,
+            deprecated = FALSE,
+            attributes = list(),
+            parents = "dataColl",
+            children = list("sampleFrameName", "labl", "txt", "validPeriod", "custodian", "useStmt", "universe", "frameUnit", "referencePeriod", "updateProcedure"),
+            title = "Sample Frame",
+            description = "Sample frame describes the sampling frame used for identifying the population from which the sample was taken. For example, a telephone book may be a sample frame for a phone survey. In addition to the name, label and text describing the sample frame, this structure lists who maintains the sample frame, the period for which it is valid, a use statement, the universe covered, the type of unit contained in the frame as well as the number of units available, the reference period of the frame and procedures used to update the frame. Use multiple use statements to provide different uses under different conditions. Repeat elements within the use statement to support multiple languages.",
+            examples = c()
+        ),
+        sampleFrameName = list(
+            type = "stringType",
+            optional = TRUE,
+            repeatable = TRUE,
+            recommended = FALSE,
+            deprecated = FALSE,
+            attributes = list(),
+            parents = "sampleFrame",
+            children = list(),
+            title = "Sample Frame Name",
+            description = "Name of the sample frame.",
+            examples = "<sampleFrameName>City of St. Paul Directory</sampleFrameName>"
+        ),
+        sampleSize = list(
+            type = "integerType",
+            optional = TRUE,
+            repeatable = FALSE,
+            recommended = FALSE,
+            deprecated = FALSE,
+            attributes = list(),
+            parents = "targetSampleSize",
+            children = list(),
+            title = "Sample Size",
+            description = "This element provides the targeted sample size in integer format.",
+            examples = "<sampleSize>385</sampleSize>"
+        ),
+        sampleSizeFormula = list(
+            type = "stringType",
+            optional = TRUE,
+            repeatable = TRUE,
+            recommended = FALSE,
+            deprecated = FALSE,
+            attributes = list(),
+            parents = "targetSampleSize",
+            children = list(),
+            title = "Sample Size Formula",
+            description = "This element includes the formula that was used to determine the sample size.",
+            examples = "<sampleSizeFormula>n0=Z2pq/e2=(1.96)2(.5)(.5)/(.05)2=385 individuals</sampleSizeFormula>"
+        ),
         sampProc = list(
             type = "conceptualTextType",
             optional = TRUE,
@@ -6404,6 +6700,19 @@ assign(
                 "<var><security date=\"1998-05-10\"> This variable has been recoded for reasons of confidentiality. Users should contact the archive for information on obtaining access.</security></var>",
                 "<var><security date=\"1998-05-10\">Variable(s) within this nCube have been recoded for reasons of confidentiality.  Users should contact the archive for information on obtaining access.</security></var>"
             )
+        ),
+        selector = list(
+            type = "selectorType",
+            optional = FALSE,
+            repeatable = FALSE,
+            recommended = FALSE,
+            deprecated = FALSE,
+            attributes = list(),
+            parents = "usage",
+            children = list(),
+            title = "Selector",
+            description = "Identifies a collection of elements in which a controlled vocabulary is used. This is a simplified XPath which must correspond to the actual instance in which it occurs, which is to say that the fully qualified element names here must correspond to those in the instance. This XPath can only identify elements and does not allow for any predicates. The XPath must either be rooted or deep.",
+            examples = c()
         ),
         serInfo = list(
             type = "simpleTextType",
@@ -6682,6 +6991,38 @@ assign(
             description = "The southernmost coordinate delimiting the geographic extent of the dataset. A valid range of values, expressed in decimal degrees (positive east and positive north), is: -90,0 <=South Bounding Latitude Value <= 90,0 ; South Bounding Latitude Value <= North Bounding Latitude Value",
             examples = "<southBL>57.987915</southBL>"
         ),
+        specificElements = list(
+            type = "specificElementsType",
+            optional = FALSE,
+            repeatable = FALSE,
+            recommended = FALSE,
+            deprecated = FALSE,
+            attributes = list(
+                refs = list(
+                    type = "IDREFS",
+                    description = "IDs of the specific elements.",
+                    values = c(),
+                    default = c(),
+                    optional = FALSE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                authorizedCodeValue = list(
+                    type = "NMTOKEN",
+                    description = "A valid code value corresponding to the meaning of the content in the element or attribute when the identified element or attribute does not use an actual valid value from the controlled vocabulary.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                )
+            ),
+            parents = "usage",
+            children = list(),
+            title = "Specific Elements",
+            description = "Identifies a collection of specific elements via their identifiers in the refs attribute, which allows for a tokenized list of identifier values which must correspond to identifiers which exist in the instance.",
+            examples = "<specificElements refs=\"ICPSR4328timeMeth\" authorizedCodeValue=\"CrossSection\"/>"
+        ),
         specPerm = list(
             type = "specPermType",
             optional = TRUE,
@@ -6869,119 +7210,6 @@ assign(
                 "This generic structure would allow you to designate additional design activities etc."
             )
         ),
-        developmentActivity = list(
-            type = "developmentActivityType",
-            optional = TRUE,
-            repeatable = TRUE,
-            recommended = FALSE,
-            deprecated = FALSE,
-            attributes = list(
-                type = list(
-                    type = "string",
-                    description = "Used to specify a controlled vocabulary concept. DEPRECATED.",
-                    values = c(),
-                    default = c(),
-                    optional = TRUE,
-                    recommended = FALSE,
-                    deprecated = TRUE
-                )
-            ),
-            parents = "studyDevelopment",
-            children = list("typeOfDevelopmentActivity", "description", "participant", "resource", "outcome"),
-            title = "Development Activity",
-            description = "Information on the development activity including a description, set of participants, resources used, and outcomes. Use of the \"type\" attribute has been DEPRECATED. Use the element typeOfSetAvailability which supports the use of a controlled vocabulary. Repeat if multiple language labels are being provided directly within the documentation.",
-            examples = "<developmentActivity><typeOfDevelopmentActivity vocab=\"LifecycleEventType\" vocabURI=\"https://www.ddialliance.org/Specification/DDI-CV/LifecycleEventType_1.0.html\">QuestionnaireTranslation</typeOfDevelopmentActivity><typeOfDevelopmentActivity vocab=\"DIME Questionnaire Translation\" vocabURI=\"https://dimewiki.worldbank.org/index.php?title=Questionnaire_Translation&amp;oldid=8152\">Forward Translation</typeOfDevelopmentActivity><description>Translation from language A to language B of question and response text. Language experts are used. Translation is tested through round-trip translation practices. Translated question will be tested for response consistency with original language text.</description><participant affiliation=\"ISRDI\" role=\"language exert\">Ragi Yousef</participant><resource><srcCitation><titlStmt><titl>Labor Force Survey 2017-2018</titl></titlStmt><holding><URI>https://www.ilo.org/surveyLib/index.php/catalog/2549/related-materials</URI></holding></srcCitation></resource><outcome>Translated question resulted in valid replication of original language in the round trip test. Translated question resulted in statistically similar results as original language question following testing.</outcome></developmentActivity>"
-        ),
-        participant = list(
-            type = "participantType",
-            optional = TRUE,
-            repeatable = TRUE,
-            recommended = FALSE,
-            deprecated = FALSE,
-            attributes = list(
-                affiliation = list(
-                    type = "string",
-                    description = "Affiliation of the participant with an agency or organization.",
-                    values = c(),
-                    default = c(),
-                    optional = TRUE,
-                    recommended = FALSE,
-                    deprecated = FALSE
-                ),
-                abbr = list(
-                    type = "string",
-                    description = "Abbreviation for the participant.",
-                    values = c(),
-                    default = c(),
-                    optional = TRUE,
-                    recommended = FALSE,
-                    deprecated = FALSE
-                ),
-                role = list(
-                    type = "string",
-                    description = "Role of the participant.",
-                    values = c(),
-                    default = c(),
-                    optional = TRUE,
-                    recommended = FALSE,
-                    deprecated = FALSE
-                ),
-                agentIdentifier = list(
-                    type = "string",
-                    description = "Identifier of the participant.",
-                    values = c(),
-                    default = c(),
-                    optional = TRUE,
-                    recommended = FALSE,
-                    deprecated = FALSE
-                ),
-                typeOfAgentIdentifier = list(
-                    type = "string",
-                    description = "Type of identifier, should be provided if agentIdentifier is used.",
-                    values = c(),
-                    default = c(),
-                    optional = TRUE,
-                    recommended = FALSE,
-                    deprecated = FALSE
-                ),
-                isPersistantIdentifier = list(
-                    type = "boolean",
-                    description = "Indicate if the agent identifier is intended to be a persistent identifier",
-                    values = c("true", "false"),
-                    default = c(),
-                    optional = TRUE,
-                    recommended = FALSE,
-                    deprecated = FALSE
-                ),
-                agentType = list(
-                    type = "NMTOKEN",
-                    description = "Type of participant: organization or individual.",
-                    values = c("organization", "individual"),
-                    default = c(),
-                    optional = TRUE,
-                    recommended = FALSE,
-                    deprecated = FALSE
-                )
-            ),
-            parents = "developmentActivity",
-            children = list(),
-            title = "Participant",
-            description = "Name of \"participant\" in the activity being described in the parent element.",
-            examples = c()
-        ),
-        resource = list(
-            type = "resourceType",
-            optional = TRUE,
-            repeatable = TRUE,
-            recommended = FALSE,
-            deprecated = FALSE,
-            attributes = list(),
-            parents = "developmentActivity",
-            children = list("typeOfDataSrc", "dataSrc", "srcOrig", "srcChar", "srcDocu"),
-            title = "Resource",
-            description = "Resource provides the means of describing an external data source including a \"typeOfDataSrc\" which supports othe use of an external controllec vocabulary. DDI provides a Controlled Vocabulary for this location: \"DataSourceType\". Describe the data source using the \"dataSrc\" field, describe the original data source in \"dataOrig\" for secondary use data, source characteristics in \"scrChar\" to identify any particularities of the data source that may affect analysis, and the ability to provide the document source in \"srcDocu\".",
-            examples = c()
-        ),
         studyAuthorization = list(
             type = "studyAuthorizationType",
             optional = TRUE,
@@ -7005,87 +7233,6 @@ assign(
             description = "Provides structured information on the agency that authorized the study, the date of authorization, and an authorization statement.",
             examples = "<studyAuthorization date=\"2010-11-04\"><authorizingAgency affiliation=\"University of Georgia\" abbr=\"HSO\">Human Subjects Office</authorizingAgency><authorizationStatement>Statement of authorization issued by OUHS on 2010-11-04</authorizationStatement></studyAuthorization>"
         ),
-        authorizingAgency = list(
-            type = "authorizingAgencyType",
-            optional = TRUE,
-            repeatable = TRUE,
-            recommended = FALSE,
-            deprecated = FALSE,
-            attributes = list(
-                affiliation = list(
-                    type = "string",
-                    description = "Institutional affiliation of the authorizing agent or agency.",
-                    values = c(),
-                    default = c(),
-                    optional = TRUE,
-                    recommended = FALSE,
-                    deprecated = FALSE
-                ),
-                abbr = list(
-                    type = "string",
-                    description = "Abbreviation for the authorizing agent's or agency's name",
-                    values = c(),
-                    default = c(),
-                    optional = TRUE,
-                    recommended = FALSE,
-                    deprecated = FALSE
-                ),
-                agentIdentifier = list(
-                    type = "string",
-                    description = "Identifier of the authorizing agency.",
-                    values = c(),
-                    default = c(),
-                    optional = TRUE,
-                    recommended = FALSE,
-                    deprecated = FALSE
-                ),
-                typeOfAgentIdentifier = list(
-                    type = "string",
-                    description = "Type of identifier, should be provided if agentIdentifier is used.",
-                    values = c(),
-                    default = c(),
-                    optional = TRUE,
-                    recommended = FALSE,
-                    deprecated = FALSE
-                ),
-                isPersistantIdentifier = list(
-                    type = "boolean",
-                    description = "Indicate if the agent identifier is intended to be a persistent identifier",
-                    values = c("true", "false"),
-                    default = c(),
-                    optional = TRUE,
-                    recommended = FALSE,
-                    deprecated = FALSE
-                ),
-                agentType = list(
-                    type = "NMTOKEN",
-                    description = "Type of authorizing agency: organization or individual.",
-                    values = c("organization", "individual"),
-                    default = c(),
-                    optional = TRUE,
-                    recommended = FALSE,
-                    deprecated = FALSE
-                )
-            ),
-            parents = "studyAuthorization",
-            children = list(),
-            title = "Authorizing Agency",
-            description = "Name of the agent or agency that authorized the study.",
-            examples = "<authorizingAgency affiliation=\"Purdue University\" abbr=\"OUHS\">Office for Use of Human Subjects</authorizingAgency>"
-        ),
-        authorizationStatement = list(
-            type = "simpleTextType",
-            optional = TRUE,
-            repeatable = TRUE,
-            recommended = FALSE,
-            deprecated = FALSE,
-            attributes = list(),
-            parents = "studyAuthorization",
-            children = list(),
-            title = "Authorization Statement",
-            description = "The text of the authorization. Use XHTML to capture significant structure in the document.",
-            examples = "<authorizationStatement>Required documentation covering the study purpose, disclosure information, questionnaire content, and consent statements was delivered to the OUHS on 2010-10-01 and was reviewed by the compliance officer. Statement of authorization for the described study was issued on 2010-11-04</authorizationStatement>"
-        ),
         stdyInfo = list(
             type = "stdyInfoType",
             optional = TRUE,
@@ -7097,19 +7244,6 @@ assign(
             children = list("studyBudget", "subject", "abstract", "sumDscr", "qualityStatement", "notes", "exPostEvaluation"),
             title = "Study Scope",
             description = "This section contains information about the data collection's scope across several dimensions, including substantive content, geography, and time.",
-            examples = c()
-        ),
-        qualityStatement = list(
-            type = "qualityStatementType",
-            optional = TRUE,
-            repeatable = FALSE,
-            recommended = FALSE,
-            deprecated = FALSE,
-            attributes = list(),
-            parents = "stdyInfo",
-            children = list("standardsCompliance", "otherQualityStatement"),
-            title = "Quality Statement",
-            description = "This structure consists of two parts, \"standardsCompliance\" and \"otherQualityStatements\". In \"standardsCompliance\" list all specific standards complied with during the execution of this study. Note the standard name and producer and how the study complied with the standard. Enter any additional quality statements in \"otherQualityStatements\".",
             examples = c()
         ),
         standardsCompliance = list(
@@ -7178,141 +7312,6 @@ assign(
             title = "Standard Name",
             description = "Contains the name of the standard with which the study complies.",
             examples = "<standardName date=\"2009-10-18\" version=\"3.1\" URI=\"http://www.ddialliance.org/Specification/DDI-Lifecycle/3.1/\">Data Documentation Initiative</standardName>"
-        ),
-        exPostEvaluation = list(
-            type = "exPostEvaluationType",
-            optional = TRUE,
-            repeatable = TRUE,
-            recommended = FALSE,
-            deprecated = FALSE,
-            attributes = list(
-                completionDate = list(
-                    type = "dateSimpleType",
-                    description = "Holds the date the evaluation was completed.",
-                    values = c(),
-                    default = c(),
-                    optional = TRUE,
-                    recommended = FALSE,
-                    deprecated = FALSE
-                ),
-                type = list(
-                    type = "string",
-                    description = "DEPRECATED.",
-                    values = c(),
-                    default = c(),
-                    optional = TRUE,
-                    recommended = FALSE,
-                    deprecated = TRUE
-                )
-            ),
-            parents = "stdyInfo",
-            children = list("typeOfExPostEvaluation", "evaluator", "evaluationProcess", "outcomes"),
-            title = "Post Evaluation Procedures",
-            description = "Use this section to describe evaluation procedures not address in data evaluation processes. These may include issues such as timing of the study, sequencing issues, cost/budget issues, relevance, institutional or legal arrangements etc. of the study. The type attribute has been DEPRECATED. Use the element typeOfExPostEvaluation to identify the type of evaluation with or without the use of a controlled vocabulary.",
-            examples = "<exPostEvaluation completionDate=\"2003\" type=\"comprehensive\"><typeOfExPostEvaluation>comprehensive</typeOfExPostEvaluation><evaluator affiliation=\"United Nations\" abbr=\"UNSD\" role=\"consultant\">United Nations Statistical Division</evaluator><evaluationProcess>In-depth review of pre-collection and collection procedures</evaluationProcess><outcomes>The following steps were highly effective in increasing response rates, and should be repeated in the next collection cycle...</outcomes></exPostEvaluation>"
-        ),
-        evaluator = list(
-            type = "evaluatorType",
-            optional = TRUE,
-            repeatable = TRUE,
-            recommended = FALSE,
-            deprecated = FALSE,
-            attributes = list(
-                affiliation = list(
-                    type = "string",
-                    description = "Affiliation of the evaluator with an agency or organization.",
-                    values = c(),
-                    default = c(),
-                    optional = TRUE,
-                    recommended = FALSE,
-                    deprecated = FALSE
-                ),
-                abbr = list(
-                    type = "string",
-                    description = "Abbreviation for the evaluator.",
-                    values = c(),
-                    default = c(),
-                    optional = TRUE,
-                    recommended = FALSE,
-                    deprecated = FALSE
-                ),
-                role = list(
-                    type = "string",
-                    description = "The role played by the individual or organization in the evaluation process.",
-                    values = c(),
-                    default = c(),
-                    optional = TRUE,
-                    recommended = FALSE,
-                    deprecated = FALSE
-                ),
-                agentIdentifier = list(
-                    type = "string",
-                    description = "Identifier of the evaluator.",
-                    values = c(),
-                    default = c(),
-                    optional = TRUE,
-                    recommended = FALSE,
-                    deprecated = FALSE
-                ),
-                typeOfAgentIdentifier = list(
-                    type = "string",
-                    description = "Type of identifier, should be provided if agentIdentifier is used.",
-                    values = c(),
-                    default = c(),
-                    optional = TRUE,
-                    recommended = FALSE,
-                    deprecated = FALSE
-                ),
-                isPersistantIdentifier = list(
-                    type = "boolean",
-                    description = "Indicate if the agent identifier is intended to be a persistent identifier",
-                    values = c("true", "false"),
-                    default = c(),
-                    optional = TRUE,
-                    recommended = FALSE,
-                    deprecated = FALSE
-                ),
-                agentType = list(
-                    type = "NMTOKEN",
-                    description = "Type of evaluator: organization or individual.",
-                    values = c("organization", "individual"),
-                    default = c(),
-                    optional = TRUE,
-                    recommended = FALSE,
-                    deprecated = FALSE
-                )
-            ),
-            parents = "exPostEvaluation",
-            children = list(),
-            title = "Evaluator Type",
-            description = "The evaluator element identifies persons or organizations involved in the evaluation process.",
-            examples = "<evaluator affiliation=\"United Nations\" abbr=\"UNSD\" role=\"consultant\">United Nations Statistical Division</evaluator>"
-        ),
-        evaluationProcess = list(
-            type = "conceptualTextType",
-            optional = TRUE,
-            repeatable = TRUE,
-            recommended = FALSE,
-            deprecated = FALSE,
-            attributes = list(),
-            parents = "exPostEvaluation",
-            children = list(choice = c("concept", "txt")),
-            title = "Evaluation Process",
-            description = "Describes the evaluation process followed. Use the contained \"concept\" element when a controlled vocabulary is used.",
-            examples = "<evaluationProcess><concept>meta-evaluation</concept>An evaluation of the quality of this series of evaluations and its adherence to established good practice in evaluation. It is based on and presents summaries of existing evaluations of each instrument.</evaluationProcess>"
-        ),
-        outcomes = list(
-            type = "simpleTextType",
-            optional = TRUE,
-            repeatable = TRUE,
-            recommended = FALSE,
-            deprecated = FALSE,
-            attributes = list(),
-            parents = "exPostEvaluation",
-            children = list(),
-            title = "Evaluation Outcomes",
-            description = "Describe the outcomes of the evaluation.",
-            examples = "<outcomes>The following steps were highly effective in increasing response rates, and should be repeated in the next collection cycle...</outcomes>"
         ),
         studyBudget = list(
             type = "simpleTextType",
@@ -7496,6 +7495,19 @@ assign(
             children = list("titl", "tgroup"),
             title = "Table",
             description = "",
+            examples = c()
+        ),
+        targetSampleSize = list(
+            type = "targetSampleSizeType",
+            optional = TRUE,
+            repeatable = TRUE,
+            recommended = FALSE,
+            deprecated = FALSE,
+            attributes = list(),
+            parents = "dataColl",
+            children = list("sampleSize", "sampleSizeFormula"),
+            title = "Target Sample Size",
+            description = "Provides both the target size of the sample (this is the number in the original sample, not the number of respondents) as well as the formula used for determining the sample size.",
             examples = c()
         ),
         tbody = list(
@@ -7828,7 +7840,7 @@ assign(
                 ),
                 sdatrefs = list(
                     type = "IDREFS",
-                    description = "Points  to information in the study description such as specific dates, universes, or other identifiable information in a space delimited array of IDs.",
+                    description = "Summary data description references that record the ID values of all elements within the summary data description section of the Study Description that might apply to this element. These include: time period covered, date of collection, nation or country, geographic coverage, geographic unit, unit of analysis, universe, and kind of data.",
                     values = c(),
                     default = c(),
                     optional = TRUE,
@@ -7851,759 +7863,6 @@ assign(
                 "<otherMat><txt>Glossary of Terms. Below are terms that may  prove useful in working with the technical documentation for this study.. </txt></otherMat>",
                 "<otherMat><txt>This is a PDF version of the original questionnaire provided by the principal investigator.</txt></otherMat>"
             )
-        ),
-        undocCod = list(
-            type = "simpleTextType",
-            optional = TRUE,
-            repeatable = TRUE,
-            recommended = FALSE,
-            deprecated = FALSE,
-            attributes = list(),
-            parents = "var",
-            children = list(),
-            title = "List of Undocumented Codes",
-            description = "Values whose meaning is unknown.",
-            examples = "<var><undocCod>Responses for categories 9 and 10 are unavailable.</undocCod></var>"
-        ),
-        universe = list(
-            type = "universeType",
-            optional = TRUE,
-            repeatable = TRUE,
-            recommended = TRUE,
-            deprecated = FALSE,
-            attributes = list(
-                level = list(
-                    type = "string",
-                    description = "Coding of the level to which universe applies, i.e., the study level, the file level (if different from study), the record group, the variable group, the nCube group, the variable, or the nCube level.",
-                    values = c(),
-                    default = c(),
-                    optional = TRUE,
-                    recommended = FALSE,
-                    deprecated = FALSE
-                ),
-                clusion = list(
-                    type = "NMTOKEN",
-                    description = "Groups included (I) in or excluded (E) from the universe.",
-                    values = c("I", "E"),
-                    default = "I",
-                    optional = TRUE,
-                    recommended = FALSE,
-                    deprecated = FALSE
-                )
-            ),
-            parents = c("sampleFrame", "nCube", "nCubeGrp", "sumDscr", "var", "varGrp"),
-            children = list("concept", "txt"),
-            title = "Universe",
-            description = "The group of persons or other elements that are the object of research and to which any analytic results refer. Age, nationality, and residence commonly help to delineate a given universe, but any of a number of factors may be involved, such as sex, race, income, veteran status, criminal convictions, etc. The universe may consist of elements other than persons, such as housing units, court cases, deaths, countries, etc. In general, it should be possible to tell from the description of the universe whether a given individual or element (hypothetical or real) is a member of the population under study. If all the variables/nCubes described in the data documentation relate to the same population, e.g., the same set of survey respondents, this element would be unnecessary at data description level. In this case, universe can be fully described at the study level. For forward-compatibility, DDI Lifecycle XHTML tags may be used in this element. This element may be repeated only to support multiple language expressions of the content. To specify the use of a Controlled Vocabulary or standard concept use the internal element \"concept\". If multiple concepts are needed the parent element should be replicated. Internal text related to each concept should be allocated to accompany the relevant concept.",
-            examples = c(
-                "<universe clusion=\"I\"><concept>Persons</concept><concept>15-19 years of age</concept>Individuals 15-19 years of age.</universe>",
-                "<universe clusion=\"E\">Individuals younger than 15 and older than 19 years of age.</universe>"
-            )
-        ),
-        useStmt = list(
-            type = "useStmtType",
-            optional = TRUE,
-            repeatable = TRUE,
-            recommended = FALSE,
-            deprecated = FALSE,
-            attributes = list(),
-            parents = c("dataAccs", "sampleFrame", "metadataAccs"),
-            children = list("confDec", "specPerm", "restrctn", "contact", "citReq", "deposReq", "conditions", "disclaimer"),
-            title = "Use Statement",
-            description = "Information on terms of use for the data collection. This element may be repeated only to support multiple language expressions of the content.",
-            examples = c()
-        ),
-        valrng = list(
-            type = "valrngType",
-            optional = TRUE,
-            repeatable = TRUE,
-            recommended = FALSE,
-            deprecated = FALSE,
-            attributes = list(
-                access = list(
-                    type = "IDREFS",
-                    description = "ID values of all elements in the Data Access and Metadata Access section that describe access conditions for this range.",
-                    values = c(),
-                    default = c(),
-                    optional = TRUE,
-                    recommended = FALSE,
-                    deprecated = FALSE
-                )
-            ),
-            parents = "var",
-            children = list(choice = c("item", "range"), "key", "notes"),
-            title = "Range of Valid Data Values",
-            description = "Values for a particular variable that represent legitimate responses. The attribute \"access\" records the ID values of all elements in the Data Access and Metadata Access section that describe access conditions for this range.",
-            examples = c(
-                "<valrng><range min=\"1\" max=\"3\"/></valrng>",
-                "<valrng><item VALUE=\"1\"/><item VALUE=\"2\"/><item VALUE=\"3\"/></valrng>"
-            )
-        ),
-        var = list(
-            type = "varType",
-            optional = TRUE,
-            repeatable = TRUE,
-            recommended = FALSE,
-            deprecated = FALSE,
-            attributes = list(
-                name = list(
-                    type = "string",
-                    description = "Contains the so-called \"short label\" for the variable, limited to eight characters in many statistical analysis systems such as SAS or SPSS.",
-                    values = c(),
-                    default = c(),
-                    optional = FALSE,
-                    recommended = FALSE,
-                    deprecated = FALSE
-                ),
-                wgt = list(
-                    type = "NMTOKEN",
-                    description = "Whether the variable is a weight.",
-                    values = c("wgt", "not-wgt"),
-                    default = "not-wgt",
-                    optional = TRUE,
-                    recommended = FALSE,
-                    deprecated = FALSE
-                ),
-                wgt_var = list(
-                    type = "IDREFS",
-                    description = "Reference to the variable(s) containing the weight used.",
-                    values = c(),
-                    default = c(),
-                    optional = FALSE,
-                    recommended = FALSE,
-                    deprecated = FALSE
-                ),
-                weight = list(
-                    type = "IDREFS",
-                    description = "References the weight description(s) from dataColl for this variable. Use when a specific overall weight is designated such as with a 10% sample where all items are weighted x10.",
-                    values = c(),
-                    default = c(),
-                    optional = TRUE,
-                    recommended = FALSE,
-                    deprecated = FALSE
-                ),
-                qstn = list(
-                    type = "IDREFS",
-                    description = "Reference to the question ID when the question itself is entered in another variable.",
-                    values = c(),
-                    default = c(),
-                    optional = TRUE,
-                    recommended = FALSE,
-                    deprecated = FALSE
-                ),
-                files = list(
-                    type = "IDREFS",
-                    description = "ID of the file(s) to which the variable belongs.",
-                    values = c(),
-                    default = c(),
-                    optional = TRUE,
-                    recommended = FALSE,
-                    deprecated = FALSE
-                ),
-                vendor = list(
-                    type = "string",
-                    description = "Origin of the proprietary format and includes SAS, SPSS, ANSI, and ISO.",
-                    values = c(),
-                    default = c(),
-                    optional = TRUE,
-                    recommended = FALSE,
-                    deprecated = FALSE
-                ),
-                dcml = list(
-                    type = "string",
-                    description = "Number of decimal points in the variable.",
-                    values = c(),
-                    default = c(),
-                    optional = TRUE,
-                    recommended = FALSE,
-                    deprecated = FALSE
-                ),
-                intrvl = list(
-                    type = "NMTOKEN",
-                    description = "Interval type; options are discrete or continuous.",
-                    values = c("contin", "discrete"),
-                    default = "discrete",
-                    optional = TRUE,
-                    recommended = FALSE,
-                    deprecated = FALSE
-                ),
-                rectype = list(
-                    type = "string",
-                    description = "ID of the record type to which the variable belongs.",
-                    values = c(),
-                    default = c(),
-                    optional = TRUE,
-                    recommended = FALSE,
-                    deprecated = FALSE
-                ),
-                sdatrefs = list(
-                    type = "IDREFS",
-                    description = "Summary data description references which record the ID values of all elements within the summary data description section of the Study Description which might apply to the variable. These elements include: time period covered, date of collection, nation or country, geographic coverage, geographic unit, unit of analysis, universe, and kind of data.",
-                    values = c(),
-                    default = c(),
-                    optional = TRUE,
-                    recommended = FALSE,
-                    deprecated = FALSE
-                ),
-                methrefs = list(
-                    type = "IDREFS",
-                    description = "Methodology and processing references which record the ID values of all elements within the study methodology and processing section of the Study Description which might apply to the variable. These elements include information on data collection and data appraisal (e.g., sampling, sources, weighting, data cleaning, response rates, and sampling error estimates).",
-                    values = c(),
-                    default = c(),
-                    optional = TRUE,
-                    recommended = FALSE,
-                    deprecated = FALSE
-                ),
-                pubrefs = list(
-                    type = "IDREFS",
-                    description = "Link to publication/citation references and records the ID values of all citations elements within Other Study Description Materials or Other Study-Related Materials that pertain to this variable.",
-                    values = c(),
-                    default = c(),
-                    optional = TRUE,
-                    recommended = FALSE,
-                    deprecated = FALSE
-                ),
-                access = list(
-                    type = "IDREFS",
-                    description = "ID values of all elements in the Data Access and Metadata Access section that describe access conditions for this variable.",
-                    values = c(),
-                    default = c(),
-                    optional = TRUE,
-                    recommended = FALSE,
-                    deprecated = FALSE
-                ),
-                aggrMeth = list(
-                    type = "NMTOKEN",
-                    description = "Type of aggregation method used, for example 'sum', 'average', 'count'. If a value of \"other\" is given a term from a controlled vocabulary should be used in the \"otherAggrMeth\" attribute.",
-                    values = c("sum", "average", "count", "mode", "median", "maximum", "minimum", "percent", "other"),
-                    default = c(),
-                    optional = TRUE,
-                    recommended = FALSE,
-                    deprecated = FALSE
-                ),
-                otherAggrMeth = list(
-                    type = "NMTOKEN",
-                    description = "A value from a controlled vocabulary when the aggrMeth attribute has a value of \"other\".This option should only be used when applying a controlled vocabulary to this attribute. Use the complex element controlledVocabUsed to identify the controlled vocabulary to which the selected term belongs. DDI provides a Controlled Vocabulary for this location: \"AggregationMethod\"",
-                    values = c(),
-                    default = c(),
-                    optional = TRUE,
-                    recommended = FALSE,
-                    deprecated = FALSE
-                ),
-                measUnit = list(
-                    type = "string",
-                    description = "Measurement unit, for example 'km', 'miles', etc.",
-                    values = c(),
-                    default = c(),
-                    optional = TRUE,
-                    recommended = FALSE,
-                    deprecated = FALSE
-                ),
-                scale = list(
-                    type = "string",
-                    description = "Unit of scale, for example 'x1', 'x1000', etc.",
-                    values = c(),
-                    default = c(),
-                    optional = TRUE,
-                    recommended = FALSE,
-                    deprecated = FALSE
-                ),
-                origin = list(
-                    type = "string",
-                    description = "Point of origin for anchored scales.",
-                    values = c(),
-                    default = c(),
-                    optional = TRUE,
-                    recommended = FALSE,
-                    deprecated = FALSE
-                ),
-                nature = list(
-                    type = "NMTOKEN",
-                    description = "Nature  (measurement level) of the variable.",
-                    values = c("nominal", "ordinal", "interval", "ratio", "percent", "other"),
-                    default = c(),
-                    optional = TRUE,
-                    recommended = FALSE,
-                    deprecated = FALSE
-                ),
-                otherNature = list(
-                    type = "string",
-                    description = "A value from a controlled vocabulary. Use the complex element controlledVocabUsed to identify the controlled vocabulary to which the selected term belongs.",
-                    values = c(),
-                    default = c(),
-                    optional = TRUE,
-                    recommended = FALSE,
-                    deprecated = FALSE
-                ),
-                additivity = list(
-                    type = "NMTOKEN",
-                    description = "Type of additivity",
-                    values = c("stock", "flow", "non-additive", "other"),
-                    default = c(),
-                    optional = TRUE,
-                    recommended = FALSE,
-                    deprecated = FALSE
-                ),
-                otherAdditivity = list(
-                    type = "NMTOKEN",
-                    description = "A value from a controlled vocabulary, used only when the \"additivity\" attribute has a value of \"other\". Use the complex element controlledVocabUsed to identify the controlled vocabulary to which the selected term belongs.",
-                    values = c(),
-                    default = c(),
-                    optional = TRUE,
-                    recommended = FALSE,
-                    deprecated = FALSE
-                ),
-                temporal = list(
-                    type = "NMTOKEN",
-                    description = "Whether the variable relays time-related information.",
-                    values = c("Y", "N"),
-                    default = "N",
-                    optional = TRUE,
-                    recommended = FALSE,
-                    deprecated = FALSE
-                ),
-                geog = list(
-                    type = "NMTOKEN",
-                    description = "Whether the variable relays geographic information.",
-                    values = c("Y", "N"),
-                    default = "N",
-                    optional = TRUE,
-                    recommended = FALSE,
-                    deprecated = FALSE
-                ),
-                geoVocab = list(
-                    type = "string",
-                    description = "Indicates the name of the controlled vocabulary, if any, used in the element, e.g., LCSH (Library of Congress Subject Headings), MeSH (Medical Subject Headings), etc.",
-                    values = c(),
-                    default = c(),
-                    optional = TRUE,
-                    recommended = FALSE,
-                    deprecated = FALSE
-                ),
-                catQnty = list(
-                    type = "string",
-                    description = "Number of categories found in the variable, and is used primarily for aggregate data files for verifying cell counts in nCubes.",
-                    values = c(),
-                    default = c(),
-                    optional = TRUE,
-                    recommended = FALSE,
-                    deprecated = FALSE
-                ),
-                representationType = list(
-                    type = "NMTOKEN",
-                    description = "Captures the specific DDI Lifecycle representation type to facilitate translation between DDI 2 and DDI Lifecycle. If the \"other\" value is used, a term from a controlled vocabulary may be supplied in the otherRepresentationType attribute.",
-                    values = c("text", "numeric", "code", "datetime", "geographicLocationCode", "geographicStructureCode", "scale", "other"),
-                    default = c(),
-                    optional = TRUE,
-                    recommended = FALSE,
-                    deprecated = FALSE
-                ),
-                otherRepresentationType = list(
-                    type = "NMTOKEN",
-                    description = "A value from a controlled vocabulary, should be used when the representationType attribute has a value of \"other\". Use the complex element controlledVocabUsed to identify the controlled vocabulary to which the selected term belongs.",
-                    values = c(),
-                    default = c(),
-                    optional = TRUE,
-                    recommended = FALSE,
-                    deprecated = FALSE
-                )
-            ),
-            parents = "dataDscr",
-            children = list("location", "labl", "imputation", "security", "embargo", "respUnit", "anlysUnit", "qstn", "valrng", "invalrng", "undocCod", "universe", "TotlResp", "sumStat", "txt", "stdCatgry", "catgryGrp", "catgry", "codInstr", "verStmt", "concept", "derivation", "varFormat", "geoMap", "catLevel", "notes"),
-            title = "Variable",
-            description = "This element describes all of the features of a single variable in a social science data file. The following elements are repeatable to support multi-language content: anlysUnit, embargo, imputation, respUnit, security, TotlResp.",
-            examples = c()
-        ),
-        varFormat = list(
-            type = "varFormatType",
-            optional = TRUE,
-            repeatable = FALSE,
-            recommended = FALSE,
-            deprecated = FALSE,
-            attributes = list(
-                type = list(
-                    type = "NMTOKEN",
-                    description = "Indicates if the variable is character or numeric.",
-                    values = c("character", "numeric"),
-                    default = "numeric",
-                    optional = TRUE,
-                    recommended = FALSE,
-                    deprecated = FALSE
-                ),
-                formatname = list(
-                    type = "string",
-                    description = "In some cases, it may provide the name of the particular, proprietary format actually used.",
-                    values = c(),
-                    default = c(),
-                    optional = TRUE,
-                    recommended = FALSE,
-                    deprecated = FALSE
-                ),
-                schema = list(
-                    type = "NMTOKEN",
-                    description = "Identifies the vendor or standards body that defined the format.",
-                    values = c("SAS", "SPSS", "IBM", "ANSI", "ISO", "XML-Data", "other"),
-                    default = "ISO",
-                    optional = TRUE,
-                    recommended = FALSE,
-                    deprecated = FALSE
-                ),
-                otherSchema = list(
-                    type = "NMTOKEN",
-                    description = "A value from a controlled vocabulary, if the schema attribute is given a value of \"other\". The complex element controlledVocabUsed should be used to identify the controlled vocabulary to which the selected term belongs.",
-                    values = c(),
-                    default = c(),
-                    optional = TRUE,
-                    recommended = FALSE,
-                    deprecated = FALSE
-                ),
-                category = list(
-                    type = "NMTOKEN",
-                    description = "Describes what kind of data the format represents.",
-                    values = c("date", "time", "currency", "other"),
-                    default = "other",
-                    optional = TRUE,
-                    recommended = FALSE,
-                    deprecated = FALSE
-                ),
-                otherCategory = list(
-                    type = "NMTOKEN",
-                    description = "A value from a controlled vocabulary, if the category attribute is given a value of \"other\". The complex element controlledVocabUsed should be used to identify the controlled vocabulary to which the selected term belongs. DDI provides several Controlled Vocabularies for this location dependent upon the data being described: \"DataType\", \"DateType\", and \"NumericType\".",
-                    values = c(),
-                    default = c(),
-                    optional = TRUE,
-                    recommended = FALSE,
-                    deprecated = FALSE
-                ),
-                URI = list(
-                    type = "string",
-                    description = "A network identifier for the format definition.",
-                    values = c(),
-                    default = c(),
-                    optional = TRUE,
-                    recommended = FALSE,
-                    deprecated = FALSE
-                )
-            ),
-            parents = "var",
-            children = list(),
-            title = "Variable Format",
-            description = "The technical format of the variable in question.",
-            examples = c(
-                "<var><varFormat type=\"numeric\" schema=\"SAS\" formatname=\"DATE\" category=\"date\">The number in this  variable is stored in the form 'ddmmmyy' in SAS format.</varFormat></var>",
-                "<var><varFormat type=\"numeric\" formatname=\"date.iso8601\" schema=\"XML-Data\" category=\"date\" URI=\"http://www.w3.org/TR/1998/NOTE-XML-data/\">19541022</varFormat></var>"
-            )
-        ),
-        varGrp = list(
-            type = "varGrpType",
-            optional = TRUE,
-            repeatable = TRUE,
-            recommended = FALSE,
-            deprecated = FALSE,
-            attributes = list(
-                type = list(
-                    type = "NMTOKEN",
-                    description = c(
-                        "General type of grouping of the variables, e.g., subject, multiple response. Use the value of \"other\" if the value is to come from an external controlled vocabulary, and place the term into the otherType attribute.",
-                        "Specific variable groups, included included in this attribute, are:",
-                        "| section: Questions which derive from the same section of the questionnaire, e.g., all variables located in Section C.",
-                        "| multiple response: Questions where the respondent has the opportunity to select more than one answer from a variety of choices, e.g., what newspapers have you read in the past month (with the respondent able to select up to five choices).",
-                        "| grid: Sub-questions of an introductory or main question but which do not constitute a multiple response group, e.g., I am going to read you some events in the news lately and you tell me for each one whether you are very interested in the event, fairly interested in the fact, or not interested in the event.",
-                        "| display: Questions which appear on the same interview screen (CAI) together or are presented to the interviewer or respondent as a group.",
-                        "| repetition: The same variable (or group of variables) which are repeated for different groups of respondents or for the same respondent at a different time.",
-                        "| subject: Questions which address a common topic or subject, e.g., income, poverty, children.",
-                        "| version: Variables, often appearing in pairs, which represent different aspects of the same question, e.g., pairs of variables (or groups) which are adjusted/unadjusted for inflation or season or whatever, pairs of variables with/without missing data imputed, and versions of the same basic question.",
-                        "| iteration: Questions that appear in different sections of the data file measuring a common subject in different ways, e.g., a set of variables which report the progression of respondent income over the life course.",
-                        "| analysis: Variables combined into the same index, e.g., the components of a calculation, such as the numerator and the denominator of an economic statistic.",
-                        "| pragmatic: A variable group without shared properties.",
-                        "| record: Variable from a single record in a hierarchical file.",
-                        "| file: Variable from a single file in a multifile study.",
-                        "| randomized: Variables generated by CAI surveys produced by one or more random number variables together with a response variable, e.g., random variable X which could equal 1 or 2 (at random) which in turn would control whether Q.23 is worded \"men\" or \"women\", e.g., would you favor helping [men/women] laid off from a factory obtain training for a new job?",
-                        "| other: Variables which do not fit easily into any of the categories listed above, e.g., a group of variables whose documentation is in another language."
-                    ),
-                    values = c("section", "multipleResp", "grid", "display", "repetition", "subject", "version", "iteration", "analysis", "pragmatic", "record", "file", "randomized", "other"),
-                    default = "other",
-                    optional = TRUE,
-                    recommended = FALSE,
-                    deprecated = FALSE
-                ),
-                otherType = list(
-                    type = "NMTOKEN",
-                    description = "A value from a controlled vocabulary, if the type attribute was given a value of \"other\". This option should only be used when applying a controlled vocabulary to this attribute. Use the complex element controlledVocabUsed to identify the controlled vocabulary to which the selected term belongs.",
-                    values = c(),
-                    default = c(),
-                    optional = TRUE,
-                    recommended = FALSE,
-                    deprecated = FALSE
-                ),
-                var = list(
-                    type = "IDREFS",
-                    description = "Space delimited list of the IDs of all the variables that are immediate children of the variable group.",
-                    values = c(),
-                    default = c(),
-                    optional = TRUE,
-                    recommended = FALSE,
-                    deprecated = FALSE
-                ),
-                varGrp = list(
-                    type = "IDREFS",
-                    description = "Space delimited list of the IDs of all the variable groups that are immediate children of the variable group. The inclusion of a varGrp brings in all of its members. Members of the included varGrp should not be separately listed in either \"var\" or \"varGrp\".",
-                    values = c(),
-                    default = c(),
-                    optional = TRUE,
-                    recommended = FALSE,
-                    deprecated = FALSE
-                ),
-                name = list(
-                    type = "string",
-                    description = "A name, or short label, for the group.",
-                    values = c(),
-                    default = c(),
-                    optional = TRUE,
-                    recommended = FALSE,
-                    deprecated = FALSE
-                ),
-                sdatrefs = list(
-                    type = "IDREFS",
-                    description = "Summary data description references that record the ID values of all elements within the summary data description section of the Study Description that might apply to the group. These elements include: time period covered, date of collection, nation or country, geographic coverage, geographic unit, unit of analysis, universe, and kind of data.",
-                    values = c(),
-                    default = c(),
-                    optional = TRUE,
-                    recommended = FALSE,
-                    deprecated = FALSE
-                ),
-                methrefs = list(
-                    type = "IDREFS",
-                    description = "Methodology and processing references which record the ID values of all elements within the study methodology and processing section of the Study Description which might apply to the group. These elements include information on data collection and data appraisal (e.g., sampling, sources, weighting, data cleaning, response rates, and sampling error estimates).",
-                    values = c(),
-                    default = c(),
-                    optional = TRUE,
-                    recommended = FALSE,
-                    deprecated = FALSE
-                ),
-                pubrefs = list(
-                    type = "IDREFS",
-                    description = "Link to publication/citation references and records the ID values of all citations elements within codeBook/stdyDscr/othrStdyMat or codeBook/otherMat that pertain to this variable group.",
-                    values = c(),
-                    default = c(),
-                    optional = TRUE,
-                    recommended = FALSE,
-                    deprecated = FALSE
-                ),
-                access = list(
-                    type = "IDREFS",
-                    description = "ID values of all elements in codeBook/stdyDscr/dataAccs or codeBook/stdyDscr/metadataAccs of the document that describe access conditions for this variable group.",
-                    values = c(),
-                    default = c(),
-                    optional = TRUE,
-                    recommended = FALSE,
-                    deprecated = FALSE
-                ),
-                nCube = list(
-                    type = "string",
-                    description = "Included in 2.0 and subsequent versions in ERROR. DO NOT USE THIS ATTRIBUTE. It is retained only for purposes of backward-compatibility. DEPRECATED.",
-                    values = c(),
-                    default = c(),
-                    optional = TRUE,
-                    recommended = FALSE,
-                    deprecated = TRUE
-                )
-            ),
-            parents = "dataDscr",
-            children = list("labl", "txt", "concept", "defntn", "universe", "notes"),
-            title = "Variable Group",
-            description = c(
-                "A group of variables that may share a common subject, arise from the interpretation of a single question, or are linked by some other factor.",
-                "Variable groups are created this way in order to permit variables to belong to multiple groups, including multiple subject groups such as a group of variables on sex and income, or to a subject and a multiple response group, without causing overlapping groups. Variables that are linked by use of the same question need not be identified by a Variable Group element because they are linked by a common unique question identifier in the Variable element. Note that as a result of the strict sequencing required by XML, all Variable Groups must be marked up before the Variable element is opened. That is, the mark-up author cannot mark up a Variable Group, then mark up its constituent variables, then mark up another Variable Group."
-            ),
-            examples = c()
-        ),
-        varRange = list(
-            type = "varRangeType",
-            optional = TRUE,
-            repeatable = TRUE,
-            recommended = FALSE,
-            deprecated = FALSE,
-            attributes = list(
-                start = list(
-                    type = "IDREF",
-                    description = "ID of the first variable.",
-                    values = c(),
-                    default = c(),
-                    optional = TRUE,
-                    recommended = FALSE,
-                    deprecated = FALSE
-                ),
-                end = list(
-                    type = "IDREF",
-                    description = "ID of the last variable.",
-                    values = c(),
-                    default = c(),
-                    optional = TRUE,
-                    recommended = FALSE,
-                    deprecated = FALSE
-                )
-            ),
-            parents = "derivation",
-            children = list(),
-            title = "Variable Range",
-            description = "Reference to the ID of the first and last variable (start and end) of the range of variables used by the derivation.",
-            examples = "<varRange start=\"V1\" end=\"V3\"/>"
-        ),
-        varQnty = list(
-            type = "simpleTextType",
-            optional = TRUE,
-            repeatable = TRUE,
-            recommended = FALSE,
-            deprecated = FALSE,
-            attributes = list(),
-            parents = c("dimensns", "recDimnsn"),
-            children = list(),
-            title = "Overall Variable Count",
-            description = "Number of variables.",
-            examples = "<varQnty>27</varQnty>"
-        ),
-        verResp = list(
-            type = "verRespType",
-            optional = TRUE,
-            repeatable = TRUE,
-            recommended = FALSE,
-            deprecated = FALSE,
-            attributes = list(
-                affiliation = list(
-                    type = "string",
-                    description = "Affiliation of the authoring entity with an agency or organization.",
-                    values = c(),
-                    default = c(),
-                    optional = TRUE,
-                    recommended = FALSE,
-                    deprecated = FALSE
-                ),
-                agentIdentifier = list(
-                    type = "string",
-                    description = "Identifier of the authoring entity.",
-                    values = c(),
-                    default = c(),
-                    optional = TRUE,
-                    recommended = FALSE,
-                    deprecated = FALSE
-                ),
-                typeOfAgentIdentifier = list(
-                    type = "string",
-                    description = "Type of identifier, should be provided if agentIdentifier is used.",
-                    values = c(),
-                    default = c(),
-                    optional = TRUE,
-                    recommended = FALSE,
-                    deprecated = FALSE
-                ),
-                isPersistantIdentifier = list(
-                    type = "boolean",
-                    description = "Indicate if the agent identifier is intended to be a persistent identifier",
-                    values = c("true", "false"),
-                    default = c(),
-                    optional = TRUE,
-                    recommended = FALSE,
-                    deprecated = FALSE
-                ),
-                agentType = list(
-                    type = "NMTOKEN",
-                    description = "Type of authoring entity: organization or individual.",
-                    values = c("organization", "individual"),
-                    default = c(),
-                    optional = TRUE,
-                    recommended = FALSE,
-                    deprecated = FALSE
-                )
-            ),
-            parents = "verStmt",
-            children = list(),
-            title = "Version Responsibility Statement",
-            description = "The organization or person responsible for the version of the work.",
-            examples = c(
-                "<verResp>Zentralarchiv fuer Empirische Sozialforschung</verResp>",
-                "<verResp>Inter-university Consortium for Political and Social  Research</verResp>",
-                "<var><verStmt><verResp>Zentralarchiv fuer Empirische Sozialforschung</verResp></verStmt></var>",
-                "<nCube><verStmt><verResp>Zentralarchiv fuer Empirische Sozialforschung</verResp></verStmt></nCube>"
-            )
-        ),
-        verStmt = list(
-            type = "verStmtType",
-            optional = TRUE,
-            repeatable = TRUE,
-            recommended = FALSE,
-            deprecated = FALSE,
-            attributes = list(),
-            parents = c("citation", "docSrc", "fileTxt", "fileCitation", "nCube", "sourceCitation", "var"),
-            children = list("version", "verResp", "notes"),
-            title = "Version Statement",
-            description = "Version statement for the work at the appropriate level: marked-up document; marked-up document source; study; study description, other material; other material for study. A version statement may also be included for a data file, a variable, or an nCube.",
-            examples = "<verStmt><version type=\"version\" date=\"1999-01-25\">Second version</version></verStmt>"
-        ),
-        version = list(
-            type = "versionType",
-            optional = TRUE,
-            repeatable = TRUE,
-            recommended = FALSE,
-            deprecated = FALSE,
-            attributes = list(
-                date = list(
-                    type = "string",
-                    description = "ISO standard for dates (YYYY-MM-DD) is recommended.",
-                    values = c(),
-                    default = c(),
-                    optional = TRUE,
-                    recommended = FALSE,
-                    deprecated = FALSE
-                ),
-                type = list(
-                    type = "string",
-                    description = "Identifies a specific type of version. This does not support the use of a controlled vocabulary",
-                    values = c(),
-                    default = c(),
-                    optional = TRUE,
-                    recommended = FALSE,
-                    deprecated = FALSE
-                )
-            ),
-            parents = "verStmt",
-            children = list(),
-            title = "Version",
-            description = "Also known as release or edition. If there have been substantive changes in the data/documentation since their creation, this statement should be used at the appropriate level.",
-            examples = c(
-                "<version type=\"edition\" date=\"1999-01-25\">Second ICPSR Edition</version>",
-                "<var><verStmt><version type=\"development\" date=\"1999-01-25\">Second version of V25</version></verStmt></var>",
-                "<nCube><verStmt><version type=\"update\" date=\"1999-01-25\">Second version of N25</version></verStmt></nCube>"
-            )
-        ),
-        weight = list(
-            type = "conceptualTextType",
-            optional = TRUE,
-            repeatable = TRUE,
-            recommended = FALSE,
-            deprecated = FALSE,
-            attributes = list(),
-            parents = "dataColl",
-            children = list(choice = c("concept", "txt")),
-            title = "Weighting",
-            description = "The use of sampling procedures may make it necessary to apply weights to produce accurate statistical results. Describe here the criteria for using weights in analysis of a collection. If a weighting formula or coefficient was developed, provide this formula, define its elements, and indicate how the formula is applied to data.",
-            examples = c(
-                "<weight>The 1996 NES dataset includes two final person-level analysis weights which incorporate sampling, nonresponse, and post-stratification factors. One weight (variable #4) is for longitudinal micro-level analysis using the 1996 NES Panel. The other weight (variable #3) is for analysis of the 1996 NES combined sample (Panel component cases plus Cross-section supplement cases). In addition, a Time Series Weight (variable #5) which corrects for Panel attrition was constructed. This weight should be used in analyses which compare the 1996 NES to earlier unweighted National Election Study data collections.</weight>",
-                "<weight><concept>PropensityWeighting</concept>The weight was determined using the online opt-in sample, the entire population of a synthetic dataset, and a statistical model to estimate the probability of a case occurring in either the synthetic or opt-in dataset.</weight>"
-            )
-        ),
-        westBL = list(
-            type = "phraseType",
-            optional = FALSE,
-            repeatable = FALSE,
-            recommended = FALSE,
-            deprecated = FALSE,
-            attributes = list(),
-            parents = "geoBndBox",
-            children = list(),
-            title = "West Bounding Longitude",
-            description = "The westernmost coordinate delimiting the geographic extent of the dataset. A valid range of values, expressed in decimal degrees (positive east and positive north), is: -180,0 <=West Bounding Longitude Value <= 180,0",
-            examples = "<westBL>4.789583</westBL>"
         ),
         typeOfAccess = list(
             type = "conceptType",
@@ -8698,42 +7957,6 @@ assign(
             children = list(),
             title = "Type of Access",
             description = "The applied use of the element is found in the parent item. PLEASE NOTE A CHANGE IN USAGE INSTRUCTIONS: The string content of the element now contains the language specific label obtained from the controlled vocabulary. This allows for multiple languages through the repeated entry of the \"concept\" element. See the high level documentation for a complete description of usage.",
-            examples = c()
-        ),
-        digitalFingerprintValue = list(
-            optional = FALSE,
-            repeatable = FALSE,
-            recommended = FALSE,
-            deprecated = FALSE,
-            attributes = list(),
-            parents = "dataFingerprint",
-            children = list(),
-            title = "",
-            description = "",
-            examples = c()
-        ),
-        algorithmSpecification = list(
-            optional = TRUE,
-            repeatable = FALSE,
-            recommended = FALSE,
-            deprecated = FALSE,
-            attributes = list(),
-            parents = "dataFingerprint",
-            children = list(),
-            title = "",
-            description = "",
-            examples = c()
-        ),
-        algorithmVersion = list(
-            optional = TRUE,
-            repeatable = FALSE,
-            recommended = FALSE,
-            deprecated = FALSE,
-            attributes = list(),
-            parents = "dataFingerprint",
-            children = list(),
-            title = "",
-            description = "",
             examples = c()
         ),
         typeOfCodingInstruction = list(
@@ -9211,54 +8434,6 @@ assign(
             description = "The applied use of the element is found in the parent item. PLEASE NOTE A CHANGE IN USAGE INSTRUCTIONS: The string content of the element now contains the language specific label obtained from the controlled vocabulary. This allows for multiple languages through the repeated entry of the \"concept\" element. See the high level documentation for a complete description of usage.",
             examples = c()
         ),
-        description = list(
-            optional = TRUE,
-            repeatable = TRUE,
-            recommended = FALSE,
-            deprecated = FALSE,
-            attributes = list(),
-            parents = "developmentActivity",
-            children = list(),
-            title = "",
-            description = "",
-            examples = c()
-        ),
-        outcome = list(
-            optional = TRUE,
-            repeatable = TRUE,
-            recommended = FALSE,
-            deprecated = FALSE,
-            attributes = list(),
-            parents = "developmentActivity",
-            children = list(),
-            title = "",
-            description = "",
-            examples = c()
-        ),
-        otherQualityStatement = list(
-            optional = TRUE,
-            repeatable = TRUE,
-            recommended = FALSE,
-            deprecated = FALSE,
-            attributes = list(),
-            parents = "qualityStatement",
-            children = list(),
-            title = "",
-            description = "",
-            examples = c()
-        ),
-        complianceDescription = list(
-            optional = TRUE,
-            repeatable = TRUE,
-            recommended = FALSE,
-            deprecated = FALSE,
-            attributes = list(),
-            parents = "standardsCompliance",
-            children = list(),
-            title = "",
-            description = "",
-            examples = c()
-        ),
         typeOfExPostEvaluation = list(
             type = "conceptType",
             optional = TRUE,
@@ -9353,6 +8528,831 @@ assign(
             title = "Type of ExPost Evaluation",
             description = "The applied use of the element is found in the parent item. PLEASE NOTE A CHANGE IN USAGE INSTRUCTIONS: The string content of the element now contains the language specific label obtained from the controlled vocabulary. This allows for multiple languages through the repeated entry of the \"concept\" element. See the high level documentation for a complete description of usage.",
             examples = c()
+        ),
+        undocCod = list(
+            type = "simpleTextType",
+            optional = TRUE,
+            repeatable = TRUE,
+            recommended = FALSE,
+            deprecated = FALSE,
+            attributes = list(),
+            parents = "var",
+            children = list(),
+            title = "List of Undocumented Codes",
+            description = "Values whose meaning is unknown.",
+            examples = "<var><undocCod>Responses for categories 9 and 10 are unavailable.</undocCod></var>"
+        ),
+        updateProcedure = list(
+            type = "conceptualTextType",
+            optional = TRUE,
+            repeatable = TRUE,
+            recommended = FALSE,
+            deprecated = FALSE,
+            attributes = list(),
+            parents = "sampleFrame",
+            children = list(choice = c("concept", "txt")),
+            title = "Instrument Development",
+            description = "Description of how and with what frequency the sample frame is updated. This element contains the sub-element \"concept\" to support the use of an external controlled vocabulary. PLEASE NOTE A CHANGE IN USAGE INSTRUCTIONS: The string content of the element now contains the language specific label obtained from the controlled vocabulary. This allows for multiple languages through the repeated entry of the \"concept\" element. The attribute \"vocabInstanceCodeTerm\" has been added to accommodate the code term as it appears in the controlled vocabulary. See the high level documentation for a complete description of usage. Additional textual description is entered in the mixed text content or using the sub-element \"txt\".",
+            examples = "<updateProcedure>Changes are collected as they occur through registration and loss of phone number from the specified geographic area. Data are compiled for the date June 1st of odd numbered years, and published on July 1st for the following two-year period.</updateProcedure>"
+        ),
+        usage = list(
+            type = "usageType",
+            optional = TRUE,
+            repeatable = TRUE,
+            recommended = FALSE,
+            deprecated = FALSE,
+            attributes = list(),
+            parents = "controlledVocabUsed",
+            children = list(choice = c("selector", "specificElements"), "attribute"),
+            title = "Usage",
+            description = "Defines where in the instance the controlled vocabulary which is identified is utilized. A controlled vocabulary may occur either in the content of an element or in an attribute on an element. The usage can either point to a collection of elements using an XPath via the selector element or point to a more specific collection of elements via their identifier using the specificElements element. If the controlled vocabulary occurs in an attribute within the element, the attribute element identifies the specific attribute. When specific elements are specified, an authorized code value may also be provided. If the current value of the element or attribute identified is not in the controlled vocabulary or is not identical to a code value, the authorized code value identifies a valid code value corresponding to the meaning of the content in the element or attribute.",
+            examples = c()
+        ),
+        useStmt = list(
+            type = "useStmtType",
+            optional = TRUE,
+            repeatable = TRUE,
+            recommended = FALSE,
+            deprecated = FALSE,
+            attributes = list(),
+            parents = c("dataAccs", "sampleFrame", "metadataAccs"),
+            children = list("confDec", "specPerm", "restrctn", "contact", "citReq", "deposReq", "conditions", "disclaimer"),
+            title = "Use Statement",
+            description = "Information on terms of use for the data collection. This element may be repeated only to support multiple language expressions of the content.",
+            examples = c()
+        ),
+        universe = list(
+            type = "universeType",
+            optional = TRUE,
+            repeatable = TRUE,
+            recommended = TRUE,
+            deprecated = FALSE,
+            attributes = list(
+                level = list(
+                    type = "string",
+                    description = "Coding of the level to which universe applies, i.e., the study level, the file level (if different from study), the record group, the variable group, the nCube group, the variable, or the nCube level.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                clusion = list(
+                    type = "NMTOKEN",
+                    description = "Groups included (I) in or excluded (E) from the universe.",
+                    values = c("I", "E"),
+                    default = "I",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                )
+            ),
+            parents = c("sampleFrame", "nCube", "nCubeGrp", "sumDscr", "var", "varGrp"),
+            children = list("concept", "txt"),
+            title = "Universe",
+            description = "The group of persons or other elements that are the object of research and to which any analytic results refer. Age, nationality, and residence commonly help to delineate a given universe, but any of a number of factors may be involved, such as sex, race, income, veteran status, criminal convictions, etc. The universe may consist of elements other than persons, such as housing units, court cases, deaths, countries, etc. In general, it should be possible to tell from the description of the universe whether a given individual or element (hypothetical or real) is a member of the population under study. If all the variables/nCubes described in the data documentation relate to the same population, e.g., the same set of survey respondents, this element would be unnecessary at data description level. In this case, universe can be fully described at the study level. For forward-compatibility, DDI Lifecycle XHTML tags may be used in this element. This element may be repeated only to support multiple language expressions of the content. To specify the use of a Controlled Vocabulary or standard concept use the internal element \"concept\". If multiple concepts are needed the parent element should be replicated. Internal text related to each concept should be allocated to accompany the relevant concept.",
+            examples = c(
+                "<universe clusion=\"I\"><concept>Persons</concept><concept>15-19 years of age</concept>Individuals 15-19 years of age.</universe>",
+                "<universe clusion=\"E\">Individuals younger than 15 and older than 19 years of age.</universe>"
+            )
+        ),
+        unitType = list(
+            type = "unitTypeType",
+            optional = FALSE,
+            repeatable = FALSE,
+            recommended = FALSE,
+            deprecated = FALSE,
+            attributes = list(
+                numberOfUnits = list(
+                    type = "integer",
+                    description = "Number of units in the sampling frame.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                )
+            ),
+            parents = "frameUnit",
+            children = list("concept", "txt"),
+            title = "Unit Type",
+            description = "Describes the type of sampling frame unit using a conceptualText structure supporting a description and the use of an external controlled Vocabulary. PLEASE NOTE A CHANGE IN USAGE INSTRUCTIONS: The string content of \"concept\" now contains the language specific label obtained from the controlled vocabulary. This allows for multiple languages through the repeated entry of the \"concept\" element. See the high level documentation for a complete description of usage.",
+            examples = "<unitType numberOfUnits=\"150000\"><concept vocab=\"SampleFrame_UnitType\" vocabInstanceCodeTerm=\"telephoneNumber\">Telephone Number</concept>Primary listed owners of published phone numbers in the City of St. Paul</unitType>"
+        ),
+        validPeriod = list(
+            type = "eventDateType",
+            optional = TRUE,
+            repeatable = TRUE,
+            recommended = FALSE,
+            deprecated = FALSE,
+            attributes = list(
+                event = list(
+                    type = "NMTOKEN",
+                    description = "",
+                    values = c("start", "end", "single"),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                )
+            ),
+            parents = "sampleFrame",
+            children = list(),
+            title = "Valid Period",
+            description = "Defines a time period for the validity of the sampling frame. Enter dates in YYYY-MM-DD format.",
+            examples = "<sampleFrame><validPeriod event=\"start\">2009-07-01</validPeriod><validPeriod event=\"end\">2011-06-30</validPeriod></sampleFrame>"
+        ),
+        valrng = list(
+            type = "valrngType",
+            optional = TRUE,
+            repeatable = TRUE,
+            recommended = FALSE,
+            deprecated = FALSE,
+            attributes = list(
+                access = list(
+                    type = "IDREFS",
+                    description = "ID values of all elements in the Data Access and Metadata Access section that describe access conditions for this range.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                )
+            ),
+            parents = "var",
+            children = list(choice = c("item", "range"), "key", "notes"),
+            title = "Range of Valid Data Values",
+            description = "Values for a particular variable that represent legitimate responses. The attribute \"access\" records the ID values of all elements in the Data Access and Metadata Access section that describe access conditions for this range.",
+            examples = c(
+                "<valrng><range min=\"1\" max=\"3\"/></valrng>",
+                "<valrng><item VALUE=\"1\"/><item VALUE=\"2\"/><item VALUE=\"3\"/></valrng>"
+            )
+        ),
+        var = list(
+            type = "varType",
+            optional = TRUE,
+            repeatable = TRUE,
+            recommended = FALSE,
+            deprecated = FALSE,
+            attributes = list(
+                name = list(
+                    type = "string",
+                    description = "Contains the so-called \"short label\" for the variable, limited to eight characters in many statistical analysis systems such as SAS or SPSS.",
+                    values = c(),
+                    default = c(),
+                    optional = FALSE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                wgt = list(
+                    type = "NMTOKEN",
+                    description = "Whether the variable is a weight.",
+                    values = c("wgt", "not-wgt"),
+                    default = "not-wgt",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                wgt_var = list(
+                    type = "IDREFS",
+                    description = "Reference to the variable(s) containing the weight used.",
+                    values = c(),
+                    default = c(),
+                    optional = FALSE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                weight = list(
+                    type = "IDREFS",
+                    description = "References the weight description(s) from dataColl for this variable. Use when a specific overall weight is designated such as with a 10% sample where all items are weighted x10.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                qstn = list(
+                    type = "IDREFS",
+                    description = "Reference to the question ID when the question itself is entered in another variable.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                files = list(
+                    type = "IDREFS",
+                    description = "ID of the file(s) to which the variable belongs.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                vendor = list(
+                    type = "string",
+                    description = "Origin of the proprietary format and includes SAS, SPSS, ANSI, and ISO.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                dcml = list(
+                    type = "string",
+                    description = "Number of decimal points in the variable.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                intrvl = list(
+                    type = "NMTOKEN",
+                    description = "Interval type; options are discrete or continuous.",
+                    values = c("contin", "discrete"),
+                    default = "discrete",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                rectype = list(
+                    type = "string",
+                    description = "ID of the record type to which the variable belongs.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                sdatrefs = list(
+                    type = "IDREFS",
+                    description = "Summary data description references that record the ID values of all elements within the summary data description section of the Study Description that might apply to this element. These include: time period covered, date of collection, nation or country, geographic coverage, geographic unit, unit of analysis, universe, and kind of data.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                methrefs = list(
+                    type = "IDREFS",
+                    description = "Methodology and processing references which record the ID values of all elements within the study methodology and processing section of the Study Description which might apply to the variable. These elements include information on data collection and data appraisal (e.g., sampling, sources, weighting, data cleaning, response rates, and sampling error estimates).",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                pubrefs = list(
+                    type = "IDREFS",
+                    description = "Link to publication/citation references and records the ID values of all citations elements within Other Study Description Materials or Other Study-Related Materials that pertain to this variable.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                access = list(
+                    type = "IDREFS",
+                    description = "ID values of all elements in the Data Access and Metadata Access section that describe access conditions for this variable.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                aggrMeth = list(
+                    type = "NMTOKEN",
+                    description = "Type of aggregation method used, for example 'sum', 'average', 'count'. If a value of \"other\" is given a term from a controlled vocabulary should be used in the \"otherAggrMeth\" attribute.",
+                    values = c("sum", "average", "count", "mode", "median", "maximum", "minimum", "percent", "other"),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                otherAggrMeth = list(
+                    type = "NMTOKEN",
+                    description = "A value from a controlled vocabulary when the aggrMeth attribute has a value of \"other\".This option should only be used when applying a controlled vocabulary to this attribute. Use the complex element controlledVocabUsed to identify the controlled vocabulary to which the selected term belongs. DDI provides a Controlled Vocabulary for this location: \"AggregationMethod\"",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                measUnit = list(
+                    type = "string",
+                    description = "Measurement unit, for example 'km', 'miles', etc.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                scale = list(
+                    type = "string",
+                    description = "Unit of scale, for example 'x1', 'x1000', etc.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                origin = list(
+                    type = "string",
+                    description = "Point of origin for anchored scales.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                nature = list(
+                    type = "NMTOKEN",
+                    description = "Nature  (measurement level) of the variable.",
+                    values = c("nominal", "ordinal", "interval", "ratio", "percent", "other"),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                otherNature = list(
+                    type = "string",
+                    description = "A value from a controlled vocabulary. Use the complex element controlledVocabUsed to identify the controlled vocabulary to which the selected term belongs.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                additivity = list(
+                    type = "NMTOKEN",
+                    description = "Type of additivity",
+                    values = c("stock", "flow", "non-additive", "other"),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                otherAdditivity = list(
+                    type = "NMTOKEN",
+                    description = "A value from a controlled vocabulary, used only when the \"additivity\" attribute has a value of \"other\". Use the complex element controlledVocabUsed to identify the controlled vocabulary to which the selected term belongs.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                temporal = list(
+                    type = "NMTOKEN",
+                    description = "Whether the variable relays time-related information.",
+                    values = c("Y", "N"),
+                    default = "N",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                geog = list(
+                    type = "NMTOKEN",
+                    description = "Whether the variable relays geographic information.",
+                    values = c("Y", "N"),
+                    default = "N",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                geoVocab = list(
+                    type = "string",
+                    description = "Indicates the name of the controlled vocabulary, if any, used in the element, e.g., LCSH (Library of Congress Subject Headings), MeSH (Medical Subject Headings), etc.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                catQnty = list(
+                    type = "string",
+                    description = "Number of categories found in the variable, and is used primarily for aggregate data files for verifying cell counts in nCubes.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                representationType = list(
+                    type = "NMTOKEN",
+                    description = "Captures the specific DDI Lifecycle representation type to facilitate translation between DDI 2 and DDI Lifecycle. If the \"other\" value is used, a term from a controlled vocabulary may be supplied in the otherRepresentationType attribute.",
+                    values = c("text", "numeric", "code", "datetime", "geographicLocationCode", "geographicStructureCode", "scale", "other"),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                otherRepresentationType = list(
+                    type = "NMTOKEN",
+                    description = "A value from a controlled vocabulary, should be used when the representationType attribute has a value of \"other\". Use the complex element controlledVocabUsed to identify the controlled vocabulary to which the selected term belongs.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                )
+            ),
+            parents = "dataDscr",
+            children = list("location", "labl", "imputation", "security", "embargo", "respUnit", "anlysUnit", "qstn", "valrng", "invalrng", "undocCod", "universe", "TotlResp", "sumStat", "txt", "stdCatgry", "catgryGrp", "catgry", "codInstr", "verStmt", "concept", "derivation", "varFormat", "geoMap", "catLevel", "notes"),
+            title = "Variable",
+            description = "This element describes all of the features of a single variable in a social science data file. The following elements are repeatable to support multi-language content: anlysUnit, embargo, imputation, respUnit, security, TotlResp.",
+            examples = c()
+        ),
+        varFormat = list(
+            type = "varFormatType",
+            optional = TRUE,
+            repeatable = FALSE,
+            recommended = FALSE,
+            deprecated = FALSE,
+            attributes = list(
+                type = list(
+                    type = "NMTOKEN",
+                    description = "Indicates if the variable is character or numeric.",
+                    values = c("character", "numeric"),
+                    default = "numeric",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                formatname = list(
+                    type = "string",
+                    description = "In some cases, it may provide the name of the particular, proprietary format actually used.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                schema = list(
+                    type = "NMTOKEN",
+                    description = "Identifies the vendor or standards body that defined the format.",
+                    values = c("SAS", "SPSS", "IBM", "ANSI", "ISO", "XML-Data", "other"),
+                    default = "ISO",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                otherSchema = list(
+                    type = "NMTOKEN",
+                    description = "A value from a controlled vocabulary, if the schema attribute is given a value of \"other\". The complex element controlledVocabUsed should be used to identify the controlled vocabulary to which the selected term belongs.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                category = list(
+                    type = "NMTOKEN",
+                    description = "Describes what kind of data the format represents.",
+                    values = c("date", "time", "currency", "other"),
+                    default = "other",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                otherCategory = list(
+                    type = "NMTOKEN",
+                    description = "A value from a controlled vocabulary, if the category attribute is given a value of \"other\". The complex element controlledVocabUsed should be used to identify the controlled vocabulary to which the selected term belongs. DDI provides several Controlled Vocabularies for this location dependent upon the data being described: \"DataType\", \"DateType\", and \"NumericType\".",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                URI = list(
+                    type = "string",
+                    description = "A network identifier for the format definition.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                )
+            ),
+            parents = "var",
+            children = list(),
+            title = "Variable Format",
+            description = "The technical format of the variable in question.",
+            examples = c(
+                "<var><varFormat type=\"numeric\" schema=\"SAS\" formatname=\"DATE\" category=\"date\">The number in this  variable is stored in the form 'ddmmmyy' in SAS format.</varFormat></var>",
+                "<var><varFormat type=\"numeric\" formatname=\"date.iso8601\" schema=\"XML-Data\" category=\"date\" URI=\"http://www.w3.org/TR/1998/NOTE-XML-data/\">19541022</varFormat></var>"
+            )
+        ),
+        varGrp = list(
+            type = "varGrpType",
+            optional = TRUE,
+            repeatable = TRUE,
+            recommended = FALSE,
+            deprecated = FALSE,
+            attributes = list(
+                type = list(
+                    type = "NMTOKEN",
+                    description = c(
+                        "General type of grouping of the variables, e.g., subject, multiple response. Use the value of \"other\" if the value is to come from an external controlled vocabulary, and place the term into the otherType attribute.",
+                        "Specific variable groups, included included in this attribute, are:",
+                        "| section: Questions which derive from the same section of the questionnaire, e.g., all variables located in Section C.",
+                        "| multiple response: Questions where the respondent has the opportunity to select more than one answer from a variety of choices, e.g., what newspapers have you read in the past month (with the respondent able to select up to five choices).",
+                        "| grid: Sub-questions of an introductory or main question but which do not constitute a multiple response group, e.g., I am going to read you some events in the news lately and you tell me for each one whether you are very interested in the event, fairly interested in the fact, or not interested in the event.",
+                        "| display: Questions which appear on the same interview screen (CAI) together or are presented to the interviewer or respondent as a group.",
+                        "| repetition: The same variable (or group of variables) which are repeated for different groups of respondents or for the same respondent at a different time.",
+                        "| subject: Questions which address a common topic or subject, e.g., income, poverty, children.",
+                        "| version: Variables, often appearing in pairs, which represent different aspects of the same question, e.g., pairs of variables (or groups) which are adjusted/unadjusted for inflation or season or whatever, pairs of variables with/without missing data imputed, and versions of the same basic question.",
+                        "| iteration: Questions that appear in different sections of the data file measuring a common subject in different ways, e.g., a set of variables which report the progression of respondent income over the life course.",
+                        "| analysis: Variables combined into the same index, e.g., the components of a calculation, such as the numerator and the denominator of an economic statistic.",
+                        "| pragmatic: A variable group without shared properties.",
+                        "| record: Variable from a single record in a hierarchical file.",
+                        "| file: Variable from a single file in a multifile study.",
+                        "| randomized: Variables generated by CAI surveys produced by one or more random number variables together with a response variable, e.g., random variable X which could equal 1 or 2 (at random) which in turn would control whether Q.23 is worded \"men\" or \"women\", e.g., would you favor helping [men/women] laid off from a factory obtain training for a new job?",
+                        "| other: Variables which do not fit easily into any of the categories listed above, e.g., a group of variables whose documentation is in another language."
+                    ),
+                    values = c("section", "multipleResp", "grid", "display", "repetition", "subject", "version", "iteration", "analysis", "pragmatic", "record", "file", "randomized", "other"),
+                    default = "other",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                otherType = list(
+                    type = "NMTOKEN",
+                    description = "A value from a controlled vocabulary, if the type attribute was given a value of \"other\". This option should only be used when applying a controlled vocabulary to this attribute. Use the complex element controlledVocabUsed to identify the controlled vocabulary to which the selected term belongs.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                var = list(
+                    type = "IDREFS",
+                    description = "Space delimited list of the IDs of all the variables that are immediate children of the variable group.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                varGrp = list(
+                    type = "IDREFS",
+                    description = "Space delimited list of the IDs of all the variable groups that are immediate children of the variable group. The inclusion of a varGrp brings in all of its members. Members of the included varGrp should not be separately listed in either \"var\" or \"varGrp\".",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                name = list(
+                    type = "string",
+                    description = "A name, or short label, for the group.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                sdatrefs = list(
+                    type = "IDREFS",
+                    description = "Summary data description references that record the ID values of all elements within the summary data description section of the Study Description that might apply to this element. These include: time period covered, date of collection, nation or country, geographic coverage, geographic unit, unit of analysis, universe, and kind of data.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                methrefs = list(
+                    type = "IDREFS",
+                    description = "Methodology and processing references which record the ID values of all elements within the study methodology and processing section of the Study Description which might apply to the group. These elements include information on data collection and data appraisal (e.g., sampling, sources, weighting, data cleaning, response rates, and sampling error estimates).",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                pubrefs = list(
+                    type = "IDREFS",
+                    description = "Link to publication/citation references and records the ID values of all citations elements within codeBook/stdyDscr/othrStdyMat or codeBook/otherMat that pertain to this variable group.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                access = list(
+                    type = "IDREFS",
+                    description = "ID values of all elements in codeBook/stdyDscr/dataAccs or codeBook/stdyDscr/metadataAccs of the document that describe access conditions for this variable group.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                nCube = list(
+                    type = "string",
+                    description = "Included in 2.0 and subsequent versions in ERROR. DO NOT USE THIS ATTRIBUTE. It is retained only for purposes of backward-compatibility. DEPRECATED.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = TRUE
+                )
+            ),
+            parents = "dataDscr",
+            children = list("labl", "txt", "concept", "defntn", "universe", "notes"),
+            title = "Variable Group",
+            description = c(
+                "A group of variables that may share a common subject, arise from the interpretation of a single question, or are linked by some other factor.",
+                "Variable groups are created this way in order to permit variables to belong to multiple groups, including multiple subject groups such as a group of variables on sex and income, or to a subject and a multiple response group, without causing overlapping groups. Variables that are linked by use of the same question need not be identified by a Variable Group element because they are linked by a common unique question identifier in the Variable element. Note that as a result of the strict sequencing required by XML, all Variable Groups must be marked up before the Variable element is opened. That is, the mark-up author cannot mark up a Variable Group, then mark up its constituent variables, then mark up another Variable Group."
+            ),
+            examples = c()
+        ),
+        varRange = list(
+            type = "varRangeType",
+            optional = TRUE,
+            repeatable = TRUE,
+            recommended = FALSE,
+            deprecated = FALSE,
+            attributes = list(
+                start = list(
+                    type = "IDREF",
+                    description = "ID of the first variable.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                end = list(
+                    type = "IDREF",
+                    description = "ID of the last variable.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                )
+            ),
+            parents = "derivation",
+            children = list(),
+            title = "Variable Range",
+            description = "Reference to the ID of the first and last variable (start and end) of the range of variables used by the derivation.",
+            examples = "<varRange start=\"V1\" end=\"V3\"/>"
+        ),
+        varQnty = list(
+            type = "simpleTextType",
+            optional = TRUE,
+            repeatable = TRUE,
+            recommended = FALSE,
+            deprecated = FALSE,
+            attributes = list(),
+            parents = c("dimensns", "recDimnsn"),
+            children = list(),
+            title = "Overall Variable Count",
+            description = "Number of variables.",
+            examples = "<varQnty>27</varQnty>"
+        ),
+        verResp = list(
+            type = "verRespType",
+            optional = TRUE,
+            repeatable = TRUE,
+            recommended = FALSE,
+            deprecated = FALSE,
+            attributes = list(
+                affiliation = list(
+                    type = "string",
+                    description = "Affiliation of the authoring entity with an agency or organization.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                agentIdentifier = list(
+                    type = "string",
+                    description = "Identifier of the authoring entity.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                typeOfAgentIdentifier = list(
+                    type = "string",
+                    description = "Type of identifier, should be provided if agentIdentifier is used.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                isPersistantIdentifier = list(
+                    type = "boolean",
+                    description = "Indicate if the agent identifier is intended to be a persistent identifier",
+                    values = c("true", "false"),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                agentType = list(
+                    type = "NMTOKEN",
+                    description = "Type of authoring entity: organization or individual.",
+                    values = c("organization", "individual"),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                )
+            ),
+            parents = "verStmt",
+            children = list(),
+            title = "Version Responsibility Statement",
+            description = "The organization or person responsible for the version of the work.",
+            examples = c(
+                "<verResp>Zentralarchiv fuer Empirische Sozialforschung</verResp>",
+                "<verResp>Inter-university Consortium for Political and Social  Research</verResp>",
+                "<var><verStmt><verResp>Zentralarchiv fuer Empirische Sozialforschung</verResp></verStmt></var>",
+                "<nCube><verStmt><verResp>Zentralarchiv fuer Empirische Sozialforschung</verResp></verStmt></nCube>"
+            )
+        ),
+        verStmt = list(
+            type = "verStmtType",
+            optional = TRUE,
+            repeatable = TRUE,
+            recommended = FALSE,
+            deprecated = FALSE,
+            attributes = list(),
+            parents = c("citation", "docSrc", "fileTxt", "fileCitation", "nCube", "sourceCitation", "var"),
+            children = list("version", "verResp", "notes"),
+            title = "Version Statement",
+            description = "Version statement for the work at the appropriate level: marked-up document; marked-up document source; study; study description, other material; other material for study. A version statement may also be included for a data file, a variable, or an nCube.",
+            examples = "<verStmt><version type=\"version\" date=\"1999-01-25\">Second version</version></verStmt>"
+        ),
+        version = list(
+            type = "versionType",
+            optional = TRUE,
+            repeatable = TRUE,
+            recommended = FALSE,
+            deprecated = FALSE,
+            attributes = list(
+                date = list(
+                    type = "string",
+                    description = "ISO standard for dates (YYYY-MM-DD) is recommended.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                type = list(
+                    type = "string",
+                    description = "Identifies a specific type of version. This does not support the use of a controlled vocabulary",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                )
+            ),
+            parents = "verStmt",
+            children = list(),
+            title = "Version",
+            description = "Also known as release or edition. If there have been substantive changes in the data/documentation since their creation, this statement should be used at the appropriate level.",
+            examples = c(
+                "<version type=\"edition\" date=\"1999-01-25\">Second ICPSR Edition</version>",
+                "<var><verStmt><version type=\"development\" date=\"1999-01-25\">Second version of V25</version></verStmt></var>",
+                "<nCube><verStmt><version type=\"update\" date=\"1999-01-25\">Second version of N25</version></verStmt></nCube>"
+            )
+        ),
+        weight = list(
+            type = "conceptualTextType",
+            optional = TRUE,
+            repeatable = TRUE,
+            recommended = FALSE,
+            deprecated = FALSE,
+            attributes = list(),
+            parents = "dataColl",
+            children = list(choice = c("concept", "txt")),
+            title = "Weighting",
+            description = "The use of sampling procedures may make it necessary to apply weights to produce accurate statistical results. Describe here the criteria for using weights in analysis of a collection. If a weighting formula or coefficient was developed, provide this formula, define its elements, and indicate how the formula is applied to data.",
+            examples = c(
+                "<weight>The 1996 NES dataset includes two final person-level analysis weights which incorporate sampling, nonresponse, and post-stratification factors. One weight (variable #4) is for longitudinal micro-level analysis using the 1996 NES Panel. The other weight (variable #3) is for analysis of the 1996 NES combined sample (Panel component cases plus Cross-section supplement cases). In addition, a Time Series Weight (variable #5) which corrects for Panel attrition was constructed. This weight should be used in analyses which compare the 1996 NES to earlier unweighted National Election Study data collections.</weight>",
+                "<weight><concept>PropensityWeighting</concept>The weight was determined using the online opt-in sample, the entire population of a synthetic dataset, and a statistical model to estimate the probability of a case occurring in either the synthetic or opt-in dataset.</weight>"
+            )
+        ),
+        westBL = list(
+            type = "phraseType",
+            optional = FALSE,
+            repeatable = FALSE,
+            recommended = FALSE,
+            deprecated = FALSE,
+            attributes = list(),
+            parents = "geoBndBox",
+            children = list(),
+            title = "West Bounding Longitude",
+            description = "The westernmost coordinate delimiting the geographic extent of the dataset. A valid range of values, expressed in decimal degrees (positive east and positive north), is: -180,0 <=West Bounding Longitude Value <= 180,0",
+            examples = "<westBL>4.789583</westBL>"
         )
     ),
     envir = cacheEnv

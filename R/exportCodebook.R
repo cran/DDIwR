@@ -1,3 +1,29 @@
+# Copyright (c) 2026, Adrian Dusa
+# All rights reserved.
+# 
+# Redistribution and use in source and binary forms, with or without
+# modification, in whole or in part, are permitted provided that the
+# following conditions are met:
+#     * Redistributions of source code must retain the above copyright
+#       notice, this list of conditions and the following disclaimer.
+#     * Redistributions in binary form must reproduce the above copyright
+#       notice, this list of conditions and the following disclaimer in the
+#       documentation and/or other materials provided with the distribution.
+#     * The names of its contributors may NOT be used to endorse or promote
+#       products derived from this software without specific prior written
+#       permission.
+# 
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+# AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+# IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+# ARE DISCLAIMED. IN NO EVENT SHALL ADRIAN DUSA BE LIABLE FOR ANY
+# DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+# (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+# LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+# ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+# (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+# SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
 #' @name exportCodebook
 #' @title
 #' Export a DDI Codebook to an XML file.
@@ -58,7 +84,7 @@
 #' An XML file containing a DDI version 2.6 metadata.
 #'
 #' @seealso
-#' \url{https://ddialliance.org/Specification/DDI-Codebook/2.5/XMLSchema/field_level_documentation.html}
+#' \url{https://ddialliance.org/hubfs/Specification/DDI-Codebook/2.5/XMLSchema/field_level_documentation.html}
 #'
 #' @examples
 #' \dontrun{
@@ -85,7 +111,7 @@
 #'
 #' @export
 `exportCodebook` <- function(codeBook, to = "", OS = "", indent = 2, ...) {
-    # https://ddialliance.org/Specification/DDI-Codebook/2.5/XMLSchema/field_level_documentation.html
+    # https://ddialliance.org/hubfs/Specification/DDI-Codebook/2.5/XMLSchema/field_level_documentation.html
 
     # validation procedure:
     # https://ddialliance.org/Specification/DDI-Codebook/2.5/
@@ -111,24 +137,27 @@
             )
         )) {
             if (!hasChildren(codeBook, "stdyDscr")) {
-                addChildren(
+                codeBook <- addChildren(
                     makeElement("stdyDscr", fill = TRUE, ... = ...),
-                    to = codeBook
+                    to = codeBook,
+                    overwrite = FALSE
                 )
             }
 
             if (!hasChildren(codeBook, "otherMat")) {
-                addChildren(
+                codeBook <- addChildren(
                     makeElement("otherMat", fill = TRUE, ... = ...),
-                    to = codeBook
+                    to = codeBook,
+                    overwrite = FALSE
                 )
             }
         }
 
         if (!hasChildren(codeBook, "docDscr")) {
-            addChildren(
+            codeBook <- addChildren(
                 makeElement("docDscr", fill = TRUE, ... = ...),
-                to = codeBook
+                to = codeBook,
+                overwrite = FALSE
             )
         }
     }
@@ -155,18 +184,54 @@
         data <- dots$data
         embed <- dots$embed
 
-        addChildren(makeElement("dataDscr"), to = codeBook)
+        codeBook <- addChildren(
+            makeElement("dataDscr"),
+            to = codeBook,
+            overwrite = FALSE
+        )
 
-        XMLhashes <- makeXMLcodeBook(DDI = FALSE, ... = ...)
+        var_dots <- dots
+        var_dots$variables <- NULL
+        var_info <- do.call(
+            makeXMLvars,
+            c(
+                list(
+                    variables = dots$variables,
+                    DDI = FALSE,
+                    return_hashes = TRUE
+                ),
+                var_dots
+            )
+        )
+        var_xml <- var_info$xml
+        ns <- getElement(dots, "ns")
 
-        attr(data, "hashes") <- XMLhashes[[2]]
+        if (is.null(ns)) {
+            ns <- ""
+        }
+
+        if (nzchar(ns) && !grepl(":$", ns)) {
+            ns <- paste0(ns, ":")
+        }
+
+        dataDscr_xml <- paste0(
+            "  <", ns, "dataDscr>\n",
+            paste(var_xml, collapse = ""),
+            "  </", ns, "dataDscr>\n"
+        )
+
+        attr(data, "hashes") <- var_info$hashes
 
         if (embed) {
-            uuid <- XMLhashes[[3]]
+            uuid <- var_info$stats$id
             for (i in seq(length(uuid))) {
                 attr(data[[i]], "ID") <- uuid[i]
             }
-            addChildren(makeDataNotes(data), to = codeBook$fileDscr)
+            codeBook$fileDscr <- addChildren(
+                makeDataNotes(data),
+                to = codeBook$fileDscr,
+                overwrite = FALSE
+            )
         } else if (!isFALSE(dots$csv)) {
             tp_file <- treatPath(to, type = "*", single = TRUE, check = FALSE)
             write.table(
@@ -185,36 +250,65 @@
             list(codeBook = removeExtra(codeBook))
         )
 
-        xml2::xml_replace(
-            xml2::xml_find_first(codeBook, "/d1:codeBook/dataDscr"),
-            xml2::xml_find_first(XMLhashes[[1]], "/d1:codeBook/d1:dataDscr")
-        )
+        codeBook_xml <- as.character(codeBook)
+        dataDscr_match <- regexpr("<dataDscr\\s*/>", codeBook_xml, perl = TRUE)
+        if (dataDscr_match[1] < 0) {
+            admisc::stopError("Could not locate the <dataDscr/> placeholder in the codeBook XML.")
+        }
 
-        xml2::xml_set_attr(
-            xml2::xml_find_first(codeBook, "/d1:codeBook/d1:dataDscr"),
-            "xmlns",
-            NULL
-        )
+        dataDscr_start <- dataDscr_match[1]
+        dataDscr_end <- dataDscr_start + attr(dataDscr_match, "match.length") - 1L
+        xml_prefix <- substr(codeBook_xml, 1L, dataDscr_start - 1L)
+        xml_suffix <- substr(codeBook_xml, dataDscr_end + 1L, nchar(codeBook_xml))
+
+        if (!identical(indent, 2) || !identical(OS, "")) {
+            defaultOS <- Sys.info()[["sysname"]]
+            checkArgument(indent, default = 2)
+            checkArgument(OS, default = defaultOS)
+
+            enter <- getEnter(OS = ifelse(OS == "", defaultOS, OS))
+            xmlfile <- paste0(xml_prefix, dataDscr_xml, xml_suffix)
+            xml_lines <- unlist(strsplit(xmlfile, "\n", fixed = TRUE))
+            xmlfile <- paste(
+                prespace(xml_lines, indent),
+                collapse = enter
+            )
+        }
+
+        if (is.character(to) && length(to) == 1 && nzchar(to)) {
+            if (!identical(indent, 2) || !identical(OS, "")) {
+                writeTextFileC(to, xmlfile)
+            } else {
+                writeTextFileChunksC(to, c(xml_prefix, dataDscr_xml, xml_suffix))
+            }
+        } else {
+            xmlfile <- paste0(xml_prefix, dataDscr_xml, xml_suffix)
+            writeLines(xmlfile, con = to, useBytes = TRUE)
+        }
+
     } else {
         codeBook <- xml2::as_xml_document(
             list(codeBook = removeExtra(codeBook))
         )
-    }
 
-    xml2::write_xml(codeBook, file = to)
+        xml2::write_xml(codeBook, file = to)
 
-    if (!identical(indent, 2) || !identical(OS, "")) {
-        xmlfile <- readLines(to)
+        if (!identical(indent, 2) || !identical(OS, "")) {
+            xmlfile <- readLines(to)
 
-        defaultOS <- Sys.info()[["sysname"]]
-        checkArgument(indent, default = 2)
-        checkArgument(OS, default = defaultOS)
+            defaultOS <- Sys.info()[["sysname"]]
+            checkArgument(indent, default = 2)
+            checkArgument(OS, default = defaultOS)
 
-        enter <- getEnter(OS = ifelse(OS == "", defaultOS, OS))
+            enter <- getEnter(OS = ifelse(OS == "", defaultOS, OS))
 
-        xmlfile <- paste(
-            prespace(xmlfile, indent),
-            collapse = enter
-        )
+            xmlfile <- paste(
+                prespace(xmlfile, indent),
+                collapse = enter
+            )
+
+            writeLines(xmlfile, con = to, useBytes = TRUE)
+
+        }
     }
 }

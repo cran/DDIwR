@@ -1,3 +1,29 @@
+# Copyright (c) 2026, Adrian Dusa
+# All rights reserved.
+# 
+# Redistribution and use in source and binary forms, with or without
+# modification, in whole or in part, are permitted provided that the
+# following conditions are met:
+#     * Redistributions of source code must retain the above copyright
+#       notice, this list of conditions and the following disclaimer.
+#     * Redistributions in binary form must reproduce the above copyright
+#       notice, this list of conditions and the following disclaimer in the
+#       documentation and/or other materials provided with the distribution.
+#     * The names of its contributors may NOT be used to endorse or promote
+#       products derived from this software without specific prior written
+#       permission.
+# 
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+# AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+# IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+# ARE DISCLAIMED. IN NO EVENT SHALL ADRIAN DUSA BE LIABLE FOR ANY
+# DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+# (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+# LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+# ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+# (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+# SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
 #' @name getCodebook
 #'
 #' @title Extract metadata information
@@ -8,7 +34,7 @@
 #'
 #' @details
 #' This function extracts the metadata from an R dataset, or alternatively it
-#' can read an XML file containing a DDI codebook version 2.6, or an
+#' can read an XML file containing a DDI Codebook version 1.2.2, 2.5 or 2.6, or an
 #' SPSS or Stata file and returns a list containing the variable labels, value
 #' labels and information about the missing values.
 #'
@@ -16,18 +42,25 @@
 #' (labels, missing values etc.). From a DDI XML file, it will import all
 #' metadata elements, the most expensive being the data description.
 #'
-# It additionally attempts to automatically detect a type for each variable:
-# \tabular{rl}{
-#   **`cat`**: \tab categorical variable using numeric values\cr
-#   **`catchar`**: \tab categorical variable using character values\cr
-#   **`catnum`**: \tab categorical variable for which numerical summaries\cr
-#   \tab can be calculated (ex. a 0...10 Likert response scale)\cr
-#   **`num`**: \tab numerical\cr
-#   **`numcat`**: \tab numerical variable with few enough values (ex. number of
-# children)\cr
-#   \tab for which a table of frequencies is possible in addition to
-# frequencies
-# }
+#' It additionally attempts to automatically detect a type for each variable:
+#' \tabular{rl}{
+#'   **`cat`**: \tab categorical variable using numeric values\cr
+#'   **`catchar`**: \tab categorical variable using character values\cr
+#'   **`catnum`**: \tab categorical variable for which numerical summaries\cr
+#'   \tab can be calculated (ex. a 0...10 Likert response scale)\cr
+#'   **`num`**: \tab numerical\cr
+#'   **`numcat`**: \tab numerical variable with few enough values (ex. number of
+#' children)\cr
+#'   \tab for which a table of frequencies is possible in addition to
+#' frequencies
+#' }
+#'
+#' Apart from `utf8`, other encodings might be necessary when reading from
+#' SPSS or DDI XML files, for instance `latin1` or `windows-1252`, and it also
+#' accepts `bytes` for multi-byte encodings. To use the one specified in the
+#' file, set `encoding = NULL`. The default is `encoding = "auto"`, which tries to
+#' detect the encoding automatically.
+#'
 #' For the moment, only DDI Codebook is supported, but DDI Lifecycle is planned
 #' to be implemented.
 #'
@@ -64,10 +97,10 @@
 #'
 #' @export
 
-`getCodebook` <- function(from = NULL, encoding = "UTF-8", ignore = NULL, ...) {
+`getCodebook` <- function(from = NULL, encoding = "auto", ignore = NULL, ...) {
 
     # TODO: detect DDI version or ask the version through a dedicated argument
-    # http://www.ddialliance.org/Specification/DDI-Codebook/2.5/XMLSchema/field_level_documentation.html
+    # https://ddialliance.org/hubfs/Specification/DDI-Codebook/2.5/XMLSchema/field_level_documentation.html
 
     funargs <- lapply(
         lapply(match.call(), deparse)[-1],
@@ -79,6 +112,7 @@
     dots <- list(...)
     if (is.null(from) & !is.null(dots$x)) {
         from <- dots$x
+        dots$x <- NULL
     }
 
     data <- NULL
@@ -117,9 +151,14 @@
                 addChildren(list(fileName, fileType), to = fileTxt)
                 addChildren(fileTxt, to = fileDscr)
 
-                dataDscr <- collectMetadata(from, ... = ...)
+                addChildren(fileDscr, to = codeBook)
 
-                addChildren(list(dataDscr, fileDscr), to = codeBook)
+                if (!isFALSE(dots$dataDscr)) {
+                    addChildren(
+                        collectMetadata(from, ... = ...),
+                        to = codeBook
+                    )
+                }
 
                 return(codeBook)
             }
@@ -145,6 +184,8 @@
 
     result <- vector(mode = "list", length = length(tp$files))
 
+    fromPublisher <- identical(ignore, "dataDscr") & isTRUE(dots$dataset)
+
     for (ff in seq(length(result))) {
         if (print_processing & !fromsetupfile & !singlefile) {
             cat(tp$files[ff], "\n")
@@ -155,6 +196,122 @@
             xml <- getXML(file.path(tp$completePath, tp$files[ff]))
             monolang <- is.element("lang", names(xml2::xml_attrs(xml)))
 
+            if (fromPublisher) {
+                data <- extractData(xml)
+                dns <- getDNS(xml) # default name space
+
+                xpath <- sprintf("/%scodeBook/%sdataDscr/%svar", dns, dns, dns)
+                xmlvars <- xml2::xml_find_all(xml, xpath)
+
+                if (is.null(data)) {
+                    csv <- NULL
+                    csvexists <- FALSE
+                    files <- getFiles(tp$completePath, "*")
+                    csvfiles <- files$fileext == "CSV"
+
+                    if (any(csvfiles)) {
+                        csvexists <- is.element(
+                            toupper(tp$filenames),
+                            toupper(files$filenames[csvfiles])
+                        )
+
+                        csvfile <- files$files[csvfiles][
+                            match(
+                                toupper(tp$filenames),
+                                toupper(files$filenames[csvfiles])
+                            )
+                        ]
+                    }
+
+                    if (csvexists) {
+                        csv <- file.path(tp$completePath, csvfile)
+                        callist <- list(file = csv)
+                        for (f in names(formals(utils::read.csv))) {
+                            if (is.element(f, names(dots))) {
+                                callist[[f]] <- dots[[f]]
+                            }
+                        }
+
+                        header <- ifelse(isFALSE(callist$header), FALSE, TRUE)
+                        data <- do.call("read.csv", callist)
+
+                        variables <- lapply(xmlvars, XMLtoRmetadata, dns = dns)
+
+                        xpath <- sprintf("/%scodeBook/%sdataDscr/%svar/@name", dns, dns, dns)
+                        names(variables) <- admisc::trimstr(
+                            xml2::xml_text(xml2::xml_find_all(xml, xpath))
+                        )
+
+                        if (ncol(data) == length(variables)) {
+                            if (header) {
+                                if (!identical(names(data), names(variables))) {
+                                    data <- NULL
+                                }
+                            }
+                            else {
+                                names(data) <- names(variables)
+                            }
+                        }
+
+                        if (ncol(data) == length(variables) + 1) {
+                            if (header) {
+                                data <- NULL
+                            }
+                            else {
+                                names(data) <- c("row_names_csv_file", names(variables))
+                            }
+
+                            if (!is.null(data)) {
+                                rownames(data) <- data[, 1]
+                                data <- subset(
+                                    data,
+                                    select = seq(2, ncol(data))
+                                )
+                                # data <- data[, -1, drop = FALSE]
+                            }
+                        }
+
+                        if (!is.null(data)) {
+                            data <- makeLabelled(data, variables)
+                        }
+                    }
+                } else {
+                    hashes <- attr(data, "hashes")
+                    attr(data, "hashes") <- NULL
+
+                    if (!is.null(hashes)) {
+                        metadata_info <- getXMLMetadataInfo(xmlvars, dns = dns)
+                        checkhashes <- metadata_info$hashes
+
+                        if (!identical(hashes, checkhashes)) {
+                            different <- which(hashes != checkhashes)
+
+                            for (i in different) {
+                                metadata <- metadata_info$metadata[[i]]
+                                for (att in c("label", "labels", "na_values", "na_range")) {
+                                    attr(data[[i]], att) <- getElement(metadata, att)
+                                }
+                            }
+                        }
+                    }
+                }
+
+                envPublisher <- as.environment("MetadataPublisher")
+
+                if (is.null(data)) {
+                    if (exists("dataset", envir = envPublisher, inherits = FALSE)) {
+                        rm("dataset", envir = envPublisher)
+                    }
+
+                    ignore <- setdiff(ignore, "dataDscr")
+
+                } else {
+                    data <- declared::as.declared(data)
+                    class(data) <- "data.frame"
+                    assign("dataset", data, envir = envPublisher)
+                }
+            }
+
             if (!is.null(ignore)) {
                 if (
                     !is.atomic(ignore) || !is.character(ignore) ||
@@ -163,8 +320,8 @@
                     admisc::stopError("Argument 'ignore' should be a character vector of codeBook element names.")
                 }
 
-                children <- xml_children(xml)
-                childnames <- xml_name(children)
+                children <- xml2::xml_children(xml)
+                childnames <- xml2::xml_name(children)
 
                 todelete <- which(is.element(childnames, ignore))
 
@@ -181,8 +338,12 @@
             checkXMList(xmlist)
             codeBook <- coerceDDI(xmlist)
             codeBook$.extra$monolang <- monolang
+
+            if (fromPublisher & is.null(data)) {
+                codeBook$.extra$dataset_missing <- TRUE
+            }
         }
-        else {
+        else { # not an XML file, needs importing
             codeBook <- makeElement("codeBook")
             fileDscr <- makeElement("fileDscr")
 
@@ -192,23 +353,76 @@
                 arglist$file <- file.path(tp$completePath, tp$files[ff])
                 arglist$user_na <- user_na
                 if (tp$fileext[ff] == "SAV") {
-                    arglist$encoding <- encoding
+
+                    if (encoding == "auto") {
+                        error <- TRUE
+                        i <- 1
+                        encodings <- c("utf8", "latin1", "windows-1252", "bytes", "default")
+                        while (error & i <= length(encodings)) {
+                            if (encodings[i] == "default") {
+                                arglist$encoding <- NULL
+                            } else {
+                                arglist$encoding <- encodings[i]
+                            }
+
+                            i <- i + 1
+
+                            tc <- admisc::tryCatchWEM(
+                                data <- do.call(read_sav, arglist)
+                            )
+
+                            error <- !is.null(tc$error)
+                        }
+
+                        if (error) {
+                            admisc::stopError(
+                                "Could not autodetect the file encoding."
+                            )
+                        }
+                    } else {
+                        arglist$encoding <- encoding
+                        data <- do.call(read_sav, arglist)
+                    }
+                } else {
+                    data <- do.call(read_por, arglist)
                 }
-                data <- do.call(
-                    ifelse (
-                        tp$fileext[ff] == "SAV",
-                        haven::read_sav,
-                        haven::read_por
-                    ),
-                    arglist
-                )
+            }
+            else if (tp$fileext[ff] == "XLS" | tp$fileext[ff] == "XLSX") {
+                data <- import_excel(from, dots)
             }
             else if (tp$fileext[ff] == "DTA") {
                 fargs <- names(formals(read_dta))
                 arglist <- dots[is.element(names(dots), fargs)]
                 arglist$file <- file.path(tp$completePath, tp$files[ff])
-                arglist$encoding <- encoding
-                data <- do.call(haven::read_dta, arglist)
+                if (encoding == "auto") {
+                    error <- TRUE
+                    i <- 1
+                    encodings <- c("utf8", "latin1", "windows-1252", "bytes", "default")
+                    while (error & i <= length(encodings)) {
+                        if (encodings[i] == "default") {
+                            arglist$encoding <- NULL
+                        } else {
+                            arglist$encoding <- encodings[i]
+                        }
+
+                        i <- i + 1
+
+                        tc <- admisc::tryCatchWEM(
+                            data <- do.call(read_dta, arglist)
+                        )
+
+                        error <- !is.null(tc$error)
+                    }
+
+                    if (error) {
+                        admisc::stopError(
+                            "Could not autodetect the file encoding."
+                        )
+                    }
+                } else {
+                    arglist$encoding <- encoding
+                    data <- do.call(read_dta, arglist)
+                }
             }
             else if (tp$fileext[ff] == "RDS") {
                 data <- readRDS(file.path(tp$completePath, tp$files[ff]))
@@ -216,13 +430,22 @@
             # not sure about SAS, as far as I understand the metadata is not
             # embedded in the datafile but it sits into a separate, catalog file
             # else if (tp$fileext[ff] == "SAS7BDAT") {
-            #     data <- haven::read_sas(file.path(tp$completePath, tp$files[ff]))
+            #     data <- read_sas(file.path(tp$completePath, tp$files[ff]))
             # }
 
-            addChildren(
-                collectMetadata(data, ... = ...), # dataDscr
-                to = codeBook
-            )
+            if (!is.element("dataDscr", ignore)) {
+                addChildren(
+                    collectMetadata(data, ... = ...), # dataDscr
+                    to = codeBook
+                )
+            }
+
+            if (isTRUE(dots$dataset)) {
+                envPublisher <- as.environment("MetadataPublisher")
+                data <- declared::as.declared(data)
+                class(data) <- "data.frame"
+                assign("dataset", data, envir = envPublisher)
+            }
 
             fileName <- makeElement(
                 "fileName",

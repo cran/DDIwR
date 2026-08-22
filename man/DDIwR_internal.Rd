@@ -24,6 +24,10 @@
 \alias{getFiles}
 \alias{getFormat}
 \alias{getHashes}
+\alias{canonicalVariableMetadata}
+\alias{hashVariableMetadata}
+\alias{getMetadataHashes}
+\alias{getXMLMetadataInfo}
 \alias{getValues}
 \alias{getXML}
 \alias{hasLabels}
@@ -39,7 +43,9 @@
 \alias{treatPath}
 \alias{writeMetadata}
 \alias{XMLtoRmetadata}
+\alias{import_excel}
 \alias{makeNotes}
+\alias{getEnv}
 \alias{getMetadata}
 \alias{exportDDI}
 \alias{writeRlist}
@@ -67,7 +73,7 @@ coerceDDI(element, name = NULL)
 
 collectMetadata(from, ...)
 
-collectRMetadata(from, ...)
+collectRMetadata(from, infer_type = TRUE, include_formats = TRUE, ...)
 
 extractData(xml)
 
@@ -88,6 +94,14 @@ getFiles(path = ".", type = "*", currdir)
 getFormat(x, type = c("SPSS", "Stata"), ...)
 
 getHashes(nodes)
+
+canonicalVariableMetadata(metadata)
+
+hashVariableMetadata(metadata)
+
+getMetadataHashes(metadata)
+
+getXMLMetadataInfo(xmlvars, dns, language = NULL)
 
 getValues(variable)
 
@@ -117,9 +131,13 @@ treatPath(path, type = "*", single = FALSE, check = TRUE)
 
 writeMetadata(variables, OS = "", indent = 4)
 
-XMLtoRmetadata(xmlvar, dns)
+XMLtoRmetadata(xmlvar, dns, language = NULL)
+
+import_excel(from, dots)
 
 makeNotes(data)
+
+getEnv()
 
 getMetadata(...)
 
@@ -168,6 +186,14 @@ containing variable level metadata information
 
 \code{getHashes}: Character vector
 
+\code{canonicalVariableMetadata}: A normalized list
+
+\code{hashVariableMetadata}: Character scalar
+
+\code{getMetadataHashes}: Character vector
+
+\code{getXMLMetadataInfo}: A list with \code{metadata} and \code{hashes}
+
 \code{getValues}: A list with two components: \code{labels} and \code{na_values}
 
 \code{getXML}: An XML document
@@ -196,6 +222,8 @@ containing variable level metadata information
 files, the file names and the file extensions
 
 \code{XMLtoRmetadata}: An R list containing metadata
+
+\code{import_excel}: An R data frame
 }
 \description{
 Functions to be used internally, only by developers and
@@ -248,6 +276,14 @@ specification
 
 \code{getHashes}: Compute hashes of XML nodes
 
+\code{canonicalVariableMetadata}: Canonicalize variable metadata for hashing
+
+\code{hashVariableMetadata}: Hash canonical variable metadata
+
+\code{getMetadataHashes}: Compute hashes from metadata lists
+
+\code{getXMLMetadataInfo}: Extract and hash variable metadata from XML nodes
+
 \code{getValues}: Extract values, labels and missing values from a \code{var} element
 
 \code{getXML}: Read the DDI XML file, testing if it can be loaded.
@@ -256,7 +292,7 @@ specification
 
 \code{hasMissingLabels}: Check if variables have missing labels
 
-\code{makeLabelled}: Coerce variables to labelled objects
+\code{makeLabelled}: Coerce variables to declared objects
 
 \code{missingValuesSPSS}: Prepares the missing values for the SPSS export syntax.
 
@@ -279,6 +315,14 @@ present in a certain directory.
 part in the setup file.
 
 \code{XMLtoRmetadata}: Extract metadata from a single XML variable
+
+\code{import_excel}: Import from an Excel file (containing metadata)
+
+\code{makeNotes}: (deprecated) use \code{makeDataNotes()} instead.
+
+\code{getMetadata}: (deprecated) use \code{getCodebook()} instead.
+
+\code{exportDDI}: (deprecated) use \code{exportCodebook()} instead.
 
 \code{writeRlist}: Write an .R file containing a metadata specific list.
 }

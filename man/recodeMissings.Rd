@@ -31,6 +31,17 @@ A function to recode all missing values to either SPSS or Stata types,
 uniformly (re)using the same codes across all variables.
 }
 \details{
+Package \bold{DDIwR} uses numeric declared missing codes as its internal R
+representation. Recoding to \code{"Stata"} or \code{"SAS"} is therefore best viewed as
+an export-oriented temporary representation, not as a preferred internal
+storage strategy for declared vectors in R.
+
+When no dictionary is provided, export-oriented recoding can be performed
+either by scanning the entire dataset for a harmonized mapping, or by
+recoding each variable independently. The package now defaults to the faster
+per-variable strategy in export preparation. Supplying a dictionary keeps the
+harmonized cross-dataset behavior.
+
 When a dictionary is not provided, it is automatically constructed from the
 available data and metadata, using negative numbers starting from -91 and up
 to 27 letters starting with "a".
@@ -52,42 +63,43 @@ accordingly.
 If no labels are found in the metadata, the original values are preserved.
 }
 \examples{
-x <- data.frame(
-    A = declared(
-        c(1:5, -92),
-        labels = c(Good = 1, Bad = 5, NR = -92),
-        na_values = -92
-    ),
-    B = labelled(
-        c(1:5, haven::tagged_na('a')),
-        labels = c(DK = haven::tagged_na('a'))
-    ),
-    C = declared(
-        c(1, -91, 3:5, -92),
-        labels = c(DK = -91, NR = -92),
-        na_values = c(-91, -92)
-    )
-)
+# x <- data.frame(
+#     A = declared(
+#         c(1:5, -92),
+#         labels = c(Good = 1, Bad = 5, NR = -92),
+#         na_values = -92
+#     ),
+#     B = labelled(
+#         c(1:5, tagged_na('a')),
+#         labels = c(DK = tagged_na('a'))
+#     ),
+#     C = declared(
+#         c(1, -91, 3:5, -92),
+#         labels = c(DK = -91, NR = -92),
+#         na_values = c(-91, -92)
+#     )
+# )
 
-xrec <- recodeMissings(x, to = "Stata")
+# xrec <- recodeMissings(x, to = "Stata")
 
-attr(xrec, "dictionary")
+# attr(xrec, "dictionary")
 
-dictionary <- data.frame(
-    old = c(-91, -92, "a"),
-    new = c("c", "d", "c")
-)
-recodeMissings(x, to = "Stata", dictionary = dictionary)
+# Supply a dictionary to harmonize missing meanings across variables
+# dictionary <- data.frame(
+#     old = c(-91, -92, "a"),
+#     new = c("c", "d", "c")
+# )
+# recodeMissings(x, to = "Stata", dictionary = dictionary)
 
-recodeMissings(x, to = "SPSS")
+# recodeMissings(x, to = "SPSS")
 
-dictionary$new <- c(-97, -98, -97)
+# dictionary$new <- c(-97, -98, -97)
 
-recodeMissings(x, to = "SPSS", dictionary = dictionary)
+# recodeMissings(x, to = "SPSS", dictionary = dictionary)
 
-recodeMissings(x, to = "SPSS", start = 991)
+# recodeMissings(x, to = "SPSS", start = 991)
 
-recodeMissings(x, to = "SPSS", start = -8)
+# recodeMissings(x, to = "SPSS", start = -8)
 
 }
 \author{

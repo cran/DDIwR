@@ -1,3 +1,29 @@
+# Copyright (c) 2026, Adrian Dusa
+# All rights reserved.
+# 
+# Redistribution and use in source and binary forms, with or without
+# modification, in whole or in part, are permitted provided that the
+# following conditions are met:
+#     * Redistributions of source code must retain the above copyright
+#       notice, this list of conditions and the following disclaimer.
+#     * Redistributions in binary form must reproduce the above copyright
+#       notice, this list of conditions and the following disclaimer in the
+#       documentation and/or other materials provided with the distribution.
+#     * The names of its contributors may NOT be used to endorse or promote
+#       products derived from this software without specific prior written
+#       permission.
+# 
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+# AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+# IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+# ARE DISCLAIMED. IN NO EVENT SHALL ADRIAN DUSA BE LIABLE FOR ANY
+# DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+# (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+# LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+# ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+# (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+# SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
 #' @name DDI-children
 #'
 #' @title
@@ -16,19 +42,16 @@
 #' Although an XML list generally allows for multiple contents, sometimes spread
 #' between the children elements, it is preferable to maintain a single content
 #' (eventually separated with carriage return characters for separate lines).
+#
+#' XPath resolution accepts indexed segments using `[n]`. When an index is
+#' missing, the first matching element is selected.
 #'
 #' Arguments are unique, and can be changed by simply referring to their names.
 #'
-#' Elements, however, can be repeated. For instance element `var` to describe
-#' variables, within the `dataDscr` (data description) sub-element in the
-#' `codeBook`. There are as many such `var` elements as the number of variables
-#' in the dataset, in which case it is not possible to change a specific `var`
-#' element by referring to its name. For this purpose, it is useful to extract
-#' the positions of all `var` elements to iterate through, which is the purpose
-#' of the function `indexChildren()`.
-#'
-#' Future versions will allow deep manipulations of child elements using the
-#' `xpath` argument.
+#' Elements can be repeated. For example, `dataDscr` contains one `var` element
+#' per dataset variable. When multiple `var` elements exist, referring only to
+#' the name is ambiguous. Use indexed xpaths like `var[3]` to target a specific
+#' instance, or use `indexChildren()` to list all positions for iteration.
 #'
 #' @return An invisible standard DDI element. Functions `any*()` and `has*()`
 #' return a logical (vector).
@@ -36,17 +59,27 @@
 #' @author Adrian Dusa
 #'
 #' @param children A standard element of class `"DDI"`, or a list of such elements.
-#' @param to A standard element of class `"DDI"`.
-#' @param from A standard element of class `"DDI"`.
+#' @param to A standard element of class `"DDI"`, or an xpath string pointing
+#' to a target element.
+#' @param from A standard element of class `"DDI"`, or an xpath string pointing
+#' to a target element.
+#' @param with A standard element of class `"DDI"`, or an xpath string pointing
+#' to a target element.
 #' @param element A standard element of class `"DDI"`.
 #' @param content Character, the text content of a DDI element.
 #' @param attrs A list of specific attribute names and values.
 #' @param name Character, name(s) of specific child element / attribute.
 #' @param overwrite Logical, overwrite the original object in the parent frame.
-#' @param xpath Character, a path to a DDI Codebook element.
+#' @param xpath Character, an xpath to a DDI Codebook element. Indexed segments
+#' are supported using square brackets, e.g. `codeBook/dataDscr/var[3]`.
+#' Missing indexes default to the first matching element.
 #' @param ... Other arguments, mainly for internal use.
 #'
 #' @details If more than one children, they should be grouped into a list.
+#' Functions `addContent`, `changeContent`, `removeContent`, `addAttributes`,
+#' `changeAttributes`, and `removeAttributes` accept either a standard DDI element
+#' or a character `xpath`. When an xpath is provided, the target element is
+#' resolved and replaced in the root element.
 #'
 #' @export
 `addChildren` <- function(children, to, overwrite = TRUE, ...) {
@@ -155,6 +188,15 @@
     attrbs$names <- attrbs$names[corder]
     attributes(to) <- attrbs
 
+    nms <- names(to)
+    if (length(nms) > 0) {
+        for (i in seq_along(nms)) {
+            if (!identical(nms[i], ".extra") && !identical(nms[i], "")) {
+                to[[i]]$.extra$index <- sum(nms[seq_len(i)] == nms[i])
+            }
+        }
+    }
+
     if (overwrite) {
         admisc::overwrite(objname, to, parent.frame())
     }
@@ -198,7 +240,9 @@
     xpath <- gsub("\\$", "/", xpath)
     xpath <- unlist(strsplit(xpath, split = "/"))
 
-    wextra <- which(xpath == from$.extra$name)
+    base_segs <- sub("\\[(\\d+)\\]$", "", xpath, perl = TRUE)
+
+    wextra <- which(base_segs == from$.extra$name)
     if (length(wextra) > 0) {
         xpath <- xpath[-seq(wextra)]
     }
@@ -207,12 +251,34 @@
         return(from)
     }
 
-    if (!hasChildren(from, xpath[1])) {
+    parse_seg <- function(s) {
+        m <- regexec("^([^\\[]+)(\\[(\\d+)\\])?$", s)
+        r <- regmatches(s, m)[[1]]
+        if (length(r) == 0) return(NULL)
+        name <- r[2]
+        idx <- NA_integer_
+        if (length(r) >= 4 && nchar(r[4]) > 0) {
+            idx <- as.integer(r[4])
+        }
+        list(name = name, index = idx)
+    }
+
+    info0 <- parse_seg(xpath[1])
+    if (is.null(info0) || is.na(info0$name)) {
+        admisc::stopError("Invalid xpath segment.")
+    }
+
+    if (!hasChildren(from, info0$name)) {
         return(NULL)
     }
 
     if (length(xpath) >= 1) {
-        index <- indexChildren(from, xpath[1])
+        info <- info0
+        index <- indexChildren(from, info$name)
+        if (length(index) == 0) {
+            return(NULL)
+        }
+
         if (length(index) == 1) {
             return(getChildren(
                 paste(xpath, collapse = "/"),
@@ -221,15 +287,30 @@
         }
         else {
             if (length(xpath) == 1) {
+                if (!is.na(info$index)) {
+                    if (info$index < 1 || info$index > length(index)) {
+                        admisc::stopError("Index out of range for xpath segment.")
+                    }
+                    return(from[index[info$index]])
+                }
                 return(from[index])
             }
 
-            # e.g. codeBook/dataDscr/var/labl
-            # and there are certainly, multiple "var" elements in the dataDscr
+            if (is.na(info$index)) {
+                # Default to the first element when index is missing
+                return(getChildren(
+                    paste(xpath[-1], collapse = "/"),
+                    from = from[[index[1]]]
+                ))
+            }
 
-            admisc::stopError(sprintf(
-                "Multiple '%s' elements to subtract '%s' children from.",
-                xpath[1], xpath[2]
+            if (info$index < 1 || info$index > length(index)) {
+                admisc::stopError("Index out of range for xpath segment.")
+            }
+
+            return(getChildren(
+                paste(xpath[-1], collapse = "/"),
+                from = from[[index[info$index]]]
             ))
         }
     }
@@ -329,6 +410,19 @@
         admisc::stopError("The content should be a vector of length 1.")
     }
 
+    if (is.character(to) && length(to) == 1) {
+        res <- resolve_xpath_target(to, env = parent.frame())
+        node <- addContent(content, to = res$node, overwrite = FALSE)
+        if (identical(res$canonical, res$rootname)) {
+            if (overwrite) {
+                admisc::overwrite(res$rootname, node, parent.frame())
+            }
+        } else if (overwrite) {
+            replaceChild(res$canonical, with = node, overwrite = TRUE)
+        }
+        return(invisible(node))
+    }
+
     if (missing(to) || !is.element(".extra", names(to))) {
         admisc::stopError("The argument 'to' is not standard.")
     }
@@ -367,6 +461,359 @@
 
 #' @rdname DDI-children
 #' @export
+`makePath` <- function(xpath, from, overwrite = TRUE, ...) {
+    objname <- deparse1(substitute(from))
+
+    if (
+        missing(xpath) || is.null(xpath) || !is.atomic(xpath) ||
+        !is.character(xpath) || length(xpath) != 1
+    ) {
+        admisc::stopError("Argument 'xpath' should be a character vector of length 1.")
+    }
+
+    if (missing(from) || !is.element(".extra", names(from))) {
+        admisc::stopError("The argument 'from' is not standard.")
+    }
+
+    segs <- unlist(strsplit(xpath, split = "/"))
+    segs <- segs[nzchar(segs)]
+
+    if (length(segs) == 0) {
+        return(invisible(from))
+    }
+
+    # Remove leading root if present
+    if (identical(segs[1], from$.extra$name)) {
+        segs <- segs[-1]
+    }
+
+    if (length(segs) == 0) {
+        return(invisible(from))
+    }
+
+    parse_seg <- function(s) {
+        m <- regexec("^([^\\[]+)(\\[(\\d+)\\])?$", s)
+        r <- regmatches(s, m)[[1]]
+        if (length(r) == 0) return(NULL)
+        name <- r[2]
+        idx <- 1L
+        if (length(r) >= 4 && nchar(r[4]) > 0) {
+            idx <- as.integer(r[4])
+        }
+        list(name = name, index = idx)
+    }
+
+    make_recursive <- function(el, rest) {
+        if (length(rest) == 0) return(el)
+
+        info <- parse_seg(rest[1])
+        if (is.null(info) || is.na(info$name)) {
+            admisc::stopError("Invalid xpath segment.")
+        }
+
+        existing <- indexChildren(el, info$name)
+        if (length(existing) < info$index) {
+            for (k in seq_len(info$index - length(existing))) {
+                child <- makeElement(info$name)
+                el <- addChildren(child, to = el, overwrite = FALSE)
+            }
+        }
+
+        pos <- indexChildren(el, info$name)[info$index]
+        child <- el[[pos]]
+        child$.extra$index <- info$index
+        child <- make_recursive(child, rest[-1])
+        el[[pos]] <- child
+
+        return(el)
+    }
+
+    result <- make_recursive(from, segs)
+
+    if (overwrite) {
+        admisc::overwrite(objname, result, parent.frame())
+    }
+
+    return(invisible(result))
+}
+
+
+#' @rdname DDI-children
+#' @export
+`moveChild` <- function(xpath, from, to, overwrite = TRUE, ...) {
+    objname <- deparse1(substitute(xpath))
+
+    if (
+        missing(xpath) || is.null(xpath) || !is.atomic(xpath) ||
+        !is.character(xpath) || length(xpath) != 1
+    ) {
+        admisc::stopError("Argument 'xpath' should be a character scalar.")
+    }
+
+    if (missing(to) || is.null(to) || length(to) != 1) {
+        admisc::stopError("Argument 'to' should be a length 1 integer.")
+    }
+
+    to <- as.integer(to)
+
+    segs <- unlist(strsplit(xpath, split = "/"))
+    segs <- segs[nzchar(segs)]
+
+    if (length(segs) < 2) {
+        admisc::stopError("Argument 'xpath' should include a root and a child.")
+    }
+
+    rootname <- segs[1]
+    if (!exists(rootname, envir = parent.frame())) {
+        admisc::stopError("Could not resolve root element from xpath.")
+    }
+
+    element <- get(rootname, envir = parent.frame())
+    if (!is.element(".extra", names(element))) {
+        admisc::stopError("The resolved root element is not standard.")
+    }
+
+    segs <- segs[-1]
+
+    parse_seg <- function(s) {
+        m <- regexec("^([^\\[]+)(\\[(\\d+)\\])?$", s)
+        r <- regmatches(s, m)[[1]]
+        if (length(r) == 0) return(NULL)
+        name <- r[2]
+        idx <- NA_integer_
+        if (length(r) >= 4 && nchar(r[4]) > 0) {
+            idx <- as.integer(r[4])
+        }
+        list(name = name, index = idx)
+    }
+
+    resolve_stack <- function(root, parts) {
+        cur <- root
+        stack <- list()
+        for (seg in parts) {
+            info <- parse_seg(seg)
+            if (is.null(info) || is.na(info$name)) {
+                admisc::stopError("Invalid xpath segment.")
+            }
+            positions <- indexChildren(cur, info$name)
+            if (length(positions) == 0) {
+                admisc::stopError("No such child element in xpath.")
+            }
+            idx <- info$index
+            if (is.na(idx)) {
+                # Default to the first element when index is missing
+                idx <- 1L
+            }
+            if (idx < 1 || idx > length(positions)) {
+                admisc::stopError("Index out of range for xpath segment.")
+            }
+            stack[[length(stack) + 1]] <- list(parent = cur, positions = positions, idx = idx)
+            cur <- cur[[positions[idx]]]
+            cur$.extra$index <- idx
+        }
+        list(node = cur, stack = stack)
+    }
+
+    last <- segs[length(segs)]
+    info_last <- parse_seg(last)
+    if (is.null(info_last) || is.na(info_last$name)) {
+        admisc::stopError("Invalid xpath segment.")
+    }
+
+    if (missing(from) || is.null(from)) {
+        if (is.na(info_last$index)) {
+            admisc::stopError("Argument 'from' is missing and no index was provided in xpath.")
+        }
+        from <- info_last$index
+    } else {
+        if (length(from) != 1) {
+            admisc::stopError("Argument 'from' should be a length 1 integer.")
+        }
+        from <- as.integer(from)
+        if (!is.na(info_last$index) && from != info_last$index) {
+            admisc::stopError("Argument 'from' does not match the index provided in xpath.")
+        }
+    }
+
+    parent_parts <- segs[-length(segs)]
+    parent_res <- if (length(parent_parts)) resolve_stack(element, parent_parts) else list(node = element, stack = list())
+    parent <- parent_res$node
+
+    if (is.null(parent) || !is.element(".extra", names(parent))) {
+        admisc::stopError("Could not resolve parent element from xpath.")
+    }
+
+    positions <- indexChildren(parent, info_last$name)
+    if (length(positions) == 0) {
+        admisc::stopError("No such child elements to move.")
+    }
+
+    if (from < 1 || from > length(positions) || to < 1 || to > length(positions)) {
+        admisc::stopError("Indices out of range for the specified child name.")
+    }
+
+    new_order <- seq_along(positions)
+    item <- new_order[from]
+    new_order <- new_order[-from]
+    new_order <- append(new_order, item, after = to - 1)
+
+    parent_reordered <- parent
+    parent_reordered[positions] <- parent[positions][new_order]
+
+    attrbs <- attributes(parent_reordered)
+    attrbs$names <- names(parent_reordered)
+    attributes(parent_reordered) <- attrbs
+
+    updated <- parent_reordered
+    if (length(parent_res$stack)) {
+        for (i in seq(length(parent_res$stack), 1)) {
+            entry <- parent_res$stack[[i]]
+            par <- entry$parent
+            par[[entry$positions[entry$idx]]] <- updated
+            attrbs2 <- attributes(par)
+            attrbs2$names <- names(par)
+            attributes(par) <- attrbs2
+            updated <- par
+        }
+    }
+
+    if (overwrite) {
+        admisc::overwrite(rootname, updated, parent.frame())
+    }
+
+    return(invisible(updated))
+}
+
+
+#' @rdname DDI-children
+#' @export
+`replaceChild` <- function(xpath, with, overwrite = TRUE, ...) {
+    objname <- deparse1(substitute(xpath))
+
+    if (
+        missing(xpath) || is.null(xpath) || !is.atomic(xpath) ||
+        !is.character(xpath) || length(xpath) != 1
+    ) {
+        admisc::stopError("Argument 'xpath' should be a character scalar.")
+    }
+
+    if (missing(with) || !is.element(".extra", names(with))) {
+        admisc::stopError("The argument 'with' is not standard.")
+    }
+
+    segs <- unlist(strsplit(xpath, split = "/"))
+    segs <- segs[nzchar(segs)]
+
+    if (length(segs) < 2) {
+        admisc::stopError("Argument 'xpath' should include a root and a child.")
+    }
+
+    rootname <- segs[1]
+    if (!exists(rootname, envir = parent.frame())) {
+        admisc::stopError("Could not resolve root element from xpath.")
+    }
+
+    element <- get(rootname, envir = parent.frame())
+    if (!is.element(".extra", names(element))) {
+        admisc::stopError("The resolved root element is not standard.")
+    }
+
+    segs <- segs[-1]
+
+    parse_seg <- function(s) {
+        m <- regexec("^([^\\[]+)(\\[(\\d+)\\])?$", s)
+        r <- regmatches(s, m)[[1]]
+        if (length(r) == 0) return(NULL)
+        name <- r[2]
+        idx <- NA_integer_
+        if (length(r) >= 4 && nchar(r[4]) > 0) {
+            idx <- as.integer(r[4])
+        }
+        list(name = name, index = idx)
+    }
+
+    resolve_stack <- function(root, parts) {
+        cur <- root
+        stack <- list()
+        for (seg in parts) {
+            info <- parse_seg(seg)
+            if (is.null(info) || is.na(info$name)) {
+                admisc::stopError("Invalid xpath segment.")
+            }
+            positions <- indexChildren(cur, info$name)
+            if (length(positions) == 0) {
+                admisc::stopError("No such child element in xpath.")
+            }
+            idx <- info$index
+            if (is.na(idx)) {
+                # Default to the first element when index is missing
+                idx <- 1L
+            }
+            if (idx < 1 || idx > length(positions)) {
+                admisc::stopError("Index out of range for xpath segment.")
+            }
+            stack[[length(stack) + 1]] <- list(parent = cur, positions = positions, idx = idx)
+            cur <- cur[[positions[idx]]]
+            cur$.extra$index <- idx
+        }
+        list(node = cur, stack = stack)
+    }
+
+    last <- segs[length(segs)]
+    info <- parse_seg(last)
+    if (is.null(info) || is.na(info$name)) {
+        admisc::stopError("Invalid xpath segment.")
+    }
+
+    if (is.na(info$index)) {
+        admisc::stopError("Argument 'xpath' should include a child index like [n].")
+    }
+
+    parent_parts <- segs[-length(segs)]
+    parent_res <- if (length(parent_parts)) resolve_stack(element, parent_parts) else list(node = element, stack = list())
+    parent <- parent_res$node
+
+    if (is.null(parent) || !is.element(".extra", names(parent))) {
+        admisc::stopError("Could not resolve parent element from xpath.")
+    }
+
+    positions <- indexChildren(parent, info$name)
+    if (length(positions) == 0) {
+        admisc::stopError("No such child elements to replace.")
+    }
+
+    if (info$index < 1 || info$index > length(positions)) {
+        admisc::stopError("Index out of range for the specified child name.")
+    }
+
+    parent[[positions[info$index]]] <- with
+    attrbs <- attributes(parent)
+    attrbs$names <- names(parent)
+    attributes(parent) <- attrbs
+
+    updated <- parent
+    if (length(parent_res$stack)) {
+        for (i in seq(length(parent_res$stack), 1)) {
+            entry <- parent_res$stack[[i]]
+            par <- entry$parent
+            par[[entry$positions[entry$idx]]] <- updated
+            attrbs2 <- attributes(par)
+            attrbs2$names <- names(par)
+            attributes(par) <- attrbs2
+            updated <- par
+        }
+    }
+
+    if (overwrite) {
+        admisc::overwrite(rootname, updated, parent.frame())
+    }
+
+    return(invisible(updated))
+}
+
+
+#' @rdname DDI-children
+#' @export
 `changeContent` <- function(content, to, overwrite = TRUE) {
     objname <- deparse1(substitute(to))
 
@@ -377,6 +824,19 @@
         length(content) != 1
     ) {
         admisc::stopError("The content should be a vector of length 1.")
+    }
+
+    if (is.character(to) && length(to) == 1) {
+        res <- resolve_xpath_target(to, env = parent.frame())
+        node <- changeContent(content, to = res$node, overwrite = FALSE)
+        if (identical(res$canonical, res$rootname)) {
+            if (overwrite) {
+                admisc::overwrite(res$rootname, node, parent.frame())
+            }
+        } else if (overwrite) {
+            replaceChild(res$canonical, with = node, overwrite = TRUE)
+        }
+        return(invisible(node))
     }
 
     if (missing(to) || !is.element(".extra", names(to))) {
@@ -408,6 +868,19 @@
 `removeContent` <- function(from, overwrite = TRUE) {
     objname <- deparse1(substitute(from))
 
+    if (is.character(from) && length(from) == 1) {
+        res <- resolve_xpath_target(from, env = parent.frame())
+        node <- removeContent(from = res$node, overwrite = FALSE)
+        if (identical(res$canonical, res$rootname)) {
+            if (overwrite) {
+                admisc::overwrite(res$rootname, node, parent.frame())
+            }
+        } else if (overwrite) {
+            replaceChild(res$canonical, with = node, overwrite = TRUE)
+        }
+        return(invisible(node))
+    }
+
     if (missing(from) || !is.element(".extra", names(from))) {
         admisc::stopError("The argument 'from' is not standard.")
     }
@@ -436,6 +909,19 @@
 `addAttributes` <- function(attrs, to, overwrite = TRUE) {
     objname <- deparse1(substitute(to))
     attrnames <- names(attrs)
+
+    if (is.character(to) && length(to) == 1) {
+        res <- resolve_xpath_target(to, env = parent.frame())
+        node <- addAttributes(attrs, to = res$node, overwrite = FALSE)
+        if (identical(res$canonical, res$rootname)) {
+            if (overwrite) {
+                admisc::overwrite(res$rootname, node, parent.frame())
+            }
+        } else if (overwrite) {
+            replaceChild(res$canonical, with = node, overwrite = TRUE)
+        }
+        return(invisible(node))
+    }
 
     DDIC <- get("DDIC", envir = cacheEnv)
     DDIC_global_attributes <- get("DDIC_global_attributes", envir = cacheEnv)
@@ -471,7 +957,6 @@
         attrbs <- attrbs[corder]
     }
 
-
     attributes(to) <- attrbs
 
     if (overwrite) {
@@ -504,6 +989,19 @@
 `changeAttributes` <- function(attrs, from, overwrite = TRUE) {
     objname <- deparse1(substitute(from))
 
+    if (is.character(from) && length(from) == 1) {
+        res <- resolve_xpath_target(from, env = parent.frame())
+        node <- changeAttributes(attrs, from = res$node, overwrite = FALSE)
+        if (identical(res$canonical, res$rootname)) {
+            if (overwrite) {
+                admisc::overwrite(res$rootname, node, parent.frame())
+            }
+        } else if (overwrite) {
+            replaceChild(res$canonical, with = node, overwrite = TRUE)
+        }
+        return(invisible(node))
+    }
+
     DDIC <- get("DDIC", envir = cacheEnv)
     DDIC_global_attributes <- get("DDIC_global_attributes", envir = cacheEnv)
 
@@ -529,9 +1027,7 @@
 
     attrbs <- attributes(from)
 
-    if (
-        !all(is.element(attrnames, names(attrbs)))
-    ) {
+    if (!all(is.element(attrnames, names(attrbs)))) {
         admisc::stopError("Inexisting attribute(s) to change.")
     }
 
@@ -571,6 +1067,19 @@
 #' @export
 `removeAttributes` <- function(name, from, overwrite = TRUE) {
     objname <- deparse1(substitute(from))
+
+    if (is.character(from) && length(from) == 1) {
+        res <- resolve_xpath_target(from, env = parent.frame())
+        node <- removeAttributes(name, from = res$node, overwrite = FALSE)
+        if (identical(res$canonical, res$rootname)) {
+            if (overwrite) {
+                admisc::overwrite(res$rootname, node, parent.frame())
+            }
+        } else if (overwrite) {
+            replaceChild(res$canonical, with = node, overwrite = TRUE)
+        }
+        return(invisible(node))
+    }
 
     DDIC <- get("DDIC", envir = cacheEnv)
     DDIC_global_attributes <- get("DDIC_global_attributes", envir = cacheEnv)
@@ -612,4 +1121,94 @@
     }
 
     return(invisible(from))
+}
+
+
+
+# Internal helper: resolve xpath to target node and canonical indexed xpath
+resolve_xpath_target <- function(xpath, env = parent.frame()) {
+    if (missing(xpath) || is.null(xpath) || !is.atomic(xpath) || !is.character(xpath) || length(xpath) != 1) {
+        admisc::stopError("Argument 'xpath' should be a character scalar.")
+    }
+
+    segs <- unlist(strsplit(xpath, split = "/"))
+    segs <- segs[nzchar(segs)]
+    if (length(segs) == 0) {
+        admisc::stopError("Argument 'xpath' is empty.")
+    }
+
+    rootname <- segs[1]
+    if (!exists(rootname, envir = env)) {
+        admisc::stopError("Could not resolve root element from xpath.")
+    }
+
+    root <- get(rootname, envir = env)
+    if (!is.element(".extra", names(root))) {
+        admisc::stopError("The resolved root element is not standard.")
+    }
+
+    if (length(segs) == 1) {
+        return(list(rootname = rootname, root = root, node = root, canonical = rootname))
+    }
+
+    parse_seg <- function(s) {
+        m <- regexec("^([^\\[]+)(\\[(\\d+)\\])?$", s)
+        r <- regmatches(s, m)[[1]]
+        if (length(r) == 0) return(NULL)
+        name <- r[2]
+        idx <- NA_integer_
+        if (length(r) >= 4 && nchar(r[4]) > 0) {
+            idx <- as.integer(r[4])
+        }
+        list(name = name, index = idx)
+    }
+
+    last <- segs[length(segs)]
+    info <- parse_seg(last)
+    if (is.null(info) || is.na(info$name)) {
+        admisc::stopError("Invalid xpath segment.")
+    }
+
+    parent_parts <- segs[-length(segs)]
+    parent_path <- paste(parent_parts, collapse = "/")
+    parent <- if (nzchar(parent_path)) {
+        getChildren(parent_path, from = root)
+    } else {
+        root
+    }
+
+    if (is.null(parent) || !is.element(".extra", names(parent))) {
+        admisc::stopError("Could not resolve parent element from xpath.")
+    }
+
+    positions <- indexChildren(parent, info$name)
+    if (length(positions) == 0) {
+        admisc::stopError("No such child element in xpath.")
+    }
+
+    idx <- info$index
+    if (is.na(idx)) {
+        # Default to the first element when index is missing
+        idx <- 1L
+    }
+
+    if (idx < 1 || idx > length(positions)) {
+        admisc::stopError("Index out of range for xpath segment.")
+    }
+
+    node <- parent[[positions[idx]]]
+    canonical_last <- paste0(info$name, "[", idx, "]")
+
+    # Avoid duplicating the root in canonical path
+    if (length(parent_parts) > 0 && identical(parent_parts[1], rootname)) {
+        parent_parts <- parent_parts[-1]
+    }
+
+    canonical <- if (length(parent_parts) > 0) {
+        paste(rootname, paste(parent_parts, collapse = "/"), canonical_last, sep = "/")
+    } else {
+        paste(rootname, canonical_last, sep = "/")
+    }
+
+    list(rootname = rootname, root = root, node = node, canonical = canonical)
 }
