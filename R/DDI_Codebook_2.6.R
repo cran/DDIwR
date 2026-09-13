@@ -1,3 +1,12 @@
+# Curated R representation of DDI-Codebook 2.6 (published 2026-04-15).
+# Schema: ddialliance/ddi-c_2, commit 94006d85b995c4013a07cd4e50a66df51aead33e.
+# DDI Alliance schema: https://github.com/ddialliance/ddi-c_2/tree/2.6
+# Licensed CC BY 4.0: https://creativecommons.org/licenses/by/4.0/
+# Adaptations include R attribute names, simplified content models, editorial
+# descriptions and recommendations. Do not replace these with raw extraction.
+# contentModel records the child particles for this parent. Its min/max bounds
+# govern validation; the older element-wide flags remain discovery metadata.
+
 cacheEnv <- new.env()
 
 assign(
@@ -38,6 +47,7 @@ assign(
                     deprecated = FALSE
                 )
             ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list()),
             parents = c(),
             children = list(),
             title = "External Link",
@@ -79,6 +89,7 @@ assign(
                     deprecated = FALSE
                 )
             ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list()),
             parents = c(),
             children = list(),
             title = "Link",
@@ -92,9 +103,54 @@ assign(
             recommended = FALSE,
             deprecated = FALSE,
             attributes = list(
-                type = list(
+                isTranslated = list(
+                    type = "boolean",
+                    description = "Whether the content is a translation rather than the original text.",
+                    values = c("true", "false"),
+                    default = "false",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                isTranslatable = list(
+                    type = "boolean",
+                    description = "Whether the content is intended to be translated.",
+                    values = c("true", "false"),
+                    default = "true",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationSourceLanguage = list(
                     type = "string",
-                    description = "",
+                    description = "Languages or language codes of the source text, separated by spaces.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationDate = list(
+                    type = "date",
+                    description = "Date of translation, expressed as YYYY-MM-DD.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                n = list(
+                    type = "string",
+                    description = "Number or label identifying this formatting element.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                rend = list(
+                    type = "string",
+                    description = "Rendering or presentation information for this formatting element.",
                     values = c(),
                     default = c(),
                     optional = TRUE,
@@ -102,6 +158,9 @@ assign(
                     deprecated = FALSE
                 )
             ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list(list(
+                kind = "choice", min = 0, max = Inf, particles = list(list(
+                    kind = "sequence", min = 1, max = 1, particles = list()))))),
             parents = c(),
             children = list(),
             title = "Division",
@@ -115,9 +174,54 @@ assign(
             recommended = FALSE,
             deprecated = FALSE,
             attributes = list(
-                type = list(
+                isTranslated = list(
+                    type = "boolean",
+                    description = "Whether the content is a translation rather than the original text.",
+                    values = c("true", "false"),
+                    default = "false",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                isTranslatable = list(
+                    type = "boolean",
+                    description = "Whether the content is intended to be translated.",
+                    values = c("true", "false"),
+                    default = "true",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationSourceLanguage = list(
                     type = "string",
-                    description = "",
+                    description = "Languages or language codes of the source text, separated by spaces.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationDate = list(
+                    type = "date",
+                    description = "Date of translation, expressed as YYYY-MM-DD.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                n = list(
+                    type = "string",
+                    description = "Number or label identifying this formatting element.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                rend = list(
+                    type = "string",
+                    description = "Rendering or presentation information for this formatting element.",
                     values = c(),
                     default = c(),
                     optional = TRUE,
@@ -125,6 +229,10 @@ assign(
                     deprecated = FALSE
                 )
             ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list(list(
+                kind = "choice", min = 0, max = Inf, particles = list(list(
+                    kind = "element", min = 1, max = 1, name = "hi"), list(
+                    kind = "element", min = 1, max = 1, name = "list"))))),
             parents = c("head", "hi", "itm", "label", "p"),
             children = list(choice = c("hi", "list")),
             title = "Emphasis",
@@ -137,7 +245,77 @@ assign(
             repeatable = FALSE,
             recommended = FALSE,
             deprecated = FALSE,
-            attributes = list(),
+            attributes = list(
+                isTranslated = list(
+                    type = "boolean",
+                    description = "Whether the content is a translation rather than the original text.",
+                    values = c("true", "false"),
+                    default = "false",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                isTranslatable = list(
+                    type = "boolean",
+                    description = "Whether the content is intended to be translated.",
+                    values = c("true", "false"),
+                    default = "true",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationSourceLanguage = list(
+                    type = "string",
+                    description = "Languages or language codes of the source text, separated by spaces.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationDate = list(
+                    type = "date",
+                    description = "Date of translation, expressed as YYYY-MM-DD.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                n = list(
+                    type = "string",
+                    description = "Number or label identifying this formatting element.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                rend = list(
+                    type = "string",
+                    description = "Rendering or presentation information for this formatting element.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                type = list(
+                    type = "string",
+                    description = "Type of heading.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                )
+            ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list(list(
+                kind = "choice", min = 0, max = Inf, particles = list(list(
+                    kind = "sequence", min = 1, max = 1, particles = list()),
+                    list(kind = "element", min = 1, max = 1, name = "emph"),
+                    list(kind = "element", min = 1, max = 1, name = "hi"),
+                    list(kind = "element", min = 1, max = 1, name = "list"))))),
             parents = c(),
             children = list(choice = c("emph", "hi", "list")),
             title = "Head",
@@ -151,9 +329,54 @@ assign(
             recommended = FALSE,
             deprecated = FALSE,
             attributes = list(
-                type = list(
+                isTranslated = list(
+                    type = "boolean",
+                    description = "Whether the content is a translation rather than the original text.",
+                    values = c("true", "false"),
+                    default = "false",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                isTranslatable = list(
+                    type = "boolean",
+                    description = "Whether the content is intended to be translated.",
+                    values = c("true", "false"),
+                    default = "true",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationSourceLanguage = list(
                     type = "string",
-                    description = "",
+                    description = "Languages or language codes of the source text, separated by spaces.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationDate = list(
+                    type = "date",
+                    description = "Date of translation, expressed as YYYY-MM-DD.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                n = list(
+                    type = "string",
+                    description = "Number or label identifying this formatting element.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                rend = list(
+                    type = "string",
+                    description = "Rendering or presentation information for this formatting element.",
                     values = c(),
                     default = c(),
                     optional = TRUE,
@@ -161,6 +384,10 @@ assign(
                     deprecated = FALSE
                 )
             ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list(list(
+                kind = "choice", min = 0, max = Inf, particles = list(list(
+                    kind = "element", min = 1, max = 1, name = "emph"), list(
+                    kind = "element", min = 1, max = 1, name = "list"))))),
             parents = c("emph", "head", "itm", "label", "p"),
             children = list(choice = c("emph", "list")),
             title = "Highlight",
@@ -174,9 +401,54 @@ assign(
             recommended = FALSE,
             deprecated = FALSE,
             attributes = list(
-                type = list(
+                isTranslated = list(
+                    type = "boolean",
+                    description = "Whether the content is a translation rather than the original text.",
+                    values = c("true", "false"),
+                    default = "false",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                isTranslatable = list(
+                    type = "boolean",
+                    description = "Whether the content is intended to be translated.",
+                    values = c("true", "false"),
+                    default = "true",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationSourceLanguage = list(
                     type = "string",
-                    description = "",
+                    description = "Languages or language codes of the source text, separated by spaces.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationDate = list(
+                    type = "date",
+                    description = "Date of translation, expressed as YYYY-MM-DD.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                n = list(
+                    type = "string",
+                    description = "Number or label identifying this formatting element.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                rend = list(
+                    type = "string",
+                    description = "Rendering or presentation information for this formatting element.",
                     values = c(),
                     default = c(),
                     optional = TRUE,
@@ -184,6 +456,11 @@ assign(
                     deprecated = FALSE
                 )
             ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list(list(
+                kind = "choice", min = 0, max = Inf, particles = list(list(
+                    kind = "sequence", min = 1, max = 1, particles = list()),
+                    list(kind = "element", min = 1, max = 1, name = "emph"),
+                    list(kind = "element", min = 1, max = 1, name = "hi"))))),
             parents = c("list", "itm"),
             children = list(choice = c("emph", "hi")),
             title = "Label",
@@ -197,9 +474,54 @@ assign(
             recommended = FALSE,
             deprecated = FALSE,
             attributes = list(
-                type = list(
+                isTranslated = list(
+                    type = "boolean",
+                    description = "Whether the content is a translation rather than the original text.",
+                    values = c("true", "false"),
+                    default = "false",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                isTranslatable = list(
+                    type = "boolean",
+                    description = "Whether the content is intended to be translated.",
+                    values = c("true", "false"),
+                    default = "true",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationSourceLanguage = list(
                     type = "string",
-                    description = "",
+                    description = "Languages or language codes of the source text, separated by spaces.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationDate = list(
+                    type = "date",
+                    description = "Date of translation, expressed as YYYY-MM-DD.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                n = list(
+                    type = "string",
+                    description = "Number or label identifying this formatting element.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                rend = list(
+                    type = "string",
+                    description = "Rendering or presentation information for this formatting element.",
                     values = c(),
                     default = c(),
                     optional = TRUE,
@@ -207,6 +529,12 @@ assign(
                     deprecated = FALSE
                 )
             ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list(list(
+                kind = "choice", min = 0, max = Inf, particles = list(list(
+                    kind = "sequence", min = 1, max = 1, particles = list()),
+                    list(kind = "element", min = 1, max = 1, name = "emph"),
+                    list(kind = "element", min = 1, max = 1, name = "hi"),
+                    list(kind = "element", min = 1, max = 1, name = "list"))))),
             parents = "itm",
             children = list(choice = c("emph", "hi", "list")),
             title = "Paragraph",
@@ -237,8 +565,45 @@ assign(
                     optional = TRUE,
                     recommended = FALSE,
                     deprecated = FALSE
+                ),
+                isTranslated = list(
+                    type = "boolean",
+                    description = "Whether the content is a translation rather than the original text.",
+                    values = c("true", "false"),
+                    default = "false",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                isTranslatable = list(
+                    type = "boolean",
+                    description = "Whether the content is intended to be translated.",
+                    values = c("true", "false"),
+                    default = "true",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationSourceLanguage = list(
+                    type = "string",
+                    description = "Languages or language codes of the source text, separated by spaces.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationDate = list(
+                    type = "date",
+                    description = "Date of translation, expressed as YYYY-MM-DD.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
                 )
             ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list()),
             parents = "stdyInfo",
             children = list(),
             title = "Abstract",
@@ -254,14 +619,105 @@ assign(
             attributes = list(
                 URI = list(
                     type = "string",
-                    description = "",
+                    description = "URI of the access location.",
                     values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                isTranslated = list(
+                    type = "boolean",
+                    description = "Whether the content is a translation rather than the original text.",
+                    values = c("true", "false"),
+                    default = "false",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                isTranslatable = list(
+                    type = "boolean",
+                    description = "Whether the content is intended to be translated.",
+                    values = c("true", "false"),
+                    default = "true",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationSourceLanguage = list(
+                    type = "string",
+                    description = "Languages or language codes of the source text, separated by spaces.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationDate = list(
+                    type = "date",
+                    description = "Date of translation, expressed as YYYY-MM-DD.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                affiliation = list(
+                    type = "string",
+                    description = "Affiliation of the access provider with an agency or organization.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                abbr = list(
+                    type = "string",
+                    description = "Abbreviation for the access provider.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                agentIdentifier = list(
+                    type = "string",
+                    description = "Identifier of the access provider.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                typeOfAgentIdentifier = list(
+                    type = "string",
+                    description = "Identifier scheme; provide when agentIdentifier is used.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                isPersistentIdentifier = list(
+                    type = "boolean",
+                    description = "Whether the identifier is intended to persist over time.",
+                    values = c("true", "false"),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                agentType = list(
+                    type = "NMTOKEN",
+                    description = "Whether the access provider is an organization or an individual.",
+                    values = c("organization", "individual"),
                     default = c(),
                     optional = TRUE,
                     recommended = FALSE,
                     deprecated = FALSE
                 )
             ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list()),
             parents = "setAvail",
             children = list(),
             title = "Location of Data Collection",
@@ -274,35 +730,83 @@ assign(
             repeatable = TRUE,
             recommended = FALSE,
             deprecated = FALSE,
-            attributes = list(),
+            attributes = list(
+                isTranslated = list(
+                    type = "boolean",
+                    description = "Whether the content is a translation rather than the original text.",
+                    values = c("true", "false"),
+                    default = "false",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                isTranslatable = list(
+                    type = "boolean",
+                    description = "Whether the content is intended to be translated.",
+                    values = c("true", "false"),
+                    default = "true",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationSourceLanguage = list(
+                    type = "string",
+                    description = "Languages or language codes of the source text, separated by spaces.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationDate = list(
+                    type = "date",
+                    description = "Date of translation, expressed as YYYY-MM-DD.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                )
+            ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list(list(
+                kind = "choice", min = 0, max = Inf, particles = list(list(
+                    kind = "sequence", min = 1, max = 1, particles = list()),
+                    list(kind = "sequence", min = 1, max = 1, particles = list()),
+                    list(kind = "sequence", min = 1, max = 1, particles = list()),
+                    list(kind = "element", min = 1, max = 1, name = "concept"),
+                    list(kind = "element", min = 1, max = 1, name = "txt"))))),
             parents = "dataColl",
             children = list(choice = c("concept", "txt")),
             title = "Actions to Minimize Losses",
-            description = "Summary of actions taken to minimize data loss. Includes information on actions such as follow-up visits, supervisory checks, historical matching, estimation, etc. This element contains the sub-element \"concept\" to support the use of an external controlled vocabulary. PLEASE NOTE A CHANGE IN USAGE INSTRUCTIONS: The string content of the element now contains the language specific label obtained from the controlled vocabulary. This allows for multiple languages through the repeated entry of the \"concept\" element. The attribute \"vocabInstanceCodeTerm\" has been added to accommodate the code term as it appears in the controlled vocabulary. See the high level documentation for a complete description of usage. Additional textual description is entered in the mixed text content or using the sub-element \"txt\".",
+            description = "Summary of actions taken to minimize data loss. Includes information on actions such as follow-up visits, supervisory checks, historical matching, estimation, etc. This element contains the sub-element \"concept\" to support the use of an external controlled vocabulary. PLEASE NOTE A CHANGE IN USAGE INSTRUCTIONS: The string content of \"concept\" now contains the language specific label obtained from the controlled vocabulary. This allows for multiple languages through the repeated entry of the \"concept\" element. The attribute \"vocabInstanceCodeTerm\" has been added to accommodate the code term as it appears in the controlled vocabulary. See the high level documentation for a complete description of usage. Additional textual description is entered in the mixed text content or using the sub-element \"txt\".",
             examples = "<actMin>To minimize the number of unresolved cases and reduce the potential nonresponse bias, four follow-up contacts were made with agencies that had not responded by various stages of the data collection process.</actMin>"
         ),
         algorithmSpecification = list(
+            type = "xs:string",
             optional = TRUE,
             repeatable = FALSE,
             recommended = FALSE,
             deprecated = FALSE,
             attributes = list(),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list()),
             parents = "dataFingerprint",
             children = list(),
-            title = "",
-            description = "",
+            title = "Algorithm Specification",
+            description = "Specification or reference describing the algorithm used to calculate the fingerprint.",
             examples = c()
         ),
         algorithmVersion = list(
+            type = "xs:string",
             optional = TRUE,
             repeatable = FALSE,
             recommended = FALSE,
             deprecated = FALSE,
             attributes = list(),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list()),
             parents = "dataFingerprint",
             children = list(),
-            title = "",
-            description = "",
+            title = "Algorithm Version",
+            description = "Version of the algorithm used to calculate the fingerprint.",
             examples = c()
         ),
         altTitl = list(
@@ -311,7 +815,49 @@ assign(
             repeatable = TRUE,
             recommended = FALSE,
             deprecated = FALSE,
-            attributes = list(),
+            attributes = list(
+                isTranslated = list(
+                    type = "boolean",
+                    description = "Whether the content is a translation rather than the original text.",
+                    values = c("true", "false"),
+                    default = "false",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                isTranslatable = list(
+                    type = "boolean",
+                    description = "Whether the content is intended to be translated.",
+                    values = c("true", "false"),
+                    default = "true",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationSourceLanguage = list(
+                    type = "string",
+                    description = "Languages or language codes of the source text, separated by spaces.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationDate = list(
+                    type = "date",
+                    description = "Date of translation, expressed as YYYY-MM-DD.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                )
+            ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list(list(
+                kind = "choice", min = 0, max = Inf, particles = list(list(
+                    kind = "sequence", min = 1, max = 1, particles = list()),
+                    list(kind = "sequence", min = 1, max = 1, particles = list()),
+                    list(kind = "sequence", min = 1, max = 1, particles = list()))))),
             parents = "titlStmt",
             children = list(),
             title = "Alternative Title",
@@ -325,6 +871,10 @@ assign(
             recommended = FALSE,
             deprecated = FALSE,
             attributes = list(),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list(list(
+                kind = "element", min = 0, max = Inf, name = "respRate"),
+                list(kind = "element", min = 0, max = Inf, name = "EstSmpErr"),
+                list(kind = "element", min = 0, max = Inf, name = "dataAppr"))),
             parents = "method",
             children = list("respRate", "EstSmpErr", "dataAppr"),
             title = "Data Appraisal",
@@ -346,8 +896,52 @@ assign(
                     optional = TRUE,
                     recommended = FALSE,
                     deprecated = TRUE
+                ),
+                isTranslated = list(
+                    type = "boolean",
+                    description = "Whether the content is a translation rather than the original text.",
+                    values = c("true", "false"),
+                    default = "false",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                isTranslatable = list(
+                    type = "boolean",
+                    description = "Whether the content is intended to be translated.",
+                    values = c("true", "false"),
+                    default = "true",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationSourceLanguage = list(
+                    type = "string",
+                    description = "Languages or language codes of the source text, separated by spaces.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationDate = list(
+                    type = "date",
+                    description = "Date of translation, expressed as YYYY-MM-DD.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
                 )
             ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list(list(
+                kind = "sequence", min = 1, max = 1, particles = list(list(
+                    kind = "choice", min = 0, max = Inf, particles = list(
+                        list(kind = "sequence", min = 1, max = 1, particles = list()),
+                        list(kind = "sequence", min = 1, max = 1, particles = list()),
+                        list(kind = "sequence", min = 1, max = 1, particles = list()),
+                        list(kind = "element", min = 1, max = 1, name = "concept"),
+                        list(kind = "element", min = 1, max = 1, name = "txt"))))))),
             parents = "sumDscr",
             children = list("concept", "txt"),
             title = "Unit of Analysis",
@@ -363,11 +957,55 @@ assign(
             repeatable = TRUE,
             recommended = FALSE,
             deprecated = FALSE,
-            attributes = list(),
+            attributes = list(
+                isTranslated = list(
+                    type = "boolean",
+                    description = "Whether the content is a translation rather than the original text.",
+                    values = c("true", "false"),
+                    default = "false",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                isTranslatable = list(
+                    type = "boolean",
+                    description = "Whether the content is intended to be translated.",
+                    values = c("true", "false"),
+                    default = "true",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationSourceLanguage = list(
+                    type = "string",
+                    description = "Languages or language codes of the source text, separated by spaces.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationDate = list(
+                    type = "date",
+                    description = "Date of translation, expressed as YYYY-MM-DD.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                )
+            ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list(list(
+                kind = "choice", min = 0, max = Inf, particles = list(list(
+                    kind = "sequence", min = 1, max = 1, particles = list()),
+                    list(kind = "sequence", min = 1, max = 1, particles = list()),
+                    list(kind = "sequence", min = 1, max = 1, particles = list()),
+                    list(kind = "element", min = 1, max = 1, name = "concept"),
+                    list(kind = "element", min = 1, max = 1, name = "txt"))))),
             parents = c("nCube", "var"),
             children = list(choice = c("concept", "txt")),
             title = "Analysis Unit",
-            description = "",
+            description = "Provides information regarding whom or what the variable or nCube describes. DDI provides a controlled vocabulary for this element: \"AnalysisUnit\". The content of the child element \"concept\" contains the language-specific label from the controlled vocabulary; \"vocabInstanceCodeTerm\" identifies its code term. Repeat the full element to provide descriptions in multiple languages.",
             examples = c("<var><anlysUnit><concept vocabInstanceCodeTerm=\"constituency\">constituency level</concept>This variable reports election returns at the constituency level.</anlysUnit></var>")
         ),
         attribute = list(
@@ -377,6 +1015,7 @@ assign(
             recommended = FALSE,
             deprecated = FALSE,
             attributes = list(),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list()),
             parents = "usage",
             children = list(),
             title = "Attribute",
@@ -426,7 +1065,7 @@ assign(
                     recommended = FALSE,
                     deprecated = FALSE
                 ),
-                isPersistantIdentifier = list(
+                isPersistentIdentifier = list(
                     type = "boolean",
                     description = "Indicate if the agent identifier is intended to be a persistent identifier",
                     values = c("true", "false"),
@@ -443,8 +1082,45 @@ assign(
                     optional = TRUE,
                     recommended = FALSE,
                     deprecated = FALSE
+                ),
+                isTranslated = list(
+                    type = "boolean",
+                    description = "Whether the content is a translation rather than the original text.",
+                    values = c("true", "false"),
+                    default = "false",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                isTranslatable = list(
+                    type = "boolean",
+                    description = "Whether the content is intended to be translated.",
+                    values = c("true", "false"),
+                    default = "true",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationSourceLanguage = list(
+                    type = "string",
+                    description = "Languages or language codes of the source text, separated by spaces.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationDate = list(
+                    type = "date",
+                    description = "Date of translation, expressed as YYYY-MM-DD.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
                 )
             ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list()),
             parents = "rspStmt",
             children = list(),
             title = "Authoring Entity/Primary Investigator",
@@ -503,7 +1179,7 @@ assign(
                     recommended = FALSE,
                     deprecated = FALSE
                 ),
-                isPersistantIdentifier = list(
+                isPersistentIdentifier = list(
                     type = "boolean",
                     description = "Indicate if the agent identifier is intended to be a persistent identifier",
                     values = c("true", "false"),
@@ -520,8 +1196,45 @@ assign(
                     optional = TRUE,
                     recommended = FALSE,
                     deprecated = FALSE
+                ),
+                isTranslated = list(
+                    type = "boolean",
+                    description = "Whether the content is a translation rather than the original text.",
+                    values = c("true", "false"),
+                    default = "false",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                isTranslatable = list(
+                    type = "boolean",
+                    description = "Whether the content is intended to be translated.",
+                    values = c("true", "false"),
+                    default = "true",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationSourceLanguage = list(
+                    type = "string",
+                    description = "Languages or language codes of the source text, separated by spaces.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationDate = list(
+                    type = "date",
+                    description = "Date of translation, expressed as YYYY-MM-DD.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
                 )
             ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list()),
             parents = "studyAuthorization",
             children = list(),
             title = "Authorizing Agency",
@@ -534,7 +1247,49 @@ assign(
             repeatable = TRUE,
             recommended = FALSE,
             deprecated = FALSE,
-            attributes = list(),
+            attributes = list(
+                isTranslated = list(
+                    type = "boolean",
+                    description = "Whether the content is a translation rather than the original text.",
+                    values = c("true", "false"),
+                    default = "false",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                isTranslatable = list(
+                    type = "boolean",
+                    description = "Whether the content is intended to be translated.",
+                    values = c("true", "false"),
+                    default = "true",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationSourceLanguage = list(
+                    type = "string",
+                    description = "Languages or language codes of the source text, separated by spaces.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationDate = list(
+                    type = "date",
+                    description = "Date of translation, expressed as YYYY-MM-DD.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                )
+            ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list(list(
+                kind = "choice", min = 0, max = Inf, particles = list(list(
+                    kind = "sequence", min = 1, max = 1, particles = list()),
+                    list(kind = "sequence", min = 1, max = 1, particles = list()),
+                    list(kind = "sequence", min = 1, max = 1, particles = list()))))),
             parents = "studyAuthorization",
             children = list(),
             title = "Authorization Statement",
@@ -547,11 +1302,55 @@ assign(
             repeatable = TRUE,
             recommended = FALSE,
             deprecated = FALSE,
-            attributes = list(),
+            attributes = list(
+                isTranslated = list(
+                    type = "boolean",
+                    description = "Whether the content is a translation rather than the original text.",
+                    values = c("true", "false"),
+                    default = "false",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                isTranslatable = list(
+                    type = "boolean",
+                    description = "Whether the content is intended to be translated.",
+                    values = c("true", "false"),
+                    default = "true",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationSourceLanguage = list(
+                    type = "string",
+                    description = "Languages or language codes of the source text, separated by spaces.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationDate = list(
+                    type = "date",
+                    description = "Date of translation, expressed as YYYY-MM-DD.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                )
+            ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list(list(
+                kind = "choice", min = 0, max = Inf, particles = list(list(
+                    kind = "sequence", min = 1, max = 1, particles = list()),
+                    list(kind = "sequence", min = 1, max = 1, particles = list()),
+                    list(kind = "sequence", min = 1, max = 1, particles = list()),
+                    list(kind = "element", min = 1, max = 1, name = "concept"),
+                    list(kind = "element", min = 1, max = 1, name = "txt"))))),
             parents = "setAvail",
             children = list(choice = c("concept", "txt")),
             title = "Availability Status",
-            description = "Statement of collection availability. An archive may need to indicate that a collection is unavailable because it is embargoed for a period of time, because it has been superseded, because a new edition is imminent, etc. It is anticipated that a controlled vocabulary will be developed for this element. This element contains the sub-element \"concept\" to support the use of an external controlled vocabulary. PLEASE NOTE A CHANGE IN USAGE INSTRUCTIONS: The string content of the element now contains the language specific label obtained from the controlled vocabulary. This allows for multiple languages through the repeated entry of the \"concept\" element. The attribute \"vocabInstanceCodeTerm\" has been added to accommodate the code term as it appears in the controlled vocabulary. See the high level documentation for a complete description of usage. Additional textual description is entered in the mixed text content or using the sub-element \"txt\".",
+            description = "Statement of collection availability. An archive may need to indicate that a collection is unavailable because it is embargoed for a period of time, because it has been superseded, because a new edition is imminent, etc. It is anticipated that a controlled vocabulary will be developed for this element. This element contains the sub-element \"concept\" to support the use of an external controlled vocabulary. PLEASE NOTE A CHANGE IN USAGE INSTRUCTIONS: The string content of \"concept\" now contains the language specific label obtained from the controlled vocabulary. This allows for multiple languages through the repeated entry of the \"concept\" element. The attribute \"vocabInstanceCodeTerm\" has been added to accommodate the code term as it appears in the controlled vocabulary. See the high level documentation for a complete description of usage. Additional textual description is entered in the mixed text content or using the sub-element \"txt\".",
             examples = c(
                 "<avlStatus>This collection is superseded by CENSUS OF POPULATION, 1880 [UNITED STATES]: PUBLIC USE SAMPLE (ICPSR 6460).</avlStatus>",
                 "<avlStatus><concept vocab=\"ICPSR_Access_Restricted\" vocabURI=\"https://www.icpsr.umich.edu/web/pages/ICPSR/access/restricted/\" vocabInstanceCodeTerm=\"1\">Secure Download</concept>Upon approval, researchers will receive an encrypted file via e-mail which they may download to the secure location specified in the application.</avlStatus>"
@@ -572,8 +1371,45 @@ assign(
                     optional = TRUE,
                     recommended = FALSE,
                     deprecated = FALSE
+                ),
+                isTranslated = list(
+                    type = "boolean",
+                    description = "Whether the content is a translation rather than the original text.",
+                    values = c("true", "false"),
+                    default = "false",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                isTranslatable = list(
+                    type = "boolean",
+                    description = "Whether the content is intended to be translated.",
+                    values = c("true", "false"),
+                    default = "true",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationSourceLanguage = list(
+                    type = "string",
+                    description = "Languages or language codes of the source text, separated by spaces.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationDate = list(
+                    type = "date",
+                    description = "Date of translation, expressed as YYYY-MM-DD.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
                 )
             ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list()),
             parents = "qstn",
             children = list(),
             title = "Backflow",
@@ -598,8 +1434,45 @@ assign(
                     optional = TRUE,
                     recommended = FALSE,
                     deprecated = FALSE
+                ),
+                isTranslated = list(
+                    type = "boolean",
+                    description = "Whether the content is a translation rather than the original text.",
+                    values = c("true", "false"),
+                    default = "false",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                isTranslatable = list(
+                    type = "boolean",
+                    description = "Whether the content is intended to be translated.",
+                    values = c("true", "false"),
+                    default = "true",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationSourceLanguage = list(
+                    type = "string",
+                    description = "Languages or language codes of the source text, separated by spaces.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationDate = list(
+                    type = "date",
+                    description = "Date of translation, expressed as YYYY-MM-DD.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
                 )
             ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list()),
             parents = c("citation", "docSrc", "fileCitation", "sourceCitation"),
             children = list(),
             title = "Bibliographic Citation",
@@ -613,6 +1486,8 @@ assign(
             recommended = FALSE,
             deprecated = FALSE,
             attributes = list(),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list(list(
+                kind = "element", min = 1, max = Inf, name = "polygon"))),
             parents = "sumDscr",
             children = list("polygon"),
             title = "Geographic Bounding Polygon",
@@ -631,7 +1506,49 @@ assign(
             repeatable = TRUE,
             recommended = FALSE,
             deprecated = FALSE,
-            attributes = list(),
+            attributes = list(
+                isTranslated = list(
+                    type = "boolean",
+                    description = "Whether the content is a translation rather than the original text.",
+                    values = c("true", "false"),
+                    default = "false",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                isTranslatable = list(
+                    type = "boolean",
+                    description = "Whether the content is intended to be translated.",
+                    values = c("true", "false"),
+                    default = "true",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationSourceLanguage = list(
+                    type = "string",
+                    description = "Languages or language codes of the source text, separated by spaces.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationDate = list(
+                    type = "date",
+                    description = "Date of translation, expressed as YYYY-MM-DD.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                )
+            ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list(list(
+                kind = "choice", min = 0, max = Inf, particles = list(list(
+                    kind = "sequence", min = 1, max = 1, particles = list()),
+                    list(kind = "sequence", min = 1, max = 1, particles = list()),
+                    list(kind = "sequence", min = 1, max = 1, particles = list()))))),
             parents = c("dimensns", "recDimnsn"),
             children = list(),
             title = "Number of cases / Record Quantity",
@@ -695,7 +1612,7 @@ assign(
                     description = "Reference to the variable(s) containing the weight used.",
                     values = c(),
                     default = c(),
-                    optional = FALSE,
+                    optional = TRUE,
                     recommended = FALSE,
                     deprecated = FALSE
                 ),
@@ -725,8 +1642,45 @@ assign(
                     optional = TRUE,
                     recommended = FALSE,
                     deprecated = FALSE
+                ),
+                isTranslated = list(
+                    type = "boolean",
+                    description = "Whether the content is a translation rather than the original text.",
+                    values = c("true", "false"),
+                    default = "false",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                isTranslatable = list(
+                    type = "boolean",
+                    description = "Whether the content is intended to be translated.",
+                    values = c("true", "false"),
+                    default = "true",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationSourceLanguage = list(
+                    type = "string",
+                    description = "Languages or language codes of the source text, separated by spaces.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationDate = list(
+                    type = "date",
+                    description = "Date of translation, expressed as YYYY-MM-DD.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
                 )
             ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list()),
             parents = c("catgry", "catgryGrp"),
             children = list(),
             title = "Category Level Statistic",
@@ -745,7 +1699,49 @@ assign(
             repeatable = FALSE,
             recommended = FALSE,
             deprecated = FALSE,
-            attributes = list(),
+            attributes = list(
+                isTranslated = list(
+                    type = "boolean",
+                    description = "Whether the content is a translation rather than the original text.",
+                    values = c("true", "false"),
+                    default = "false",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                isTranslatable = list(
+                    type = "boolean",
+                    description = "Whether the content is intended to be translated.",
+                    values = c("true", "false"),
+                    default = "true",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationSourceLanguage = list(
+                    type = "string",
+                    description = "Languages or language codes of the source text, separated by spaces.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationDate = list(
+                    type = "date",
+                    description = "Date of translation, expressed as YYYY-MM-DD.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                )
+            ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list(list(
+                kind = "choice", min = 0, max = Inf, particles = list(list(
+                    kind = "sequence", min = 1, max = 1, particles = list()),
+                    list(kind = "sequence", min = 1, max = 1, particles = list()),
+                    list(kind = "sequence", min = 1, max = 1, particles = list()))))),
             parents = "catgry",
             children = list(),
             title = "Category Value",
@@ -778,6 +1774,7 @@ assign(
                     deprecated = FALSE
                 )
             ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list()),
             parents = "var",
             children = list(),
             title = "Category Level",
@@ -868,6 +1865,12 @@ assign(
                     deprecated = FALSE
                 )
             ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list(list(
+                kind = "element", min = 0, max = 1, name = "catValu"), list(
+                kind = "element", min = 0, max = Inf, name = "labl"), list(
+                kind = "element", min = 0, max = Inf, name = "txt"), list(
+                kind = "element", min = 0, max = Inf, name = "catStat"),
+                list(kind = "element", min = 0, max = 1, name = "mrow"))),
             parents = "var",
             children = list("catValu", "labl", "txt", "catStat", "mrow"),
             title = "Category",
@@ -962,6 +1965,10 @@ assign(
                     deprecated = FALSE
                 )
             ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list(list(
+                kind = "element", min = 0, max = Inf, name = "labl"), list(
+                kind = "element", min = 0, max = Inf, name = "catStat"),
+                list(kind = "element", min = 0, max = Inf, name = "txt"))),
             parents = "var",
             children = list("labl", "catStat", "txt"),
             title = "Category Group",
@@ -974,7 +1981,49 @@ assign(
             repeatable = TRUE,
             recommended = FALSE,
             deprecated = FALSE,
-            attributes = list(),
+            attributes = list(
+                isTranslated = list(
+                    type = "boolean",
+                    description = "Whether the content is a translation rather than the original text.",
+                    values = c("true", "false"),
+                    default = "false",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                isTranslatable = list(
+                    type = "boolean",
+                    description = "Whether the content is intended to be translated.",
+                    values = c("true", "false"),
+                    default = "true",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationSourceLanguage = list(
+                    type = "string",
+                    description = "Languages or language codes of the source text, separated by spaces.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationDate = list(
+                    type = "date",
+                    description = "Date of translation, expressed as YYYY-MM-DD.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                )
+            ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list(list(
+                kind = "choice", min = 0, max = Inf, particles = list(list(
+                    kind = "sequence", min = 1, max = 1, particles = list()),
+                    list(kind = "sequence", min = 1, max = 1, particles = list()),
+                    list(kind = "sequence", min = 1, max = 1, particles = list()))))),
             parents = "useStmt",
             children = list(),
             title = "Citation Requirement",
@@ -998,6 +2047,17 @@ assign(
                     deprecated = FALSE
                 )
             ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list(list(
+                kind = "element", min = 1, max = 1, name = "titlStmt"), list(
+                kind = "element", min = 0, max = 1, name = "rspStmt"), list(
+                kind = "element", min = 0, max = 1, name = "prodStmt"), list(
+                kind = "element", min = 0, max = 1, name = "distStmt"), list(
+                kind = "element", min = 0, max = Inf, name = "serStmt"),
+                list(kind = "element", min = 0, max = Inf, name = "verStmt"),
+                list(kind = "element", min = 0, max = Inf, name = "biblCit"),
+                list(kind = "element", min = 0, max = Inf, name = "holdings"),
+                list(kind = "element", min = 0, max = Inf, name = "notes"),
+                list(kind = "sequence", min = 1, max = 1, particles = list()))),
             parents = c("docDscr", "othRefs", "otherMat", "relMat", "relPubl", "relStdy", "stdyDscr"),
             children = list("titlStmt", "rspStmt", "prodStmt", "distStmt", "serStmt", "verStmt", "biblCit", "holdings", "notes"),
             title = "Bibliographic Citation",
@@ -1027,8 +2087,45 @@ assign(
                     optional = TRUE,
                     recommended = FALSE,
                     deprecated = FALSE
+                ),
+                isTranslated = list(
+                    type = "boolean",
+                    description = "Whether the content is a translation rather than the original text.",
+                    values = c("true", "false"),
+                    default = "false",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                isTranslatable = list(
+                    type = "boolean",
+                    description = "Whether the content is intended to be translated.",
+                    values = c("true", "false"),
+                    default = "true",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationSourceLanguage = list(
+                    type = "string",
+                    description = "Languages or language codes of the source text, separated by spaces.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationDate = list(
+                    type = "date",
+                    description = "Date of translation, expressed as YYYY-MM-DD.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
                 )
             ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list()),
             parents = "dataColl",
             children = list(),
             title = "Cleaning Operations",
@@ -1041,7 +2138,49 @@ assign(
             repeatable = TRUE,
             recommended = FALSE,
             deprecated = FALSE,
-            attributes = list(),
+            attributes = list(
+                isTranslated = list(
+                    type = "boolean",
+                    description = "Whether the content is a translation rather than the original text.",
+                    values = c("true", "false"),
+                    default = "false",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                isTranslatable = list(
+                    type = "boolean",
+                    description = "Whether the content is intended to be translated.",
+                    values = c("true", "false"),
+                    default = "true",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationSourceLanguage = list(
+                    type = "string",
+                    description = "Languages or language codes of the source text, separated by spaces.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationDate = list(
+                    type = "date",
+                    description = "Date of translation, expressed as YYYY-MM-DD.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                )
+            ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list(list(
+                kind = "choice", min = 0, max = Inf, particles = list(list(
+                    kind = "sequence", min = 1, max = 1, particles = list()),
+                    list(kind = "sequence", min = 1, max = 1, particles = list()),
+                    list(kind = "sequence", min = 1, max = 1, particles = list()))))),
             parents = "var",
             children = list(),
             title = "Coder Instructions",
@@ -1137,6 +2276,12 @@ assign(
                     deprecated = FALSE
                 )
             ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list(list(
+                kind = "element", min = 0, max = Inf, name = "docDscr"),
+                list(kind = "element", min = 1, max = Inf, name = "stdyDscr"),
+                list(kind = "element", min = 0, max = Inf, name = "fileDscr"),
+                list(kind = "element", min = 0, max = Inf, name = "dataDscr"),
+                list(kind = "element", min = 0, max = Inf, name = "otherMat"))),
             parents = c(),
             children = list("docDscr", "stdyDscr", "fileDscr", "dataDscr", "otherMat"),
             title = "Codebook",
@@ -1173,6 +2318,8 @@ assign(
                     deprecated = FALSE
                 )
             ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list(list(
+                kind = "element", min = 0, max = Inf, name = "range"))),
             parents = "dmns",
             children = list("range"),
             title = "Cohort",
@@ -1212,8 +2359,45 @@ assign(
                     optional = TRUE,
                     recommended = FALSE,
                     deprecated = FALSE
+                ),
+                isTranslated = list(
+                    type = "boolean",
+                    description = "Whether the content is a translation rather than the original text.",
+                    values = c("true", "false"),
+                    default = "false",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                isTranslatable = list(
+                    type = "boolean",
+                    description = "Whether the content is intended to be translated.",
+                    values = c("true", "false"),
+                    default = "true",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationSourceLanguage = list(
+                    type = "string",
+                    description = "Languages or language codes of the source text, separated by spaces.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationDate = list(
+                    type = "date",
+                    description = "Date of translation, expressed as YYYY-MM-DD.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
                 )
             ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list()),
             parents = "sumDscr",
             children = list(),
             title = "Date of Collection",
@@ -1226,7 +2410,51 @@ assign(
             repeatable = TRUE,
             recommended = FALSE,
             deprecated = FALSE,
-            attributes = list(),
+            attributes = list(
+                isTranslated = list(
+                    type = "boolean",
+                    description = "Whether the content is a translation rather than the original text.",
+                    values = c("true", "false"),
+                    default = "false",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                isTranslatable = list(
+                    type = "boolean",
+                    description = "Whether the content is intended to be translated.",
+                    values = c("true", "false"),
+                    default = "true",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationSourceLanguage = list(
+                    type = "string",
+                    description = "Languages or language codes of the source text, separated by spaces.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationDate = list(
+                    type = "date",
+                    description = "Date of translation, expressed as YYYY-MM-DD.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                )
+            ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list(list(
+                kind = "choice", min = 0, max = Inf, particles = list(list(
+                    kind = "sequence", min = 1, max = 1, particles = list()),
+                    list(kind = "sequence", min = 1, max = 1, particles = list()),
+                    list(kind = "sequence", min = 1, max = 1, particles = list()),
+                    list(kind = "element", min = 1, max = 1, name = "concept"),
+                    list(kind = "element", min = 1, max = 1, name = "txt"))))),
             parents = "dataColl",
             children = list(choice = c("concept", "txt")),
             title = "Mode of Data Collection",
@@ -1244,7 +2472,49 @@ assign(
             repeatable = TRUE,
             recommended = FALSE,
             deprecated = FALSE,
-            attributes = list(),
+            attributes = list(
+                isTranslated = list(
+                    type = "boolean",
+                    description = "Whether the content is a translation rather than the original text.",
+                    values = c("true", "false"),
+                    default = "false",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                isTranslatable = list(
+                    type = "boolean",
+                    description = "Whether the content is intended to be translated.",
+                    values = c("true", "false"),
+                    default = "true",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationSourceLanguage = list(
+                    type = "string",
+                    description = "Languages or language codes of the source text, separated by spaces.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationDate = list(
+                    type = "date",
+                    description = "Date of translation, expressed as YYYY-MM-DD.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                )
+            ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list(list(
+                kind = "choice", min = 0, max = Inf, particles = list(list(
+                    kind = "sequence", min = 1, max = 1, particles = list()),
+                    list(kind = "sequence", min = 1, max = 1, particles = list()),
+                    list(kind = "sequence", min = 1, max = 1, particles = list()))))),
             parents = "dataColl",
             children = list(),
             title = "Characteristics of Data Collection Situation",
@@ -1257,7 +2527,49 @@ assign(
             repeatable = TRUE,
             recommended = FALSE,
             deprecated = FALSE,
-            attributes = list(),
+            attributes = list(
+                isTranslated = list(
+                    type = "boolean",
+                    description = "Whether the content is a translation rather than the original text.",
+                    values = c("true", "false"),
+                    default = "false",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                isTranslatable = list(
+                    type = "boolean",
+                    description = "Whether the content is intended to be translated.",
+                    values = c("true", "false"),
+                    default = "true",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationSourceLanguage = list(
+                    type = "string",
+                    description = "Languages or language codes of the source text, separated by spaces.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationDate = list(
+                    type = "date",
+                    description = "Date of translation, expressed as YYYY-MM-DD.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                )
+            ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list(list(
+                kind = "choice", min = 0, max = Inf, particles = list(list(
+                    kind = "sequence", min = 1, max = 1, particles = list()),
+                    list(kind = "sequence", min = 1, max = 1, particles = list()),
+                    list(kind = "sequence", min = 1, max = 1, particles = list()))))),
             parents = "setAvail",
             children = list(),
             title = "Extent of Collection",
@@ -1273,7 +2585,7 @@ assign(
             attributes = list(
                 colnum = list(
                     type = "string",
-                    description = "",
+                    description = "Specification of a column in a table group, including its name, width and alignment.",
                     values = c(),
                     default = c(),
                     optional = TRUE,
@@ -1344,6 +2656,7 @@ assign(
                     deprecated = FALSE
                 )
             ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list()),
             parents = "tgroup",
             children = list(),
             title = "Column Specification",
@@ -1437,8 +2750,45 @@ assign(
                     optional = TRUE,
                     recommended = FALSE,
                     deprecated = FALSE
+                ),
+                isTranslated = list(
+                    type = "boolean",
+                    description = "Whether the content is a translation rather than the original text.",
+                    values = c("true", "false"),
+                    default = "false",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                isTranslatable = list(
+                    type = "boolean",
+                    description = "Whether the content is intended to be translated.",
+                    values = c("true", "false"),
+                    default = "true",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationSourceLanguage = list(
+                    type = "string",
+                    description = "Languages or language codes of the source text, separated by spaces.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationDate = list(
+                    type = "date",
+                    description = "Date of translation, expressed as YYYY-MM-DD.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
                 )
             ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list()),
             parents = "setAvail",
             children = list(),
             title = "Completeness of Study Stored",
@@ -1532,8 +2882,45 @@ assign(
                     optional = TRUE,
                     recommended = FALSE,
                     deprecated = FALSE
+                ),
+                isTranslated = list(
+                    type = "boolean",
+                    description = "Whether the content is a translation rather than the original text.",
+                    values = c("true", "false"),
+                    default = "false",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                isTranslatable = list(
+                    type = "boolean",
+                    description = "Whether the content is intended to be translated.",
+                    values = c("true", "false"),
+                    default = "true",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationSourceLanguage = list(
+                    type = "string",
+                    description = "Languages or language codes of the source text, separated by spaces.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationDate = list(
+                    type = "date",
+                    description = "Date of translation, expressed as YYYY-MM-DD.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
                 )
             ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list()),
             parents = c("actMin", "anlyUnit", "anlysUnit", "avlStatus", "collMode", "dataAppr", "dataChck", "unitType", "instrumentDevelopment", "updateProcedure", "collectorTraining", "dataKind", "frequenc", "geogCover", "geogUnit", "dataProcessing", "nCubeGrp", "nation", "resInstru", "respUnit", "sampProc", "srcOrig", "stdyClas", "evaluationProcess", "timeMeth", "universe", "var", "varGrp", "weight"),
             children = list(),
             title = "Concept",
@@ -1551,7 +2938,49 @@ assign(
             repeatable = TRUE,
             recommended = FALSE,
             deprecated = FALSE,
-            attributes = list(),
+            attributes = list(
+                isTranslated = list(
+                    type = "boolean",
+                    description = "Whether the content is a translation rather than the original text.",
+                    values = c("true", "false"),
+                    default = "false",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                isTranslatable = list(
+                    type = "boolean",
+                    description = "Whether the content is intended to be translated.",
+                    values = c("true", "false"),
+                    default = "true",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationSourceLanguage = list(
+                    type = "string",
+                    description = "Languages or language codes of the source text, separated by spaces.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationDate = list(
+                    type = "date",
+                    description = "Date of translation, expressed as YYYY-MM-DD.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                )
+            ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list(list(
+                kind = "choice", min = 0, max = Inf, particles = list(list(
+                    kind = "sequence", min = 1, max = 1, particles = list()),
+                    list(kind = "sequence", min = 1, max = 1, particles = list()),
+                    list(kind = "sequence", min = 1, max = 1, particles = list()))))),
             parents = "useStmt",
             children = list(),
             title = "Conditions",
@@ -1591,8 +3020,45 @@ assign(
                     optional = TRUE,
                     recommended = FALSE,
                     deprecated = FALSE
+                ),
+                isTranslated = list(
+                    type = "boolean",
+                    description = "Whether the content is a translation rather than the original text.",
+                    values = c("true", "false"),
+                    default = "false",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                isTranslatable = list(
+                    type = "boolean",
+                    description = "Whether the content is intended to be translated.",
+                    values = c("true", "false"),
+                    default = "true",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationSourceLanguage = list(
+                    type = "string",
+                    description = "Languages or language codes of the source text, separated by spaces.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationDate = list(
+                    type = "date",
+                    description = "Date of translation, expressed as YYYY-MM-DD.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
                 )
             ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list()),
             parents = "useStmt",
             children = list(),
             title = "Confidentiality Declaration",
@@ -1654,7 +3120,7 @@ assign(
                     recommended = FALSE,
                     deprecated = FALSE
                 ),
-                isPersistantIdentifier = list(
+                isPersistentIdentifier = list(
                     type = "boolean",
                     description = "Indicate if the agent identifier is intended to be a persistent identifier",
                     values = c("true", "false"),
@@ -1671,8 +3137,45 @@ assign(
                     optional = TRUE,
                     recommended = FALSE,
                     deprecated = FALSE
+                ),
+                isTranslated = list(
+                    type = "boolean",
+                    description = "Whether the content is a translation rather than the original text.",
+                    values = c("true", "false"),
+                    default = "false",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                isTranslatable = list(
+                    type = "boolean",
+                    description = "Whether the content is intended to be translated.",
+                    values = c("true", "false"),
+                    default = "true",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationSourceLanguage = list(
+                    type = "string",
+                    description = "Languages or language codes of the source text, separated by spaces.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationDate = list(
+                    type = "date",
+                    description = "Date of translation, expressed as YYYY-MM-DD.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
                 )
             ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list()),
             parents = c("distStmt", "useStmt"),
             children = list(),
             title = "Contact Persons",
@@ -1694,8 +3197,45 @@ assign(
                     optional = TRUE,
                     recommended = FALSE,
                     deprecated = FALSE
+                ),
+                isTranslated = list(
+                    type = "boolean",
+                    description = "Whether the content is a translation rather than the original text.",
+                    values = c("true", "false"),
+                    default = "false",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                isTranslatable = list(
+                    type = "boolean",
+                    description = "Whether the content is intended to be translated.",
+                    values = c("true", "false"),
+                    default = "true",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationSourceLanguage = list(
+                    type = "string",
+                    description = "Languages or language codes of the source text, separated by spaces.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationDate = list(
+                    type = "date",
+                    description = "Date of translation, expressed as YYYY-MM-DD.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
                 )
             ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list()),
             parents = "dataColl",
             children = list(),
             title = "Control Operations",
@@ -1709,6 +3249,14 @@ assign(
             recommended = FALSE,
             deprecated = FALSE,
             attributes = list(),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list(list(
+                kind = "element", min = 0, max = 1, name = "codeListID"),
+                list(kind = "element", min = 0, max = 1, name = "codeListName"),
+                list(kind = "element", min = 0, max = 1, name = "codeListAgencyName"),
+                list(kind = "element", min = 0, max = 1, name = "codeListVersionID"),
+                list(kind = "element", min = 0, max = 1, name = "codeListURN"),
+                list(kind = "element", min = 0, max = 1, name = "codeListSchemeURN"),
+                list(kind = "element", min = 1, max = Inf, name = "usage"))),
             parents = "docDscr",
             children = list("codeListID", "codeListName", "codeListAgencyName", "codeListVersionID", "codeListURN", "codeListSchemeURN", "usage"),
             title = "Controlled Vocabulary Used",
@@ -1721,7 +3269,45 @@ assign(
             repeatable = FALSE,
             recommended = FALSE,
             deprecated = FALSE,
-            attributes = list(),
+            attributes = list(
+                isTranslated = list(
+                    type = "boolean",
+                    description = "Whether the content is a translation rather than the original text.",
+                    values = c("true", "false"),
+                    default = "false",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                isTranslatable = list(
+                    type = "boolean",
+                    description = "Whether the content is intended to be translated.",
+                    values = c("true", "false"),
+                    default = "true",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationSourceLanguage = list(
+                    type = "string",
+                    description = "Languages or language codes of the source text, separated by spaces.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationDate = list(
+                    type = "date",
+                    description = "Date of translation, expressed as YYYY-MM-DD.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                )
+            ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list()),
             parents = "controlledVocabUsed",
             children = list(),
             title = "Code List ID",
@@ -1734,7 +3320,45 @@ assign(
             repeatable = FALSE,
             recommended = FALSE,
             deprecated = FALSE,
-            attributes = list(),
+            attributes = list(
+                isTranslated = list(
+                    type = "boolean",
+                    description = "Whether the content is a translation rather than the original text.",
+                    values = c("true", "false"),
+                    default = "false",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                isTranslatable = list(
+                    type = "boolean",
+                    description = "Whether the content is intended to be translated.",
+                    values = c("true", "false"),
+                    default = "true",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationSourceLanguage = list(
+                    type = "string",
+                    description = "Languages or language codes of the source text, separated by spaces.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationDate = list(
+                    type = "date",
+                    description = "Date of translation, expressed as YYYY-MM-DD.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                )
+            ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list()),
             parents = "controlledVocabUsed",
             children = list(),
             title = "Code List Name",
@@ -1747,7 +3371,45 @@ assign(
             repeatable = FALSE,
             recommended = FALSE,
             deprecated = FALSE,
-            attributes = list(),
+            attributes = list(
+                isTranslated = list(
+                    type = "boolean",
+                    description = "Whether the content is a translation rather than the original text.",
+                    values = c("true", "false"),
+                    default = "false",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                isTranslatable = list(
+                    type = "boolean",
+                    description = "Whether the content is intended to be translated.",
+                    values = c("true", "false"),
+                    default = "true",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationSourceLanguage = list(
+                    type = "string",
+                    description = "Languages or language codes of the source text, separated by spaces.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationDate = list(
+                    type = "date",
+                    description = "Date of translation, expressed as YYYY-MM-DD.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                )
+            ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list()),
             parents = "controlledVocabUsed",
             children = list(),
             title = "Code List Agency Name",
@@ -1760,7 +3422,45 @@ assign(
             repeatable = FALSE,
             recommended = FALSE,
             deprecated = FALSE,
-            attributes = list(),
+            attributes = list(
+                isTranslated = list(
+                    type = "boolean",
+                    description = "Whether the content is a translation rather than the original text.",
+                    values = c("true", "false"),
+                    default = "false",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                isTranslatable = list(
+                    type = "boolean",
+                    description = "Whether the content is intended to be translated.",
+                    values = c("true", "false"),
+                    default = "true",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationSourceLanguage = list(
+                    type = "string",
+                    description = "Languages or language codes of the source text, separated by spaces.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationDate = list(
+                    type = "date",
+                    description = "Date of translation, expressed as YYYY-MM-DD.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                )
+            ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list()),
             parents = "controlledVocabUsed",
             children = list(),
             title = "Code List Version ID",
@@ -1773,7 +3473,45 @@ assign(
             repeatable = FALSE,
             recommended = FALSE,
             deprecated = FALSE,
-            attributes = list(),
+            attributes = list(
+                isTranslated = list(
+                    type = "boolean",
+                    description = "Whether the content is a translation rather than the original text.",
+                    values = c("true", "false"),
+                    default = "false",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                isTranslatable = list(
+                    type = "boolean",
+                    description = "Whether the content is intended to be translated.",
+                    values = c("true", "false"),
+                    default = "true",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationSourceLanguage = list(
+                    type = "string",
+                    description = "Languages or language codes of the source text, separated by spaces.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationDate = list(
+                    type = "date",
+                    description = "Date of translation, expressed as YYYY-MM-DD.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                )
+            ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list()),
             parents = "controlledVocabUsed",
             children = list(),
             title = "Code List URN",
@@ -1786,7 +3524,45 @@ assign(
             repeatable = FALSE,
             recommended = FALSE,
             deprecated = FALSE,
-            attributes = list(),
+            attributes = list(
+                isTranslated = list(
+                    type = "boolean",
+                    description = "Whether the content is a translation rather than the original text.",
+                    values = c("true", "false"),
+                    default = "false",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                isTranslatable = list(
+                    type = "boolean",
+                    description = "Whether the content is intended to be translated.",
+                    values = c("true", "false"),
+                    default = "true",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationSourceLanguage = list(
+                    type = "string",
+                    description = "Languages or language codes of the source text, separated by spaces.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationDate = list(
+                    type = "date",
+                    description = "Date of translation, expressed as YYYY-MM-DD.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                )
+            ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list()),
             parents = "controlledVocabUsed",
             children = list(),
             title = "Code List Scheme URN",
@@ -1808,8 +3584,52 @@ assign(
                     optional = TRUE,
                     recommended = FALSE,
                     deprecated = TRUE
+                ),
+                isTranslated = list(
+                    type = "boolean",
+                    description = "Whether the content is a translation rather than the original text.",
+                    values = c("true", "false"),
+                    default = "false",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                isTranslatable = list(
+                    type = "boolean",
+                    description = "Whether the content is intended to be translated.",
+                    values = c("true", "false"),
+                    default = "true",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationSourceLanguage = list(
+                    type = "string",
+                    description = "Languages or language codes of the source text, separated by spaces.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationDate = list(
+                    type = "date",
+                    description = "Date of translation, expressed as YYYY-MM-DD.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
                 )
             ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list(list(
+                kind = "sequence", min = 1, max = 1, particles = list(list(
+                    kind = "choice", min = 0, max = Inf, particles = list(
+                        list(kind = "sequence", min = 1, max = 1, particles = list()),
+                        list(kind = "sequence", min = 1, max = 1, particles = list()),
+                        list(kind = "sequence", min = 1, max = 1, particles = list()),
+                        list(kind = "element", min = 1, max = 1, name = "concept"),
+                        list(kind = "element", min = 1, max = 1, name = "txt"))))))),
             parents = "dataColl",
             children = list("concept", "txt"),
             title = "Collector Training",
@@ -1817,15 +3637,58 @@ assign(
             examples = "<collectorTraining><concept vocab=\"TrainingObject\" vocabURI=\"http://xyzdatacollection.org/vocabularies/TrainingObject\" vocabInstanceURI=\"http://xyzdatacollection.org/vocabularies/TrainingObject#InterviewerTraining\">InterviewerTraining</concept>Describe research project, describe population and sample, suggest methods and language for approaching subjects, explain questions and key terms of survey instrument.</collectorTraining>"
         ),
         complianceDescription = list(
+            type = "simpleTextType",
             optional = TRUE,
             repeatable = TRUE,
             recommended = FALSE,
             deprecated = FALSE,
-            attributes = list(),
+            attributes = list(
+                isTranslated = list(
+                    type = "boolean",
+                    description = "Whether the content is a translation rather than the original text.",
+                    values = c("true", "false"),
+                    default = "false",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                isTranslatable = list(
+                    type = "boolean",
+                    description = "Whether the content is intended to be translated.",
+                    values = c("true", "false"),
+                    default = "true",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationSourceLanguage = list(
+                    type = "string",
+                    description = "Languages or language codes of the source text, separated by spaces.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationDate = list(
+                    type = "date",
+                    description = "Date of translation, expressed as YYYY-MM-DD.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                )
+            ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list(list(
+                kind = "choice", min = 0, max = Inf, particles = list(list(
+                    kind = "sequence", min = 1, max = 1, particles = list()),
+                    list(kind = "sequence", min = 1, max = 1, particles = list()),
+                    list(kind = "sequence", min = 1, max = 1, particles = list()))))),
             parents = "standardsCompliance",
             children = list(),
-            title = "",
-            description = "",
+            title = "Compliance Description",
+            description = "Explanation of how the study complies with the identified standard.",
             examples = c()
         ),
         copyright = list(
@@ -1834,7 +3697,49 @@ assign(
             repeatable = TRUE,
             recommended = FALSE,
             deprecated = FALSE,
-            attributes = list(),
+            attributes = list(
+                isTranslated = list(
+                    type = "boolean",
+                    description = "Whether the content is a translation rather than the original text.",
+                    values = c("true", "false"),
+                    default = "false",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                isTranslatable = list(
+                    type = "boolean",
+                    description = "Whether the content is intended to be translated.",
+                    values = c("true", "false"),
+                    default = "true",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationSourceLanguage = list(
+                    type = "string",
+                    description = "Languages or language codes of the source text, separated by spaces.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationDate = list(
+                    type = "date",
+                    description = "Date of translation, expressed as YYYY-MM-DD.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                )
+            ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list(list(
+                kind = "choice", min = 0, max = Inf, particles = list(list(
+                    kind = "sequence", min = 1, max = 1, particles = list()),
+                    list(kind = "sequence", min = 1, max = 1, particles = list()),
+                    list(kind = "sequence", min = 1, max = 1, particles = list()))))),
             parents = "prodStmt",
             children = list(),
             title = "Copyright",
@@ -1876,6 +3781,7 @@ assign(
                     deprecated = FALSE
                 )
             ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list()),
             parents = "dataItem",
             children = list(),
             title = "Cube Coordinate",
@@ -1938,7 +3844,7 @@ assign(
                     recommended = FALSE,
                     deprecated = FALSE
                 ),
-                isPersistantIdentifier = list(
+                isPersistentIdentifier = list(
                     type = "boolean",
                     description = "Indicate if the agent identifier is intended to be a persistent identifier",
                     values = c("true", "false"),
@@ -1955,8 +3861,45 @@ assign(
                     optional = TRUE,
                     recommended = FALSE,
                     deprecated = FALSE
+                ),
+                isTranslated = list(
+                    type = "boolean",
+                    description = "Whether the content is a translation rather than the original text.",
+                    values = c("true", "false"),
+                    default = "false",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                isTranslatable = list(
+                    type = "boolean",
+                    description = "Whether the content is intended to be translated.",
+                    values = c("true", "false"),
+                    default = "true",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationSourceLanguage = list(
+                    type = "string",
+                    description = "Languages or language codes of the source text, separated by spaces.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationDate = list(
+                    type = "date",
+                    description = "Date of translation, expressed as YYYY-MM-DD.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
                 )
             ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list()),
             parents = "sampleFrame",
             children = list(),
             title = "Custodian",
@@ -1970,10 +3913,16 @@ assign(
             recommended = FALSE,
             deprecated = FALSE,
             attributes = list(),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list(list(
+                kind = "element", min = 0, max = Inf, name = "typeOfAccess"),
+                list(kind = "element", min = 0, max = Inf, name = "setAvail"),
+                list(kind = "element", min = 0, max = Inf, name = "license"),
+                list(kind = "element", min = 0, max = Inf, name = "useStmt"),
+                list(kind = "element", min = 0, max = Inf, name = "notes"))),
             parents = "stdyDscr",
             children = list("typeOfAccess", "setAvail", "license", "useStmt", "notes"),
             title = "Data Access",
-            description = "This section describes access conditions and terms of use for the data collection. In cases where access conditions differ across individual files or variables, multiple access conditions can be specified. In cases where access conditions differ across individual files, variables, or categories multiple access conditions can be specified. The access conditions applying to a study, file, variable group, variable or category can be indicated by an IDREF attribute on the study, file, variable group, nCube group, variable, category, or data item elements called \"access\". The member element \"typeOfAccss\" is of the type \"concept\" and is intended to provide a specific type of access. If a license applies to the data access, use the optional \"license\" element.",
+            description = "This section describes access conditions and terms of use for the data collection. In cases where access conditions differ across individual files, variables, or categories multiple access conditions can be specified. The access conditions applying to a study, file, variable group, variable or category can be indicated by an IDREF attribute on the study, file, variable group, nCube group, variable, category, or data item elements called \"access\". The member element \"typeOfAccess\" is of the type \"concept\" and is intended to provide a specific type of access. If a license applies to the data access, use the optional \"license\" element.",
             examples = c()
         ),
         dataAppr = list(
@@ -1991,8 +3940,52 @@ assign(
                     optional = TRUE,
                     recommended = FALSE,
                     deprecated = TRUE
+                ),
+                isTranslated = list(
+                    type = "boolean",
+                    description = "Whether the content is a translation rather than the original text.",
+                    values = c("true", "false"),
+                    default = "false",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                isTranslatable = list(
+                    type = "boolean",
+                    description = "Whether the content is intended to be translated.",
+                    values = c("true", "false"),
+                    default = "true",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationSourceLanguage = list(
+                    type = "string",
+                    description = "Languages or language codes of the source text, separated by spaces.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationDate = list(
+                    type = "date",
+                    description = "Date of translation, expressed as YYYY-MM-DD.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
                 )
             ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list(list(
+                kind = "sequence", min = 1, max = 1, particles = list(list(
+                    kind = "choice", min = 0, max = Inf, particles = list(
+                        list(kind = "sequence", min = 1, max = 1, particles = list()),
+                        list(kind = "sequence", min = 1, max = 1, particles = list()),
+                        list(kind = "sequence", min = 1, max = 1, particles = list()),
+                        list(kind = "element", min = 1, max = 1, name = "concept"),
+                        list(kind = "element", min = 1, max = 1, name = "txt"))))))),
             parents = "anlyInfo",
             children = list("concept", "txt"),
             title = "Other Forms of Data Appraisal",
@@ -2005,7 +3998,51 @@ assign(
             repeatable = TRUE,
             recommended = FALSE,
             deprecated = FALSE,
-            attributes = list(),
+            attributes = list(
+                isTranslated = list(
+                    type = "boolean",
+                    description = "Whether the content is a translation rather than the original text.",
+                    values = c("true", "false"),
+                    default = "false",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                isTranslatable = list(
+                    type = "boolean",
+                    description = "Whether the content is intended to be translated.",
+                    values = c("true", "false"),
+                    default = "true",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationSourceLanguage = list(
+                    type = "string",
+                    description = "Languages or language codes of the source text, separated by spaces.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationDate = list(
+                    type = "date",
+                    description = "Date of translation, expressed as YYYY-MM-DD.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                )
+            ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list(list(
+                kind = "choice", min = 0, max = Inf, particles = list(list(
+                    kind = "sequence", min = 1, max = 1, particles = list()),
+                    list(kind = "sequence", min = 1, max = 1, particles = list()),
+                    list(kind = "sequence", min = 1, max = 1, particles = list()),
+                    list(kind = "element", min = 1, max = 1, name = "concept"),
+                    list(kind = "element", min = 1, max = 1, name = "txt"))))),
             parents = "fileTxt",
             children = list(choice = c("concept", "txt")),
             title = "Extent of Processing Checks",
@@ -2032,6 +4069,24 @@ assign(
             recommended = FALSE,
             deprecated = FALSE,
             attributes = list(),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list(list(
+                kind = "element", min = 0, max = Inf, name = "timeMeth"),
+                list(kind = "element", min = 0, max = Inf, name = "dataCollector"),
+                list(kind = "element", min = 0, max = Inf, name = "collectorTraining"),
+                list(kind = "element", min = 0, max = Inf, name = "frequenc"),
+                list(kind = "element", min = 0, max = Inf, name = "sampProc"),
+                list(kind = "element", min = 0, max = Inf, name = "sampleFrame"),
+                list(kind = "element", min = 0, max = Inf, name = "targetSampleSize"),
+                list(kind = "element", min = 0, max = Inf, name = "deviat"),
+                list(kind = "element", min = 0, max = Inf, name = "collMode"),
+                list(kind = "element", min = 0, max = Inf, name = "resInstru"),
+                list(kind = "element", min = 0, max = Inf, name = "instrumentDevelopment"),
+                list(kind = "element", min = 0, max = 1, name = "sources"),
+                list(kind = "element", min = 0, max = Inf, name = "collSitu"),
+                list(kind = "element", min = 0, max = Inf, name = "actMin"),
+                list(kind = "element", min = 0, max = Inf, name = "ConOps"),
+                list(kind = "element", min = 0, max = Inf, name = "weight"),
+                list(kind = "element", min = 0, max = Inf, name = "cleanOps"))),
             parents = "method",
             children = list("timeMeth", "dataCollector", "collectorTraining", "frequenc", "sampProc", "sampleFrame", "targetSampleSize", "deviat", "collMode", "resInstru", "instrumentDevelopment", "sources", "collSitu", "actMin", "ConOps", "weight", "cleanOps"),
             title = "Data Collection Methodology",
@@ -2090,7 +4145,7 @@ assign(
                     recommended = FALSE,
                     deprecated = FALSE
                 ),
-                isPersistantIdentifier = list(
+                isPersistentIdentifier = list(
                     type = "boolean",
                     description = "Indicate if the agent identifier is intended to be a persistent identifier",
                     values = c("true", "false"),
@@ -2107,8 +4162,45 @@ assign(
                     optional = TRUE,
                     recommended = FALSE,
                     deprecated = FALSE
+                ),
+                isTranslated = list(
+                    type = "boolean",
+                    description = "Whether the content is a translation rather than the original text.",
+                    values = c("true", "false"),
+                    default = "false",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                isTranslatable = list(
+                    type = "boolean",
+                    description = "Whether the content is intended to be translated.",
+                    values = c("true", "false"),
+                    default = "true",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationSourceLanguage = list(
+                    type = "string",
+                    description = "Languages or language codes of the source text, separated by spaces.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationDate = list(
+                    type = "date",
+                    description = "Date of translation, expressed as YYYY-MM-DD.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
                 )
             ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list()),
             parents = "dataColl",
             children = list(),
             title = "Data Collector",
@@ -2132,6 +4224,12 @@ assign(
                     deprecated = FALSE
                 )
             ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list(list(
+                kind = "element", min = 0, max = Inf, name = "varGrp"), list(
+                kind = "element", min = 0, max = Inf, name = "nCubeGrp"),
+                list(kind = "element", min = 0, max = Inf, name = "var"),
+                list(kind = "element", min = 0, max = Inf, name = "nCube"),
+                list(kind = "element", min = 0, max = Inf, name = "notes"))),
             parents = "codeBook",
             children = list("varGrp", "nCubeGrp", "var", "nCube", "notes"),
             title = "Variable Description",
@@ -2159,6 +4257,10 @@ assign(
                     deprecated = FALSE
                 )
             ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list(list(
+                kind = "element", min = 1, max = 1, name = "digitalFingerprintValue"),
+                list(kind = "element", min = 0, max = 1, name = "algorithmSpecification"),
+                list(kind = "element", min = 0, max = 1, name = "algorithmVersion"))),
             parents = "fileTxt",
             children = list("digitalFingerprintValue", "algorithmSpecification", "algorithmVersion"),
             title = "Data Fingerprint",
@@ -2200,6 +4302,9 @@ assign(
                     deprecated = FALSE
                 )
             ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list(list(
+                kind = "element", min = 0, max = Inf, name = "CubeCoord"),
+                list(kind = "element", min = 0, max = Inf, name = "physLoc"))),
             parents = "locMap",
             children = list("CubeCoord", "physLoc"),
             title = "Data Item",
@@ -2224,8 +4329,52 @@ assign(
                     optional = TRUE,
                     recommended = FALSE,
                     deprecated = TRUE
+                ),
+                isTranslated = list(
+                    type = "boolean",
+                    description = "Whether the content is a translation rather than the original text.",
+                    values = c("true", "false"),
+                    default = "false",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                isTranslatable = list(
+                    type = "boolean",
+                    description = "Whether the content is intended to be translated.",
+                    values = c("true", "false"),
+                    default = "true",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationSourceLanguage = list(
+                    type = "string",
+                    description = "Languages or language codes of the source text, separated by spaces.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationDate = list(
+                    type = "date",
+                    description = "Date of translation, expressed as YYYY-MM-DD.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
                 )
             ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list(list(
+                kind = "sequence", min = 1, max = 1, particles = list(list(
+                    kind = "choice", min = 0, max = Inf, particles = list(
+                        list(kind = "sequence", min = 1, max = 1, particles = list()),
+                        list(kind = "sequence", min = 1, max = 1, particles = list()),
+                        list(kind = "sequence", min = 1, max = 1, particles = list()),
+                        list(kind = "element", min = 1, max = 1, name = "concept"),
+                        list(kind = "element", min = 1, max = 1, name = "txt"))))))),
             parents = "sumDscr",
             children = list("concept", "txt"),
             title = "Kind of Data",
@@ -2238,7 +4387,49 @@ assign(
             repeatable = TRUE,
             recommended = FALSE,
             deprecated = FALSE,
-            attributes = list(),
+            attributes = list(
+                isTranslated = list(
+                    type = "boolean",
+                    description = "Whether the content is a translation rather than the original text.",
+                    values = c("true", "false"),
+                    default = "false",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                isTranslatable = list(
+                    type = "boolean",
+                    description = "Whether the content is intended to be translated.",
+                    values = c("true", "false"),
+                    default = "true",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationSourceLanguage = list(
+                    type = "string",
+                    description = "Languages or language codes of the source text, separated by spaces.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationDate = list(
+                    type = "date",
+                    description = "Date of translation, expressed as YYYY-MM-DD.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                )
+            ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list(list(
+                kind = "choice", min = 0, max = Inf, particles = list(list(
+                    kind = "sequence", min = 1, max = 1, particles = list()),
+                    list(kind = "sequence", min = 1, max = 1, particles = list()),
+                    list(kind = "sequence", min = 1, max = 1, particles = list()))))),
             parents = "fileTxt",
             children = list(),
             title = "Missing Data",
@@ -2254,7 +4445,49 @@ assign(
             repeatable = TRUE,
             recommended = FALSE,
             deprecated = FALSE,
-            attributes = list(),
+            attributes = list(
+                isTranslated = list(
+                    type = "boolean",
+                    description = "Whether the content is a translation rather than the original text.",
+                    values = c("true", "false"),
+                    default = "false",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                isTranslatable = list(
+                    type = "boolean",
+                    description = "Whether the content is intended to be translated.",
+                    values = c("true", "false"),
+                    default = "true",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationSourceLanguage = list(
+                    type = "string",
+                    description = "Languages or language codes of the source text, separated by spaces.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationDate = list(
+                    type = "date",
+                    description = "Date of translation, expressed as YYYY-MM-DD.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                )
+            ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list(list(
+                kind = "choice", min = 0, max = Inf, particles = list(list(
+                    kind = "sequence", min = 1, max = 1, particles = list()),
+                    list(kind = "sequence", min = 1, max = 1, particles = list()),
+                    list(kind = "sequence", min = 1, max = 1, particles = list()))))),
             parents = c("sources", "resource"),
             children = list(),
             title = "Data Sources",
@@ -2270,7 +4503,49 @@ assign(
             repeatable = TRUE,
             recommended = FALSE,
             deprecated = FALSE,
-            attributes = list(),
+            attributes = list(
+                isTranslated = list(
+                    type = "boolean",
+                    description = "Whether the content is a translation rather than the original text.",
+                    values = c("true", "false"),
+                    default = "false",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                isTranslatable = list(
+                    type = "boolean",
+                    description = "Whether the content is intended to be translated.",
+                    values = c("true", "false"),
+                    default = "true",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationSourceLanguage = list(
+                    type = "string",
+                    description = "Languages or language codes of the source text, separated by spaces.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationDate = list(
+                    type = "date",
+                    description = "Date of translation, expressed as YYYY-MM-DD.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                )
+            ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list(list(
+                kind = "choice", min = 0, max = Inf, particles = list(list(
+                    kind = "sequence", min = 1, max = 1, particles = list()),
+                    list(kind = "sequence", min = 1, max = 1, particles = list()),
+                    list(kind = "sequence", min = 1, max = 1, particles = list()))))),
             parents = c("nCubeGrp", "varGrp"),
             children = list(),
             title = "Definition",
@@ -2295,8 +4570,45 @@ assign(
                     optional = TRUE,
                     recommended = FALSE,
                     deprecated = FALSE
+                ),
+                isTranslated = list(
+                    type = "boolean",
+                    description = "Whether the content is a translation rather than the original text.",
+                    values = c("true", "false"),
+                    default = "false",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                isTranslatable = list(
+                    type = "boolean",
+                    description = "Whether the content is intended to be translated.",
+                    values = c("true", "false"),
+                    default = "true",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationSourceLanguage = list(
+                    type = "string",
+                    description = "Languages or language codes of the source text, separated by spaces.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationDate = list(
+                    type = "date",
+                    description = "Date of translation, expressed as YYYY-MM-DD.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
                 )
             ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list()),
             parents = "distStmt",
             children = list(),
             title = "Date of Deposit",
@@ -2309,7 +4621,49 @@ assign(
             repeatable = TRUE,
             recommended = FALSE,
             deprecated = FALSE,
-            attributes = list(),
+            attributes = list(
+                isTranslated = list(
+                    type = "boolean",
+                    description = "Whether the content is a translation rather than the original text.",
+                    values = c("true", "false"),
+                    default = "false",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                isTranslatable = list(
+                    type = "boolean",
+                    description = "Whether the content is intended to be translated.",
+                    values = c("true", "false"),
+                    default = "true",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationSourceLanguage = list(
+                    type = "string",
+                    description = "Languages or language codes of the source text, separated by spaces.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationDate = list(
+                    type = "date",
+                    description = "Date of translation, expressed as YYYY-MM-DD.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                )
+            ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list(list(
+                kind = "choice", min = 0, max = Inf, particles = list(list(
+                    kind = "sequence", min = 1, max = 1, particles = list()),
+                    list(kind = "sequence", min = 1, max = 1, particles = list()),
+                    list(kind = "sequence", min = 1, max = 1, particles = list()))))),
             parents = "useStmt",
             children = list(),
             title = "Deposit Requirement",
@@ -2359,7 +4713,7 @@ assign(
                     recommended = FALSE,
                     deprecated = FALSE
                 ),
-                isPersistantIdentifier = list(
+                isPersistentIdentifier = list(
                     type = "boolean",
                     description = "Indicate if the agent identifier is intended to be a persistent identifier",
                     values = c("true", "false"),
@@ -2376,8 +4730,45 @@ assign(
                     optional = TRUE,
                     recommended = FALSE,
                     deprecated = FALSE
+                ),
+                isTranslated = list(
+                    type = "boolean",
+                    description = "Whether the content is a translation rather than the original text.",
+                    values = c("true", "false"),
+                    default = "false",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                isTranslatable = list(
+                    type = "boolean",
+                    description = "Whether the content is intended to be translated.",
+                    values = c("true", "false"),
+                    default = "true",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationSourceLanguage = list(
+                    type = "string",
+                    description = "Languages or language codes of the source text, separated by spaces.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationDate = list(
+                    type = "date",
+                    description = "Date of translation, expressed as YYYY-MM-DD.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
                 )
             ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list()),
             parents = "distStmt",
             children = list(),
             title = "Depositor",
@@ -2401,6 +4792,10 @@ assign(
                     deprecated = FALSE
                 )
             ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list(list(
+                kind = "element", min = 0, max = Inf, name = "varRange"),
+                list(kind = "element", min = 0, max = Inf, name = "drvdesc"),
+                list(kind = "element", min = 0, max = Inf, name = "drvcmd"))),
             parents = "var",
             children = list("varRange", "drvdesc", "drvcmd"),
             title = "Derivation",
@@ -2408,15 +4803,58 @@ assign(
             examples = "<derivation var=\"V4 V9\"><drvdesc>Taxible Income (V10) expressed as a combination of wage and salary income (V4) plus interest income (V9)</drvdesc><drvcmd syntax=\"SPSS\">V10=V4+V9</drvcmd></derivation>"
         ),
         description = list(
+            type = "simpleTextType",
             optional = TRUE,
             repeatable = TRUE,
             recommended = FALSE,
             deprecated = FALSE,
-            attributes = list(),
+            attributes = list(
+                isTranslated = list(
+                    type = "boolean",
+                    description = "Whether the content is a translation rather than the original text.",
+                    values = c("true", "false"),
+                    default = "false",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                isTranslatable = list(
+                    type = "boolean",
+                    description = "Whether the content is intended to be translated.",
+                    values = c("true", "false"),
+                    default = "true",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationSourceLanguage = list(
+                    type = "string",
+                    description = "Languages or language codes of the source text, separated by spaces.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationDate = list(
+                    type = "date",
+                    description = "Date of translation, expressed as YYYY-MM-DD.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                )
+            ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list(list(
+                kind = "choice", min = 0, max = Inf, particles = list(list(
+                    kind = "sequence", min = 1, max = 1, particles = list()),
+                    list(kind = "sequence", min = 1, max = 1, particles = list()),
+                    list(kind = "sequence", min = 1, max = 1, particles = list()))))),
             parents = "developmentActivity",
             children = list(),
-            title = "",
-            description = "",
+            title = "Development Activity Description",
+            description = "Description of the development activity.",
             examples = c()
         ),
         developmentActivity = list(
@@ -2436,10 +4874,16 @@ assign(
                     deprecated = TRUE
                 )
             ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list(list(
+                kind = "element", min = 0, max = Inf, name = "typeOfDevelopmentActivity"),
+                list(kind = "element", min = 0, max = Inf, name = "description"),
+                list(kind = "element", min = 0, max = Inf, name = "participant"),
+                list(kind = "element", min = 0, max = Inf, name = "resource"),
+                list(kind = "element", min = 0, max = Inf, name = "outcome"))),
             parents = "studyDevelopment",
             children = list("typeOfDevelopmentActivity", "description", "participant", "resource", "outcome"),
             title = "Development Activity",
-            description = "Information on the development activity including a description, set of participants, resources used, and outcomes. Use of the \"type\" attribute has been DEPRECATED. Use the element typeOfSetAvailability which supports the use of a controlled vocabulary. Repeat if multiple language labels are being provided directly within the documentation.",
+            description = "Information on the development activity including a description, set of participants, resources used, and outcomes. Use of the \"type\" attribute has been DEPRECATED. Use the element typeOfDevelopmentActivity which supports the use of a controlled vocabulary. Repeat if multiple language labels are being provided directly within the documentation.",
             examples = "<developmentActivity><typeOfDevelopmentActivity vocab=\"LifecycleEventType\" vocabURI=\"https://www.ddialliance.org/Specification/DDI-CV/LifecycleEventType_1.0.html\">QuestionnaireTranslation</typeOfDevelopmentActivity><typeOfDevelopmentActivity vocab=\"DIME Questionnaire Translation\" vocabURI=\"https://dimewiki.worldbank.org/index.php?title=Questionnaire_Translation&amp;oldid=8152\">Forward Translation</typeOfDevelopmentActivity><description>Translation from language A to language B of question and response text. Language experts are used. Translation is tested through round-trip translation practices. Translated question will be tested for response consistency with original language text.</description><participant affiliation=\"ISRDI\" role=\"language exert\">Ragi Yousef</participant><resource><srcCitation><titlStmt><titl>Labor Force Survey 2017-2018</titl></titlStmt><holding><URI>https://www.ilo.org/surveyLib/index.php/catalog/2549/related-materials</URI></holding></srcCitation></resource><outcome>Translated question resulted in valid replication of original language in the round trip test. Translated question resulted in statistically similar results as original language question following testing.</outcome></developmentActivity>"
         ),
         deviat = list(
@@ -2448,7 +4892,49 @@ assign(
             repeatable = TRUE,
             recommended = FALSE,
             deprecated = FALSE,
-            attributes = list(),
+            attributes = list(
+                isTranslated = list(
+                    type = "boolean",
+                    description = "Whether the content is a translation rather than the original text.",
+                    values = c("true", "false"),
+                    default = "false",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                isTranslatable = list(
+                    type = "boolean",
+                    description = "Whether the content is intended to be translated.",
+                    values = c("true", "false"),
+                    default = "true",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationSourceLanguage = list(
+                    type = "string",
+                    description = "Languages or language codes of the source text, separated by spaces.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationDate = list(
+                    type = "date",
+                    description = "Date of translation, expressed as YYYY-MM-DD.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                )
+            ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list(list(
+                kind = "choice", min = 0, max = Inf, particles = list(list(
+                    kind = "sequence", min = 1, max = 1, particles = list()),
+                    list(kind = "sequence", min = 1, max = 1, particles = list()),
+                    list(kind = "sequence", min = 1, max = 1, particles = list()))))),
             parents = "dataColl",
             children = list(),
             title = "Major Deviations from the Sample Design",
@@ -2456,15 +4942,17 @@ assign(
             examples = "<deviat>The suitability of Ohio as a research site reflected its similarity to the United States as a whole. The evidence extended by Tuchfarber (1988) shows that Ohio is representative of the United States in several ways: percent urban and rural, percent of the population that is African American, median age, per capita income, percent living below the poverty level, and unemployment rate. Although results generated from an Ohio sample are not empirically generalizable to the United States, they may be suggestive of what might be expected nationally.</deviat>"
         ),
         digitalFingerprintValue = list(
+            type = "xs:string",
             optional = FALSE,
             repeatable = FALSE,
             recommended = FALSE,
             deprecated = FALSE,
             attributes = list(),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list()),
             parents = "dataFingerprint",
             children = list(),
-            title = "",
-            description = "",
+            title = "Digital Fingerprint Value",
+            description = "Fingerprint value identifying the data or file described by the enclosing dataFingerprint element.",
             examples = c()
         ),
         dimensns = list(
@@ -2474,6 +4962,12 @@ assign(
             recommended = FALSE,
             deprecated = FALSE,
             attributes = list(),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list(list(
+                kind = "element", min = 0, max = Inf, name = "caseQnty"),
+                list(kind = "element", min = 0, max = Inf, name = "varQnty"),
+                list(kind = "element", min = 0, max = Inf, name = "logRecL"),
+                list(kind = "element", min = 0, max = Inf, name = "recPrCas"),
+                list(kind = "element", min = 0, max = Inf, name = "recNumTot"))),
             parents = "fileTxt",
             children = list("caseQnty", "varQnty", "logRecL", "recPrCas", "recNumTot"),
             title = "File Dimensions",
@@ -2486,7 +4980,49 @@ assign(
             repeatable = TRUE,
             recommended = FALSE,
             deprecated = FALSE,
-            attributes = list(),
+            attributes = list(
+                isTranslated = list(
+                    type = "boolean",
+                    description = "Whether the content is a translation rather than the original text.",
+                    values = c("true", "false"),
+                    default = "false",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                isTranslatable = list(
+                    type = "boolean",
+                    description = "Whether the content is intended to be translated.",
+                    values = c("true", "false"),
+                    default = "true",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationSourceLanguage = list(
+                    type = "string",
+                    description = "Languages or language codes of the source text, separated by spaces.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationDate = list(
+                    type = "date",
+                    description = "Date of translation, expressed as YYYY-MM-DD.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                )
+            ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list(list(
+                kind = "choice", min = 0, max = Inf, particles = list(list(
+                    kind = "sequence", min = 1, max = 1, particles = list()),
+                    list(kind = "sequence", min = 1, max = 1, particles = list()),
+                    list(kind = "sequence", min = 1, max = 1, particles = list()))))),
             parents = "useStmt",
             children = list(),
             title = "Disclaimer",
@@ -2508,8 +5044,45 @@ assign(
                     optional = TRUE,
                     recommended = FALSE,
                     deprecated = FALSE
+                ),
+                isTranslated = list(
+                    type = "boolean",
+                    description = "Whether the content is a translation rather than the original text.",
+                    values = c("true", "false"),
+                    default = "false",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                isTranslatable = list(
+                    type = "boolean",
+                    description = "Whether the content is intended to be translated.",
+                    values = c("true", "false"),
+                    default = "true",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationSourceLanguage = list(
+                    type = "string",
+                    description = "Languages or language codes of the source text, separated by spaces.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationDate = list(
+                    type = "date",
+                    description = "Date of translation, expressed as YYYY-MM-DD.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
                 )
             ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list()),
             parents = "distStmt",
             children = list(),
             title = "Date of Distribution",
@@ -2523,6 +5096,12 @@ assign(
             recommended = FALSE,
             deprecated = FALSE,
             attributes = list(),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list(list(
+                kind = "element", min = 0, max = Inf, name = "distrbtr"),
+                list(kind = "element", min = 0, max = Inf, name = "contact"),
+                list(kind = "element", min = 0, max = Inf, name = "depositr"),
+                list(kind = "element", min = 0, max = Inf, name = "depDate"),
+                list(kind = "element", min = 0, max = Inf, name = "distDate"))),
             parents = c("citation", "docSrc", "fileCitation", "sourceCitation"),
             children = list("distrbtr", "contact", "depositr", "depDate", "distDate"),
             title = "Distributor Statement",
@@ -2581,7 +5160,7 @@ assign(
                     recommended = FALSE,
                     deprecated = FALSE
                 ),
-                isPersistantIdentifier = list(
+                isPersistentIdentifier = list(
                     type = "boolean",
                     description = "Indicate if the agent identifier is intended to be a persistent identifier",
                     values = c("true", "false"),
@@ -2598,8 +5177,45 @@ assign(
                     optional = TRUE,
                     recommended = FALSE,
                     deprecated = FALSE
+                ),
+                isTranslated = list(
+                    type = "boolean",
+                    description = "Whether the content is a translation rather than the original text.",
+                    values = c("true", "false"),
+                    default = "false",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                isTranslatable = list(
+                    type = "boolean",
+                    description = "Whether the content is intended to be translated.",
+                    values = c("true", "false"),
+                    default = "true",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationSourceLanguage = list(
+                    type = "string",
+                    description = "Languages or language codes of the source text, separated by spaces.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationDate = list(
+                    type = "date",
+                    description = "Date of translation, expressed as YYYY-MM-DD.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
                 )
             ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list()),
             parents = "distStmt",
             children = list(),
             title = "Distributor",
@@ -2635,6 +5251,8 @@ assign(
                     deprecated = FALSE
                 )
             ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list(list(
+                kind = "element", min = 0, max = Inf, name = "cohort"))),
             parents = "nCube",
             children = list("cohort"),
             title = "Dimension",
@@ -2658,6 +5276,13 @@ assign(
                     deprecated = FALSE
                 )
             ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list(list(
+                kind = "element", min = 0, max = 1, name = "citation"), list(
+                kind = "element", min = 0, max = Inf, name = "guide"), list(
+                kind = "element", min = 0, max = Inf, name = "docStatus"),
+                list(kind = "element", min = 0, max = Inf, name = "docSrc"),
+                list(kind = "element", min = 0, max = Inf, name = "controlledVocabUsed"),
+                list(kind = "element", min = 0, max = Inf, name = "notes"))),
             parents = "codeBook",
             children = list("citation", "guide", "docStatus", "docSrc", "controlledVocabUsed", "notes"),
             title = "Document Description",
@@ -2681,6 +5306,17 @@ assign(
                     deprecated = FALSE
                 )
             ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list(list(
+                kind = "element", min = 1, max = 1, name = "titlStmt"), list(
+                kind = "element", min = 0, max = 1, name = "rspStmt"), list(
+                kind = "element", min = 0, max = 1, name = "prodStmt"), list(
+                kind = "element", min = 0, max = 1, name = "distStmt"), list(
+                kind = "element", min = 0, max = Inf, name = "serStmt"),
+                list(kind = "element", min = 0, max = Inf, name = "verStmt"),
+                list(kind = "element", min = 0, max = Inf, name = "biblCit"),
+                list(kind = "element", min = 0, max = Inf, name = "holdings"),
+                list(kind = "element", min = 0, max = Inf, name = "notes"),
+                list(kind = "sequence", min = 1, max = 1, particles = list()))),
             parents = "docDscr",
             children = list("titlStmt", "rspStmt", "prodStmt", "distStmt", "serStmt", "verStmt", "biblCit", "holdings", "notes"),
             title = "Documentation Source",
@@ -2774,8 +5410,45 @@ assign(
                     optional = TRUE,
                     recommended = FALSE,
                     deprecated = FALSE
+                ),
+                isTranslated = list(
+                    type = "boolean",
+                    description = "Whether the content is a translation rather than the original text.",
+                    values = c("true", "false"),
+                    default = "false",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                isTranslatable = list(
+                    type = "boolean",
+                    description = "Whether the content is intended to be translated.",
+                    values = c("true", "false"),
+                    default = "true",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationSourceLanguage = list(
+                    type = "string",
+                    description = "Languages or language codes of the source text, separated by spaces.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationDate = list(
+                    type = "date",
+                    description = "Date of translation, expressed as YYYY-MM-DD.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
                 )
             ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list()),
             parents = "docDscr",
             children = list(),
             title = "Documentation Status",
@@ -2797,8 +5470,45 @@ assign(
                     optional = TRUE,
                     recommended = FALSE,
                     deprecated = FALSE
+                ),
+                isTranslated = list(
+                    type = "boolean",
+                    description = "Whether the content is a translation rather than the original text.",
+                    values = c("true", "false"),
+                    default = "false",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                isTranslatable = list(
+                    type = "boolean",
+                    description = "Whether the content is intended to be translated.",
+                    values = c("true", "false"),
+                    default = "true",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationSourceLanguage = list(
+                    type = "string",
+                    description = "Languages or language codes of the source text, separated by spaces.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationDate = list(
+                    type = "date",
+                    description = "Date of translation, expressed as YYYY-MM-DD.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
                 )
             ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list()),
             parents = c("derivation", "fileCommand"),
             children = list(),
             title = "Derivation Command",
@@ -2811,7 +5521,49 @@ assign(
             repeatable = TRUE,
             recommended = FALSE,
             deprecated = FALSE,
-            attributes = list(),
+            attributes = list(
+                isTranslated = list(
+                    type = "boolean",
+                    description = "Whether the content is a translation rather than the original text.",
+                    values = c("true", "false"),
+                    default = "false",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                isTranslatable = list(
+                    type = "boolean",
+                    description = "Whether the content is intended to be translated.",
+                    values = c("true", "false"),
+                    default = "true",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationSourceLanguage = list(
+                    type = "string",
+                    description = "Languages or language codes of the source text, separated by spaces.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationDate = list(
+                    type = "date",
+                    description = "Date of translation, expressed as YYYY-MM-DD.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                )
+            ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list(list(
+                kind = "choice", min = 0, max = Inf, particles = list(list(
+                    kind = "sequence", min = 1, max = 1, particles = list()),
+                    list(kind = "sequence", min = 1, max = 1, particles = list()),
+                    list(kind = "sequence", min = 1, max = 1, particles = list()))))),
             parents = c("derivation", "fileCommand"),
             children = list(),
             title = "Derivation Description",
@@ -2824,7 +5576,47 @@ assign(
             repeatable = FALSE,
             recommended = FALSE,
             deprecated = FALSE,
-            attributes = list(),
+            attributes = list(
+                isTranslated = list(
+                    type = "boolean",
+                    description = "Whether the content is a translation rather than the original text.",
+                    values = c("true", "false"),
+                    default = "false",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                isTranslatable = list(
+                    type = "boolean",
+                    description = "Whether the content is intended to be translated.",
+                    values = c("true", "false"),
+                    default = "true",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationSourceLanguage = list(
+                    type = "string",
+                    description = "Languages or language codes of the source text, separated by spaces.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationDate = list(
+                    type = "date",
+                    description = "Date of translation, expressed as YYYY-MM-DD.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                )
+            ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list(list(
+                kind = "choice", min = 0, max = Inf, particles = list(list(
+                    kind = "sequence", min = 1, max = 1, particles = list()))))),
             parents = "geoBndBox",
             children = list(),
             title = "East Bounding Longitude",
@@ -2864,8 +5656,45 @@ assign(
                     optional = TRUE,
                     recommended = FALSE,
                     deprecated = FALSE
+                ),
+                isTranslated = list(
+                    type = "boolean",
+                    description = "Whether the content is a translation rather than the original text.",
+                    values = c("true", "false"),
+                    default = "false",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                isTranslatable = list(
+                    type = "boolean",
+                    description = "Whether the content is intended to be translated.",
+                    values = c("true", "false"),
+                    default = "true",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationSourceLanguage = list(
+                    type = "string",
+                    description = "Languages or language codes of the source text, separated by spaces.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationDate = list(
+                    type = "date",
+                    description = "Date of translation, expressed as YYYY-MM-DD.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
                 )
             ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list()),
             parents = c("nCube", "var"),
             children = list(),
             title = "Embargo",
@@ -2884,7 +5713,7 @@ assign(
             attributes = list(
                 colname = list(
                     type = "NMTOKEN",
-                    description = "",
+                    description = "Content of a cell in a table row, with attributes for alignment and spanning rows or columns.",
                     values = c(),
                     default = c(),
                     optional = TRUE,
@@ -2971,8 +5800,45 @@ assign(
                     optional = TRUE,
                     recommended = FALSE,
                     deprecated = FALSE
+                ),
+                isTranslated = list(
+                    type = "boolean",
+                    description = "Whether the content is a translation rather than the original text.",
+                    values = c("true", "false"),
+                    default = "false",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                isTranslatable = list(
+                    type = "boolean",
+                    description = "Whether the content is intended to be translated.",
+                    values = c("true", "false"),
+                    default = "true",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationSourceLanguage = list(
+                    type = "string",
+                    description = "Languages or language codes of the source text, separated by spaces.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationDate = list(
+                    type = "date",
+                    description = "Date of translation, expressed as YYYY-MM-DD.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
                 )
             ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list()),
             parents = "row",
             children = list(),
             title = "Table Entry",
@@ -2985,7 +5851,49 @@ assign(
             repeatable = TRUE,
             recommended = FALSE,
             deprecated = FALSE,
-            attributes = list(),
+            attributes = list(
+                isTranslated = list(
+                    type = "boolean",
+                    description = "Whether the content is a translation rather than the original text.",
+                    values = c("true", "false"),
+                    default = "false",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                isTranslatable = list(
+                    type = "boolean",
+                    description = "Whether the content is intended to be translated.",
+                    values = c("true", "false"),
+                    default = "true",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationSourceLanguage = list(
+                    type = "string",
+                    description = "Languages or language codes of the source text, separated by spaces.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationDate = list(
+                    type = "date",
+                    description = "Date of translation, expressed as YYYY-MM-DD.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                )
+            ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list(list(
+                kind = "choice", min = 0, max = Inf, particles = list(list(
+                    kind = "sequence", min = 1, max = 1, particles = list()),
+                    list(kind = "sequence", min = 1, max = 1, particles = list()),
+                    list(kind = "sequence", min = 1, max = 1, particles = list()))))),
             parents = "anlyInfo",
             children = list(),
             title = "Estimates of Sampling Error",
@@ -3044,7 +5952,7 @@ assign(
                     recommended = FALSE,
                     deprecated = FALSE
                 ),
-                isPersistantIdentifier = list(
+                isPersistentIdentifier = list(
                     type = "boolean",
                     description = "Indicate if the agent identifier is intended to be a persistent identifier",
                     values = c("true", "false"),
@@ -3061,8 +5969,45 @@ assign(
                     optional = TRUE,
                     recommended = FALSE,
                     deprecated = FALSE
+                ),
+                isTranslated = list(
+                    type = "boolean",
+                    description = "Whether the content is a translation rather than the original text.",
+                    values = c("true", "false"),
+                    default = "false",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                isTranslatable = list(
+                    type = "boolean",
+                    description = "Whether the content is intended to be translated.",
+                    values = c("true", "false"),
+                    default = "true",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationSourceLanguage = list(
+                    type = "string",
+                    description = "Languages or language codes of the source text, separated by spaces.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationDate = list(
+                    type = "date",
+                    description = "Date of translation, expressed as YYYY-MM-DD.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
                 )
             ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list()),
             parents = "exPostEvaluation",
             children = list(),
             title = "Evaluator Type",
@@ -3075,7 +6020,51 @@ assign(
             repeatable = TRUE,
             recommended = FALSE,
             deprecated = FALSE,
-            attributes = list(),
+            attributes = list(
+                isTranslated = list(
+                    type = "boolean",
+                    description = "Whether the content is a translation rather than the original text.",
+                    values = c("true", "false"),
+                    default = "false",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                isTranslatable = list(
+                    type = "boolean",
+                    description = "Whether the content is intended to be translated.",
+                    values = c("true", "false"),
+                    default = "true",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationSourceLanguage = list(
+                    type = "string",
+                    description = "Languages or language codes of the source text, separated by spaces.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationDate = list(
+                    type = "date",
+                    description = "Date of translation, expressed as YYYY-MM-DD.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                )
+            ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list(list(
+                kind = "choice", min = 0, max = Inf, particles = list(list(
+                    kind = "sequence", min = 1, max = 1, particles = list()),
+                    list(kind = "sequence", min = 1, max = 1, particles = list()),
+                    list(kind = "sequence", min = 1, max = 1, particles = list()),
+                    list(kind = "element", min = 1, max = 1, name = "concept"),
+                    list(kind = "element", min = 1, max = 1, name = "txt"))))),
             parents = "exPostEvaluation",
             children = list(choice = c("concept", "txt")),
             title = "Evaluation Process",
@@ -3108,6 +6097,11 @@ assign(
                     deprecated = TRUE
                 )
             ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list(list(
+                kind = "element", min = 0, max = Inf, name = "typeOfExPostEvaluation"),
+                list(kind = "element", min = 0, max = Inf, name = "evaluator"),
+                list(kind = "element", min = 0, max = Inf, name = "evaluationProcess"),
+                list(kind = "element", min = 0, max = Inf, name = "outcomes"))),
             parents = "stdyInfo",
             children = list("typeOfExPostEvaluation", "evaluator", "evaluationProcess", "outcomes"),
             title = "Post Evaluation Procedures",
@@ -3131,13 +6125,17 @@ assign(
                     deprecated = FALSE
                 )
             ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list(list(
+                kind = "element", min = 0, max = 1, name = "drvdesc"), list(
+                kind = "element", min = 1, max = Inf, name = "drvcmd"), list(
+                kind = "element", min = 0, max = 1, name = "fileDerivationVars"))),
             parents = "fileDerivation",
             children = list("drvdesc", "drvcmd", "fileDerivationVars"),
             title = "File Command",
             description = c(
-                "The element allows for the description of the file command by capturing a textual description of the command including the capture of pseudo code in \"drvdesc\" as well as the specific command using \"drvcmd\". Follow the same convention as the variable derivation; source=\"producer\" holds original and source=\"archive\" holds the SDTD.",
-                "Provide linkage to source and target variables that were involved in this derivation command in \"fileDerivationVars\". Basically, any dropped variable from the source will only be identified and referenced here. A variable that is kept and unchanged, will have a derivation pointing to it source, but the specific command which led to its retention will only be identified here at the file level. Variables created by a file level command will be linked here, and their derivation elements will repeat the command.",
-                "If applicable, use the values \"add\" or \"drop\" if this command added or dropped cases from the referenced source files."
+                "The element allows for the description of the file command by capturing a textual description of the command including the capture of pseudo code in \"drvdesc\" as well as the specific command using \"drvcmd\". Follow the same convention as the variable derivation; source=\"producer\" holds original and source=\"archive\" holds the SDTL.",
+                "Provide linkage to source and target variables that were involved in this derivation command in \"fileDerivationVars\". Basically, any dropped variable from the source will only be identified and referenced here. A variable that is kept and unchanged, will have a derivation pointing to its source, but the specific command which led to its retention will only be identified here at the file level. Variables created by a file level command will be linked here, and their derivation elements will repeat the command.",
+                "If applicable, use the values \"add\" or \"drop\" in the attribute \"fileDerivationCasesAction\" if this command added or dropped cases from the referenced source files."
             ),
             examples = c()
         ),
@@ -3158,6 +6156,8 @@ assign(
                     deprecated = FALSE
                 )
             ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list(list(
+                kind = "element", min = 0, max = Inf, name = "fileCommand"))),
             parents = "fileDscr",
             children = list("fileCommand"),
             title = "File Derivation",
@@ -3221,6 +6221,7 @@ assign(
                     deprecated = FALSE
                 )
             ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list()),
             parents = "fileCommand",
             children = list(),
             title = "File Derivation Variables",
@@ -3233,7 +6234,49 @@ assign(
             repeatable = TRUE,
             recommended = FALSE,
             deprecated = FALSE,
-            attributes = list(),
+            attributes = list(
+                isTranslated = list(
+                    type = "boolean",
+                    description = "Whether the content is a translation rather than the original text.",
+                    values = c("true", "false"),
+                    default = "false",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                isTranslatable = list(
+                    type = "boolean",
+                    description = "Whether the content is intended to be translated.",
+                    values = c("true", "false"),
+                    default = "true",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationSourceLanguage = list(
+                    type = "string",
+                    description = "Languages or language codes of the source text, separated by spaces.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationDate = list(
+                    type = "date",
+                    description = "Date of translation, expressed as YYYY-MM-DD.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                )
+            ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list(list(
+                kind = "choice", min = 0, max = Inf, particles = list(list(
+                    kind = "sequence", min = 1, max = 1, particles = list()),
+                    list(kind = "sequence", min = 1, max = 1, particles = list()),
+                    list(kind = "sequence", min = 1, max = 1, particles = list()))))),
             parents = "fileTxt",
             children = list(),
             title = "Contents of Files",
@@ -3293,6 +6336,11 @@ assign(
                     deprecated = FALSE
                 )
             ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list(list(
+                kind = "element", min = 0, max = Inf, name = "fileTxt"),
+                list(kind = "element", min = 0, max = 1, name = "fileDerivation"),
+                list(kind = "element", min = 0, max = 1, name = "locMap"),
+                list(kind = "element", min = 0, max = Inf, name = "notes"))),
             parents = "codeBook",
             children = list("fileTxt", "fileDerivation", "locMap", "notes"),
             title = "Data Files Description",
@@ -3311,7 +6359,49 @@ assign(
             repeatable = TRUE,
             recommended = TRUE,
             deprecated = FALSE,
-            attributes = list(),
+            attributes = list(
+                isTranslated = list(
+                    type = "boolean",
+                    description = "Whether the content is a translation rather than the original text.",
+                    values = c("true", "false"),
+                    default = "false",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                isTranslatable = list(
+                    type = "boolean",
+                    description = "Whether the content is intended to be translated.",
+                    values = c("true", "false"),
+                    default = "true",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationSourceLanguage = list(
+                    type = "string",
+                    description = "Languages or language codes of the source text, separated by spaces.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationDate = list(
+                    type = "date",
+                    description = "Date of translation, expressed as YYYY-MM-DD.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                )
+            ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list(list(
+                kind = "choice", min = 0, max = Inf, particles = list(list(
+                    kind = "sequence", min = 1, max = 1, particles = list()),
+                    list(kind = "sequence", min = 1, max = 1, particles = list()),
+                    list(kind = "sequence", min = 1, max = 1, particles = list()))))),
             parents = "fileTxt",
             children = list(),
             title = "File Name",
@@ -3324,7 +6414,49 @@ assign(
             repeatable = TRUE,
             recommended = FALSE,
             deprecated = FALSE,
-            attributes = list(),
+            attributes = list(
+                isTranslated = list(
+                    type = "boolean",
+                    description = "Whether the content is a translation rather than the original text.",
+                    values = c("true", "false"),
+                    default = "false",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                isTranslatable = list(
+                    type = "boolean",
+                    description = "Whether the content is intended to be translated.",
+                    values = c("true", "false"),
+                    default = "true",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationSourceLanguage = list(
+                    type = "string",
+                    description = "Languages or language codes of the source text, separated by spaces.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationDate = list(
+                    type = "date",
+                    description = "Date of translation, expressed as YYYY-MM-DD.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                )
+            ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list(list(
+                kind = "choice", min = 0, max = Inf, particles = list(list(
+                    kind = "sequence", min = 1, max = 1, particles = list()),
+                    list(kind = "sequence", min = 1, max = 1, particles = list()),
+                    list(kind = "sequence", min = 1, max = 1, particles = list()))))),
             parents = "fileTxt",
             children = list(),
             title = "Place of File Production",
@@ -3337,7 +6469,49 @@ assign(
             repeatable = TRUE,
             recommended = FALSE,
             deprecated = FALSE,
-            attributes = list(),
+            attributes = list(
+                isTranslated = list(
+                    type = "boolean",
+                    description = "Whether the content is a translation rather than the original text.",
+                    values = c("true", "false"),
+                    default = "false",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                isTranslatable = list(
+                    type = "boolean",
+                    description = "Whether the content is intended to be translated.",
+                    values = c("true", "false"),
+                    default = "true",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationSourceLanguage = list(
+                    type = "string",
+                    description = "Languages or language codes of the source text, separated by spaces.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationDate = list(
+                    type = "date",
+                    description = "Date of translation, expressed as YYYY-MM-DD.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                )
+            ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list(list(
+                kind = "choice", min = 0, max = Inf, particles = list(list(
+                    kind = "sequence", min = 1, max = 1, particles = list()),
+                    list(kind = "sequence", min = 1, max = 1, particles = list()),
+                    list(kind = "sequence", min = 1, max = 1, particles = list()))))),
             parents = "setAvail",
             children = list(),
             title = "Number of Files",
@@ -3379,6 +6553,9 @@ assign(
                     deprecated = FALSE
                 )
             ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list(list(
+                kind = "element", min = 0, max = Inf, name = "recGrp"), list(
+                kind = "element", min = 0, max = Inf, name = "notes"))),
             parents = "fileTxt",
             children = list("recGrp", "notes"),
             title = "File Structure",
@@ -3402,6 +6579,21 @@ assign(
                     deprecated = FALSE
                 )
             ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list(list(
+                kind = "element", min = 0, max = Inf, name = "fileName"),
+                list(kind = "element", min = 0, max = 1, name = "fileCitation"),
+                list(kind = "element", min = 0, max = Inf, name = "dataFingerprint"),
+                list(kind = "element", min = 0, max = Inf, name = "fileCont"),
+                list(kind = "element", min = 0, max = 1, name = "fileStrc"),
+                list(kind = "element", min = 0, max = 1, name = "dimensns"),
+                list(kind = "element", min = 0, max = Inf, name = "fileType"),
+                list(kind = "element", min = 0, max = Inf, name = "format"),
+                list(kind = "element", min = 0, max = Inf, name = "filePlac"),
+                list(kind = "element", min = 0, max = Inf, name = "dataChck"),
+                list(kind = "element", min = 0, max = Inf, name = "ProcStat"),
+                list(kind = "element", min = 0, max = Inf, name = "dataMsng"),
+                list(kind = "element", min = 0, max = Inf, name = "software"),
+                list(kind = "element", min = 0, max = Inf, name = "verStmt"))),
             parents = "fileDscr",
             children = list("fileName", "fileCitation", "dataFingerprint", "fileCont", "fileStrc", "dimensns", "fileType", "format", "filePlac", "dataChck", "ProcStat", "dataMsng", "software", "verStmt"),
             title = "File-by-File Description",
@@ -3425,6 +6617,17 @@ assign(
                     deprecated = FALSE
                 )
             ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list(list(
+                kind = "element", min = 1, max = 1, name = "titlStmt"), list(
+                kind = "element", min = 0, max = 1, name = "rspStmt"), list(
+                kind = "element", min = 0, max = 1, name = "prodStmt"), list(
+                kind = "element", min = 0, max = 1, name = "distStmt"), list(
+                kind = "element", min = 0, max = Inf, name = "serStmt"),
+                list(kind = "element", min = 0, max = Inf, name = "verStmt"),
+                list(kind = "element", min = 0, max = Inf, name = "biblCit"),
+                list(kind = "element", min = 0, max = Inf, name = "holdings"),
+                list(kind = "element", min = 0, max = Inf, name = "notes"),
+                list(kind = "sequence", min = 1, max = 1, particles = list()))),
             parents = "fileTxt",
             children = list("titlStmt", "rspStmt", "prodStmt", "distStmt", "serStmt", "verStmt", "biblCit", "holdings", "notes"),
             title = "File Citation",
@@ -3446,8 +6649,45 @@ assign(
                     optional = TRUE,
                     recommended = FALSE,
                     deprecated = FALSE
+                ),
+                isTranslated = list(
+                    type = "boolean",
+                    description = "Whether the content is a translation rather than the original text.",
+                    values = c("true", "false"),
+                    default = "false",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                isTranslatable = list(
+                    type = "boolean",
+                    description = "Whether the content is intended to be translated.",
+                    values = c("true", "false"),
+                    default = "true",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationSourceLanguage = list(
+                    type = "string",
+                    description = "Languages or language codes of the source text, separated by spaces.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationDate = list(
+                    type = "date",
+                    description = "Date of translation, expressed as YYYY-MM-DD.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
                 )
             ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list()),
             parents = "fileTxt",
             children = list(),
             title = "Type of File",
@@ -3541,8 +6781,45 @@ assign(
                     optional = TRUE,
                     recommended = FALSE,
                     deprecated = FALSE
+                ),
+                isTranslated = list(
+                    type = "boolean",
+                    description = "Whether the content is a translation rather than the original text.",
+                    values = c("true", "false"),
+                    default = "false",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                isTranslatable = list(
+                    type = "boolean",
+                    description = "Whether the content is intended to be translated.",
+                    values = c("true", "false"),
+                    default = "true",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationSourceLanguage = list(
+                    type = "string",
+                    description = "Languages or language codes of the source text, separated by spaces.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationDate = list(
+                    type = "date",
+                    description = "Date of translation, expressed as YYYY-MM-DD.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
                 )
             ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list()),
             parents = "fileTxt",
             children = list(),
             title = "Data Format",
@@ -3564,8 +6841,45 @@ assign(
                     optional = TRUE,
                     recommended = FALSE,
                     deprecated = FALSE
+                ),
+                isTranslated = list(
+                    type = "boolean",
+                    description = "Whether the content is a translation rather than the original text.",
+                    values = c("true", "false"),
+                    default = "false",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                isTranslatable = list(
+                    type = "boolean",
+                    description = "Whether the content is intended to be translated.",
+                    values = c("true", "false"),
+                    default = "true",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationSourceLanguage = list(
+                    type = "string",
+                    description = "Languages or language codes of the source text, separated by spaces.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationDate = list(
+                    type = "date",
+                    description = "Date of translation, expressed as YYYY-MM-DD.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
                 )
             ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list()),
             parents = "qstn",
             children = list(),
             title = "Forward Progression",
@@ -3589,6 +6903,9 @@ assign(
                     deprecated = FALSE
                 )
             ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list(list(
+                kind = "element", min = 1, max = 1, name = "unitType"), list(
+                kind = "element", min = 0, max = Inf, name = "txt"))),
             parents = "sampleFrame",
             children = list("unitType", "txt"),
             title = "Frame Unit",
@@ -3610,8 +6927,52 @@ assign(
                     optional = TRUE,
                     recommended = FALSE,
                     deprecated = TRUE
+                ),
+                isTranslated = list(
+                    type = "boolean",
+                    description = "Whether the content is a translation rather than the original text.",
+                    values = c("true", "false"),
+                    default = "false",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                isTranslatable = list(
+                    type = "boolean",
+                    description = "Whether the content is intended to be translated.",
+                    values = c("true", "false"),
+                    default = "true",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationSourceLanguage = list(
+                    type = "string",
+                    description = "Languages or language codes of the source text, separated by spaces.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationDate = list(
+                    type = "date",
+                    description = "Date of translation, expressed as YYYY-MM-DD.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
                 )
             ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list(list(
+                kind = "sequence", min = 1, max = 1, particles = list(list(
+                    kind = "choice", min = 0, max = Inf, particles = list(
+                        list(kind = "sequence", min = 1, max = 1, particles = list()),
+                        list(kind = "sequence", min = 1, max = 1, particles = list()),
+                        list(kind = "sequence", min = 1, max = 1, particles = list()),
+                        list(kind = "element", min = 1, max = 1, name = "concept"),
+                        list(kind = "element", min = 1, max = 1, name = "txt"))))))),
             parents = "dataColl",
             children = list("concept", "txt"),
             title = "Frequency of Data Collection",
@@ -3673,7 +7034,7 @@ assign(
                     recommended = FALSE,
                     deprecated = FALSE
                 ),
-                isPersistantIdentifier = list(
+                isPersistentIdentifier = list(
                     type = "boolean",
                     description = "Indicate if the agent identifier is intended to be a persistent identifier",
                     values = c("true", "false"),
@@ -3690,8 +7051,45 @@ assign(
                     optional = TRUE,
                     recommended = FALSE,
                     deprecated = FALSE
+                ),
+                isTranslated = list(
+                    type = "boolean",
+                    description = "Whether the content is a translation rather than the original text.",
+                    values = c("true", "false"),
+                    default = "false",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                isTranslatable = list(
+                    type = "boolean",
+                    description = "Whether the content is intended to be translated.",
+                    values = c("true", "false"),
+                    default = "true",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationSourceLanguage = list(
+                    type = "string",
+                    description = "Languages or language codes of the source text, separated by spaces.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationDate = list(
+                    type = "date",
+                    description = "Date of translation, expressed as YYYY-MM-DD.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
                 )
             ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list()),
             parents = "prodStmt",
             children = list(),
             title = "Funding Agency/Sponsor",
@@ -3709,6 +7107,11 @@ assign(
             recommended = FALSE,
             deprecated = FALSE,
             attributes = list(),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list(list(
+                kind = "element", min = 1, max = 1, name = "westBL"), list(
+                kind = "element", min = 1, max = 1, name = "eastBL"), list(
+                kind = "element", min = 1, max = 1, name = "southBL"), list(
+                kind = "element", min = 1, max = 1, name = "northBL"))),
             parents = "sumDscr",
             children = list("westBL", "eastBL", "southBL", "northBL"),
             title = "Geographic Bounding Box",
@@ -3757,6 +7160,7 @@ assign(
                     deprecated = FALSE
                 )
             ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list()),
             parents = "var",
             children = list(),
             title = "Geographic Map",
@@ -3769,7 +7173,51 @@ assign(
             repeatable = TRUE,
             recommended = FALSE,
             deprecated = FALSE,
-            attributes = list(),
+            attributes = list(
+                isTranslated = list(
+                    type = "boolean",
+                    description = "Whether the content is a translation rather than the original text.",
+                    values = c("true", "false"),
+                    default = "false",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                isTranslatable = list(
+                    type = "boolean",
+                    description = "Whether the content is intended to be translated.",
+                    values = c("true", "false"),
+                    default = "true",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationSourceLanguage = list(
+                    type = "string",
+                    description = "Languages or language codes of the source text, separated by spaces.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationDate = list(
+                    type = "date",
+                    description = "Date of translation, expressed as YYYY-MM-DD.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                )
+            ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list(list(
+                kind = "choice", min = 0, max = Inf, particles = list(list(
+                    kind = "sequence", min = 1, max = 1, particles = list()),
+                    list(kind = "sequence", min = 1, max = 1, particles = list()),
+                    list(kind = "sequence", min = 1, max = 1, particles = list()),
+                    list(kind = "element", min = 1, max = 1, name = "concept"),
+                    list(kind = "element", min = 1, max = 1, name = "txt"))))),
             parents = "sumDscr",
             children = list(choice = c("concept", "txt")),
             title = "Geographic Coverage",
@@ -3785,7 +7233,51 @@ assign(
             repeatable = TRUE,
             recommended = FALSE,
             deprecated = FALSE,
-            attributes = list(),
+            attributes = list(
+                isTranslated = list(
+                    type = "boolean",
+                    description = "Whether the content is a translation rather than the original text.",
+                    values = c("true", "false"),
+                    default = "false",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                isTranslatable = list(
+                    type = "boolean",
+                    description = "Whether the content is intended to be translated.",
+                    values = c("true", "false"),
+                    default = "true",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationSourceLanguage = list(
+                    type = "string",
+                    description = "Languages or language codes of the source text, separated by spaces.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationDate = list(
+                    type = "date",
+                    description = "Date of translation, expressed as YYYY-MM-DD.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                )
+            ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list(list(
+                kind = "choice", min = 0, max = Inf, particles = list(list(
+                    kind = "sequence", min = 1, max = 1, particles = list()),
+                    list(kind = "sequence", min = 1, max = 1, particles = list()),
+                    list(kind = "sequence", min = 1, max = 1, particles = list()),
+                    list(kind = "element", min = 1, max = 1, name = "concept"),
+                    list(kind = "element", min = 1, max = 1, name = "txt"))))),
             parents = "sumDscr",
             children = list(choice = c("concept", "txt")),
             title = "Geographic Unit",
@@ -3879,8 +7371,45 @@ assign(
                     optional = TRUE,
                     recommended = FALSE,
                     deprecated = FALSE
+                ),
+                isTranslated = list(
+                    type = "boolean",
+                    description = "Whether the content is a translation rather than the original text.",
+                    values = c("true", "false"),
+                    default = "false",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                isTranslatable = list(
+                    type = "boolean",
+                    description = "Whether the content is intended to be translated.",
+                    values = c("true", "false"),
+                    default = "true",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationSourceLanguage = list(
+                    type = "string",
+                    description = "Languages or language codes of the source text, separated by spaces.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationDate = list(
+                    type = "date",
+                    description = "Date of translation, expressed as YYYY-MM-DD.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
                 )
             ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list()),
             parents = "sumDscr",
             children = list(),
             title = "General Data Format",
@@ -3929,15 +7458,70 @@ assign(
                     optional = TRUE,
                     recommended = FALSE,
                     deprecated = FALSE
+                ),
+                isTranslated = list(
+                    type = "boolean",
+                    description = "Whether the content is a translation rather than the original text.",
+                    values = c("true", "false"),
+                    default = "false",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                isTranslatable = list(
+                    type = "boolean",
+                    description = "Whether the content is intended to be translated.",
+                    values = c("true", "false"),
+                    default = "true",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationSourceLanguage = list(
+                    type = "string",
+                    description = "Languages or language codes of the source text, separated by spaces.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationDate = list(
+                    type = "date",
+                    description = "Date of translation, expressed as YYYY-MM-DD.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                fundAgRefs = list(
+                    type = "IDREFS",
+                    description = "IDs of the funding agencies issuing the grant, separated by spaces. Each referenced fundAg must have an ID.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                URI = list(
+                    type = "anyURI",
+                    description = "URN or URL of the funding agency or funding program. Prefer the more specific funding program URI when both are available.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
                 )
             ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list()),
             parents = "prodStmt",
             children = list(),
             title = "Grant Number",
             description = "The grant/contract number of the project that sponsored the effort. Note that regional and country differences may make direct comparison difficult. The attributes are intended to allow for differences in grant organization in different countries.",
             examples = c(
                 "<grantNo agency=\"Bureau of Justice Statistics\">J-LEAA-018-77</grantNo>",
-                "<grantNo agency=\"Academy of Finland. Strategic Research Council\" fundingProgramme=\"SRC 2016 Health, welfare and lifestyles\" grantName=\"Inclusive Promotion of Health and Wellbeing\">303654</grantNo>"
+                "<grantNo agency=\"Academy of Finland. Strategic Research Council\" fundingProgram=\"SRC 2016 Health, welfare and lifestyles\" grantName=\"Inclusive Promotion of Health and Wellbeing\">303654</grantNo>"
             )
         ),
         gringLat = list(
@@ -3946,7 +7530,47 @@ assign(
             repeatable = FALSE,
             recommended = FALSE,
             deprecated = FALSE,
-            attributes = list(),
+            attributes = list(
+                isTranslated = list(
+                    type = "boolean",
+                    description = "Whether the content is a translation rather than the original text.",
+                    values = c("true", "false"),
+                    default = "false",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                isTranslatable = list(
+                    type = "boolean",
+                    description = "Whether the content is intended to be translated.",
+                    values = c("true", "false"),
+                    default = "true",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationSourceLanguage = list(
+                    type = "string",
+                    description = "Languages or language codes of the source text, separated by spaces.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationDate = list(
+                    type = "date",
+                    description = "Date of translation, expressed as YYYY-MM-DD.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                )
+            ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list(list(
+                kind = "choice", min = 0, max = Inf, particles = list(list(
+                    kind = "sequence", min = 1, max = 1, particles = list()))))),
             parents = "point",
             children = list(),
             title = "G-Ring Latitude",
@@ -3959,7 +7583,47 @@ assign(
             repeatable = FALSE,
             recommended = FALSE,
             deprecated = FALSE,
-            attributes = list(),
+            attributes = list(
+                isTranslated = list(
+                    type = "boolean",
+                    description = "Whether the content is a translation rather than the original text.",
+                    values = c("true", "false"),
+                    default = "false",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                isTranslatable = list(
+                    type = "boolean",
+                    description = "Whether the content is intended to be translated.",
+                    values = c("true", "false"),
+                    default = "true",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationSourceLanguage = list(
+                    type = "string",
+                    description = "Languages or language codes of the source text, separated by spaces.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationDate = list(
+                    type = "date",
+                    description = "Date of translation, expressed as YYYY-MM-DD.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                )
+            ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list(list(
+                kind = "choice", min = 0, max = Inf, particles = list(list(
+                    kind = "sequence", min = 1, max = 1, particles = list()))))),
             parents = "point",
             children = list(),
             title = "G-Ring Longitude",
@@ -3972,7 +7636,49 @@ assign(
             repeatable = TRUE,
             recommended = FALSE,
             deprecated = FALSE,
-            attributes = list(),
+            attributes = list(
+                isTranslated = list(
+                    type = "boolean",
+                    description = "Whether the content is a translation rather than the original text.",
+                    values = c("true", "false"),
+                    default = "false",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                isTranslatable = list(
+                    type = "boolean",
+                    description = "Whether the content is intended to be translated.",
+                    values = c("true", "false"),
+                    default = "true",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationSourceLanguage = list(
+                    type = "string",
+                    description = "Languages or language codes of the source text, separated by spaces.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationDate = list(
+                    type = "date",
+                    description = "Date of translation, expressed as YYYY-MM-DD.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                )
+            ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list(list(
+                kind = "choice", min = 0, max = Inf, particles = list(list(
+                    kind = "sequence", min = 1, max = 1, particles = list()),
+                    list(kind = "sequence", min = 1, max = 1, particles = list()),
+                    list(kind = "sequence", min = 1, max = 1, particles = list()))))),
             parents = "docDscr",
             children = list(),
             title = "Guide to Codebook",
@@ -4021,8 +7727,45 @@ assign(
                     optional = TRUE,
                     recommended = FALSE,
                     deprecated = FALSE
+                ),
+                isTranslated = list(
+                    type = "boolean",
+                    description = "Whether the content is a translation rather than the original text.",
+                    values = c("true", "false"),
+                    default = "false",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                isTranslatable = list(
+                    type = "boolean",
+                    description = "Whether the content is intended to be translated.",
+                    values = c("true", "false"),
+                    default = "true",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationSourceLanguage = list(
+                    type = "string",
+                    description = "Languages or language codes of the source text, separated by spaces.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationDate = list(
+                    type = "date",
+                    description = "Date of translation, expressed as YYYY-MM-DD.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
                 )
             ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list()),
             parents = c("citation", "docSrc", "fileCitation", "sourceCitation"),
             children = list(),
             title = "Holdings Information",
@@ -4065,8 +7808,45 @@ assign(
                     optional = TRUE,
                     recommended = FALSE,
                     deprecated = FALSE
+                ),
+                isTranslated = list(
+                    type = "boolean",
+                    description = "Whether the content is a translation rather than the original text.",
+                    values = c("true", "false"),
+                    default = "false",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                isTranslatable = list(
+                    type = "boolean",
+                    description = "Whether the content is intended to be translated.",
+                    values = c("true", "false"),
+                    default = "true",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationSourceLanguage = list(
+                    type = "string",
+                    description = "Languages or language codes of the source text, separated by spaces.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationDate = list(
+                    type = "date",
+                    description = "Date of translation, expressed as YYYY-MM-DD.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
                 )
             ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list()),
             parents = "titlStmt",
             children = list(),
             title = "Identification Number",
@@ -4164,8 +7944,45 @@ assign(
                     optional = TRUE,
                     recommended = FALSE,
                     deprecated = FALSE
+                ),
+                isTranslated = list(
+                    type = "boolean",
+                    description = "Whether the content is a translation rather than the original text.",
+                    values = c("true", "false"),
+                    default = "false",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                isTranslatable = list(
+                    type = "boolean",
+                    description = "Whether the content is intended to be translated.",
+                    values = c("true", "false"),
+                    default = "true",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationSourceLanguage = list(
+                    type = "string",
+                    description = "Languages or language codes of the source text, separated by spaces.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationDate = list(
+                    type = "date",
+                    description = "Date of translation, expressed as YYYY-MM-DD.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
                 )
             ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list()),
             parents = c("nCube", "var"),
             children = list(),
             title = "Imputation",
@@ -4192,6 +8009,12 @@ assign(
                     deprecated = FALSE
                 )
             ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list(list(
+                kind = "choice", min = 1, max = Inf, particles = list(list(
+                    kind = "element", min = 1, max = 1, name = "item"), list(
+                    kind = "element", min = 1, max = 1, name = "range"))),
+                list(kind = "element", min = 0, max = Inf, name = "key"),
+                list(kind = "element", min = 0, max = Inf, name = "notes"))),
             parents = "var",
             children = list(choice = c("item", "range"), "key", "notes"),
             title = "Range of Invalid Data Values",
@@ -4216,8 +8039,52 @@ assign(
                     optional = TRUE,
                     recommended = FALSE,
                     deprecated = TRUE
+                ),
+                isTranslated = list(
+                    type = "boolean",
+                    description = "Whether the content is a translation rather than the original text.",
+                    values = c("true", "false"),
+                    default = "false",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                isTranslatable = list(
+                    type = "boolean",
+                    description = "Whether the content is intended to be translated.",
+                    values = c("true", "false"),
+                    default = "true",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationSourceLanguage = list(
+                    type = "string",
+                    description = "Languages or language codes of the source text, separated by spaces.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationDate = list(
+                    type = "date",
+                    description = "Date of translation, expressed as YYYY-MM-DD.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
                 )
             ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list(list(
+                kind = "sequence", min = 1, max = 1, particles = list(list(
+                    kind = "choice", min = 0, max = Inf, particles = list(
+                        list(kind = "sequence", min = 1, max = 1, particles = list()),
+                        list(kind = "sequence", min = 1, max = 1, particles = list()),
+                        list(kind = "sequence", min = 1, max = 1, particles = list()),
+                        list(kind = "element", min = 1, max = 1, name = "concept"),
+                        list(kind = "element", min = 1, max = 1, name = "txt"))))))),
             parents = "dataColl",
             children = list("concept", "txt"),
             title = "Instrument Development",
@@ -4250,6 +8117,7 @@ assign(
                     deprecated = FALSE
                 )
             ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list()),
             parents = c("invalrng", "valrng"),
             children = list(),
             title = "Value Item",
@@ -4266,9 +8134,54 @@ assign(
             recommended = FALSE,
             deprecated = FALSE,
             attributes = list(
-                type = list(
+                isTranslated = list(
+                    type = "boolean",
+                    description = "Whether the content is a translation rather than the original text.",
+                    values = c("true", "false"),
+                    default = "false",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                isTranslatable = list(
+                    type = "boolean",
+                    description = "Whether the content is intended to be translated.",
+                    values = c("true", "false"),
+                    default = "true",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationSourceLanguage = list(
                     type = "string",
-                    description = "",
+                    description = "Languages or language codes of the source text, separated by spaces.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationDate = list(
+                    type = "date",
+                    description = "Date of translation, expressed as YYYY-MM-DD.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                n = list(
+                    type = "string",
+                    description = "Number or label identifying this formatting element.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                rend = list(
+                    type = "string",
+                    description = "Rendering or presentation information for this formatting element.",
                     values = c(),
                     default = c(),
                     optional = TRUE,
@@ -4276,6 +8189,14 @@ assign(
                     deprecated = FALSE
                 )
             ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list(list(
+                kind = "choice", min = 0, max = Inf, particles = list(list(
+                    kind = "sequence", min = 1, max = 1, particles = list()),
+                    list(kind = "element", min = 1, max = 1, name = "emph"),
+                    list(kind = "element", min = 1, max = 1, name = "hi"),
+                    list(kind = "element", min = 1, max = 1, name = "list"),
+                    list(kind = "element", min = 1, max = 1, name = "p"),
+                    list(kind = "element", min = 1, max = 1, name = "label"))))),
             parents = "list",
             children = list(choice = c("emph", "hi", "list", "p", "label")),
             title = "Item",
@@ -4288,7 +8209,49 @@ assign(
             repeatable = TRUE,
             recommended = FALSE,
             deprecated = FALSE,
-            attributes = list(),
+            attributes = list(
+                isTranslated = list(
+                    type = "boolean",
+                    description = "Whether the content is a translation rather than the original text.",
+                    values = c("true", "false"),
+                    default = "false",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                isTranslatable = list(
+                    type = "boolean",
+                    description = "Whether the content is intended to be translated.",
+                    values = c("true", "false"),
+                    default = "true",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationSourceLanguage = list(
+                    type = "string",
+                    description = "Languages or language codes of the source text, separated by spaces.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationDate = list(
+                    type = "date",
+                    description = "Date of translation, expressed as YYYY-MM-DD.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                )
+            ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list(list(
+                kind = "choice", min = 0, max = Inf, particles = list(list(
+                    kind = "sequence", min = 1, max = 1, particles = list()),
+                    list(kind = "sequence", min = 1, max = 1, particles = list()),
+                    list(kind = "sequence", min = 1, max = 1, particles = list()))))),
             parents = "qstn",
             children = list(),
             title = "Interviewer Instructions",
@@ -4301,7 +8264,50 @@ assign(
             repeatable = TRUE,
             recommended = FALSE,
             deprecated = FALSE,
-            attributes = list(),
+            attributes = list(
+                isTranslated = list(
+                    type = "boolean",
+                    description = "Whether the content is a translation rather than the original text.",
+                    values = c("true", "false"),
+                    default = "false",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                isTranslatable = list(
+                    type = "boolean",
+                    description = "Whether the content is intended to be translated.",
+                    values = c("true", "false"),
+                    default = "true",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationSourceLanguage = list(
+                    type = "string",
+                    description = "Languages or language codes of the source text, separated by spaces.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationDate = list(
+                    type = "date",
+                    description = "Date of translation, expressed as YYYY-MM-DD.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                )
+            ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list(list(
+                kind = "choice", min = 0, max = Inf, particles = list(list(
+                    kind = "sequence", min = 1, max = 1, particles = list()),
+                    list(kind = "sequence", min = 1, max = 1, particles = list()),
+                    list(kind = "sequence", min = 1, max = 1, particles = list()),
+                    list(kind = "element", min = 1, max = 1, name = "table"))))),
             parents = c("invalrng", "valrng"),
             children = list("table"),
             title = "Range Key",
@@ -4402,8 +8408,45 @@ assign(
                     optional = TRUE,
                     recommended = FALSE,
                     deprecated = FALSE
+                ),
+                isTranslated = list(
+                    type = "boolean",
+                    description = "Whether the content is a translation rather than the original text.",
+                    values = c("true", "false"),
+                    default = "false",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                isTranslatable = list(
+                    type = "boolean",
+                    description = "Whether the content is intended to be translated.",
+                    values = c("true", "false"),
+                    default = "true",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationSourceLanguage = list(
+                    type = "string",
+                    description = "Languages or language codes of the source text, separated by spaces.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationDate = list(
+                    type = "date",
+                    description = "Date of translation, expressed as YYYY-MM-DD.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
                 )
             ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list()),
             parents = "subject",
             children = list(),
             title = "Keywords",
@@ -4456,8 +8499,45 @@ assign(
                     optional = TRUE,
                     recommended = FALSE,
                     deprecated = FALSE
+                ),
+                isTranslated = list(
+                    type = "boolean",
+                    description = "Whether the content is a translation rather than the original text.",
+                    values = c("true", "false"),
+                    default = "false",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                isTranslatable = list(
+                    type = "boolean",
+                    description = "Whether the content is intended to be translated.",
+                    values = c("true", "false"),
+                    default = "true",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationSourceLanguage = list(
+                    type = "string",
+                    description = "Languages or language codes of the source text, separated by spaces.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationDate = list(
+                    type = "date",
+                    description = "Date of translation, expressed as YYYY-MM-DD.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
                 )
             ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list()),
             parents = c("catgry", "catgryGrp", "sampleFrame", "nCube", "nCubeGrp", "otherMat", "recGrp", "var", "varGrp"),
             children = list(),
             title = "Label",
@@ -4498,8 +8578,45 @@ assign(
                     optional = TRUE,
                     recommended = FALSE,
                     deprecated = FALSE
+                ),
+                isTranslated = list(
+                    type = "boolean",
+                    description = "Whether the content is a translation rather than the original text.",
+                    values = c("true", "false"),
+                    default = "false",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                isTranslatable = list(
+                    type = "boolean",
+                    description = "Whether the content is intended to be translated.",
+                    values = c("true", "false"),
+                    default = "true",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationSourceLanguage = list(
+                    type = "string",
+                    description = "Languages or language codes of the source text, separated by spaces.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationDate = list(
+                    type = "date",
+                    description = "Date of translation, expressed as YYYY-MM-DD.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
                 )
             ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list()),
             parents = "prodStmt",
             children = list(),
             title = "Language",
@@ -4542,8 +8659,45 @@ assign(
                     optional = TRUE,
                     recommended = FALSE,
                     deprecated = FALSE
+                ),
+                isTranslated = list(
+                    type = "boolean",
+                    description = "Whether the content is a translation rather than the original text.",
+                    values = c("true", "false"),
+                    default = "false",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                isTranslatable = list(
+                    type = "boolean",
+                    description = "Whether the content is intended to be translated.",
+                    values = c("true", "false"),
+                    default = "true",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationSourceLanguage = list(
+                    type = "string",
+                    description = "Languages or language codes of the source text, separated by spaces.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationDate = list(
+                    type = "date",
+                    description = "Date of translation, expressed as YYYY-MM-DD.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
                 )
             ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list()),
             parents = c("dataAccs", "metadataAccs", "prodStmt"),
             children = list(),
             title = "License",
@@ -4565,8 +8719,66 @@ assign(
                     optional = TRUE,
                     recommended = FALSE,
                     deprecated = FALSE
+                ),
+                isTranslated = list(
+                    type = "boolean",
+                    description = "Whether the content is a translation rather than the original text.",
+                    values = c("true", "false"),
+                    default = "false",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                isTranslatable = list(
+                    type = "boolean",
+                    description = "Whether the content is intended to be translated.",
+                    values = c("true", "false"),
+                    default = "true",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationSourceLanguage = list(
+                    type = "string",
+                    description = "Languages or language codes of the source text, separated by spaces.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationDate = list(
+                    type = "date",
+                    description = "Date of translation, expressed as YYYY-MM-DD.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                n = list(
+                    type = "string",
+                    description = "Number or label identifying this formatting element.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                rend = list(
+                    type = "string",
+                    description = "Rendering or presentation information for this formatting element.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
                 )
             ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list(list(
+                kind = "choice", min = 0, max = Inf, particles = list(list(
+                    kind = "element", min = 1, max = 1, name = "itm"), list(
+                    kind = "element", min = 1, max = 1, name = "label"))))),
             parents = c("emph", "head", "hi", "itm", "p"),
             children = list(choice = c("itm", "label")),
             title = "List",
@@ -4580,6 +8792,8 @@ assign(
             recommended = FALSE,
             deprecated = FALSE,
             attributes = list(),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list(list(
+                kind = "element", min = 0, max = Inf, name = "dataItem"))),
             parents = "fileDscr",
             children = list("dataItem"),
             title = "Location Map",
@@ -4648,6 +8862,7 @@ assign(
                     deprecated = FALSE
                 )
             ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list()),
             parents = c("nCube", "var"),
             children = list(),
             title = "Location",
@@ -4663,7 +8878,49 @@ assign(
             repeatable = TRUE,
             recommended = FALSE,
             deprecated = FALSE,
-            attributes = list(),
+            attributes = list(
+                isTranslated = list(
+                    type = "boolean",
+                    description = "Whether the content is a translation rather than the original text.",
+                    values = c("true", "false"),
+                    default = "false",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                isTranslatable = list(
+                    type = "boolean",
+                    description = "Whether the content is intended to be translated.",
+                    values = c("true", "false"),
+                    default = "true",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationSourceLanguage = list(
+                    type = "string",
+                    description = "Languages or language codes of the source text, separated by spaces.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationDate = list(
+                    type = "date",
+                    description = "Date of translation, expressed as YYYY-MM-DD.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                )
+            ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list(list(
+                kind = "choice", min = 0, max = Inf, particles = list(list(
+                    kind = "sequence", min = 1, max = 1, particles = list()),
+                    list(kind = "sequence", min = 1, max = 1, particles = list()),
+                    list(kind = "sequence", min = 1, max = 1, particles = list()))))),
             parents = c("dimensns", "recDimnsn"),
             children = list(),
             title = "Logical Record Length",
@@ -4741,6 +8998,7 @@ assign(
                     deprecated = FALSE
                 )
             ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list()),
             parents = "nCube",
             children = list(),
             title = "Measure",
@@ -4754,10 +9012,15 @@ assign(
             recommended = FALSE,
             deprecated = FALSE,
             attributes = list(),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list(list(
+                kind = "element", min = 0, max = Inf, name = "typeOfAccess"),
+                list(kind = "element", min = 0, max = Inf, name = "license"),
+                list(kind = "element", min = 0, max = Inf, name = "useStmt"),
+                list(kind = "element", min = 0, max = Inf, name = "notes"))),
             parents = "stdyDscr",
             children = list("typeOfAccess", "license", "useStmt", "notes"),
             title = "Metadata Access",
-            description = "This section describes access conditions and terms of use for the metadata. In cases where access conditions differ across individual files, variables, or categories multiple access conditions can be specified. The access conditions applying to a study, file, variable group, variable or category can be indicated by an IDREF attribute on the study, file, variable group, nCube group, variable, category, or data item elements called \"access\". The member element \"typeOfAccss\" is of the type \"concept\" and is intended to provide a specific type of access.  If a license applies to the data access, use the optional \"license\" element.",
+            description = "This section describes access conditions and terms of use for the metadata. In cases where access conditions differ across individual files, variables, or categories multiple access conditions can be specified. The access conditions applying to a study, file, variable group, variable or category can be indicated by an IDREF attribute on the study, file, variable group, nCube group, variable, category, or data item elements called \"access\". The member element \"typeOfAccess\" is of the type \"concept\" and is intended to provide a specific type of access.  If a license applies to the data access, use the optional \"license\" element.",
             examples = c()
         ),
         method = list(
@@ -4767,6 +9030,13 @@ assign(
             recommended = FALSE,
             deprecated = FALSE,
             attributes = list(),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list(list(
+                kind = "element", min = 0, max = Inf, name = "dataColl"),
+                list(kind = "element", min = 0, max = Inf, name = "notes"),
+                list(kind = "element", min = 0, max = 1, name = "anlyInfo"),
+                list(kind = "element", min = 0, max = Inf, name = "stdyClas"),
+                list(kind = "element", min = 0, max = Inf, name = "dataProcessing"),
+                list(kind = "element", min = 0, max = Inf, name = "codingInstructions"))),
             parents = "stdyDscr",
             children = list("dataColl", "notes", "anlyInfo", "stdyClas", "dataProcessing", "codingInstructions"),
             title = "Methodology and Processing",
@@ -4799,6 +9069,10 @@ assign(
                     deprecated = FALSE
                 )
             ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list(list(
+                kind = "element", min = 0, max = Inf, name = "typeOfCodingInstruction"),
+                list(kind = "element", min = 0, max = Inf, name = "txt"),
+                list(kind = "element", min = 0, max = Inf, name = "command"))),
             parents = "method",
             children = list("typeOfCodingInstruction", "txt", "command"),
             title = "Coding Instructions",
@@ -4820,8 +9094,45 @@ assign(
                     optional = TRUE,
                     recommended = FALSE,
                     deprecated = FALSE
+                ),
+                isTranslated = list(
+                    type = "boolean",
+                    description = "Whether the content is a translation rather than the original text.",
+                    values = c("true", "false"),
+                    default = "false",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                isTranslatable = list(
+                    type = "boolean",
+                    description = "Whether the content is intended to be translated.",
+                    values = c("true", "false"),
+                    default = "true",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationSourceLanguage = list(
+                    type = "string",
+                    description = "Languages or language codes of the source text, separated by spaces.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationDate = list(
+                    type = "date",
+                    description = "Date of translation, expressed as YYYY-MM-DD.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
                 )
             ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list()),
             parents = "codingInstructions",
             children = list(),
             title = "Command",
@@ -4843,8 +9154,52 @@ assign(
                     optional = TRUE,
                     recommended = FALSE,
                     deprecated = TRUE
+                ),
+                isTranslated = list(
+                    type = "boolean",
+                    description = "Whether the content is a translation rather than the original text.",
+                    values = c("true", "false"),
+                    default = "false",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                isTranslatable = list(
+                    type = "boolean",
+                    description = "Whether the content is intended to be translated.",
+                    values = c("true", "false"),
+                    default = "true",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationSourceLanguage = list(
+                    type = "string",
+                    description = "Languages or language codes of the source text, separated by spaces.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationDate = list(
+                    type = "date",
+                    description = "Date of translation, expressed as YYYY-MM-DD.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
                 )
             ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list(list(
+                kind = "sequence", min = 1, max = 1, particles = list(list(
+                    kind = "choice", min = 0, max = Inf, particles = list(
+                        list(kind = "sequence", min = 1, max = 1, particles = list()),
+                        list(kind = "sequence", min = 1, max = 1, particles = list()),
+                        list(kind = "sequence", min = 1, max = 1, particles = list()),
+                        list(kind = "element", min = 1, max = 1, name = "concept"),
+                        list(kind = "element", min = 1, max = 1, name = "txt"))))))),
             parents = "method",
             children = list("concept", "txt"),
             title = "Data Processing",
@@ -4866,8 +9221,45 @@ assign(
                     optional = FALSE,
                     recommended = FALSE,
                     deprecated = FALSE
+                ),
+                isTranslated = list(
+                    type = "boolean",
+                    description = "Whether the content is a translation rather than the original text.",
+                    values = c("true", "false"),
+                    default = "false",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                isTranslatable = list(
+                    type = "boolean",
+                    description = "Whether the content is intended to be translated.",
+                    values = c("true", "false"),
+                    default = "true",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationSourceLanguage = list(
+                    type = "string",
+                    description = "Languages or language codes of the source text, separated by spaces.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationDate = list(
+                    type = "date",
+                    description = "Date of translation, expressed as YYYY-MM-DD.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
                 )
             ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list()),
             parents = "mrow",
             children = list(),
             title = "Mathematical Identifier",
@@ -4881,6 +9273,8 @@ assign(
             recommended = FALSE,
             deprecated = FALSE,
             attributes = list(),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list(list(
+                kind = "element", min = 0, max = Inf, name = "mi"))),
             parents = "catgry",
             children = list("mi"),
             title = "Mathematical Row",
@@ -4958,6 +9352,21 @@ assign(
                     deprecated = FALSE
                 )
             ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list(list(
+                kind = "element", min = 0, max = Inf, name = "location"),
+                list(kind = "element", min = 0, max = Inf, name = "labl"),
+                list(kind = "element", min = 0, max = Inf, name = "txt"),
+                list(kind = "element", min = 0, max = Inf, name = "universe"),
+                list(kind = "element", min = 0, max = Inf, name = "imputation"),
+                list(kind = "element", min = 0, max = Inf, name = "security"),
+                list(kind = "element", min = 0, max = Inf, name = "embargo"),
+                list(kind = "element", min = 0, max = Inf, name = "respUnit"),
+                list(kind = "element", min = 0, max = Inf, name = "anlysUnit"),
+                list(kind = "element", min = 0, max = Inf, name = "verStmt"),
+                list(kind = "element", min = 0, max = Inf, name = "purpose"),
+                list(kind = "element", min = 0, max = Inf, name = "dmns"),
+                list(kind = "element", min = 0, max = Inf, name = "measure"),
+                list(kind = "element", min = 0, max = Inf, name = "notes"))),
             parents = "dataDscr",
             children = list("location", "labl", "txt", "universe", "imputation", "security", "embargo", "respUnit", "anlysUnit", "verStmt", "purpose", "dmns", "measure", "notes"),
             title = "nCube",
@@ -5062,6 +9471,13 @@ assign(
                     deprecated = FALSE
                 )
             ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list(list(
+                kind = "element", min = 0, max = Inf, name = "labl"), list(
+                kind = "element", min = 0, max = Inf, name = "txt"), list(
+                kind = "element", min = 0, max = Inf, name = "concept"),
+                list(kind = "element", min = 0, max = Inf, name = "defntn"),
+                list(kind = "element", min = 0, max = Inf, name = "universe"),
+                list(kind = "element", min = 0, max = Inf, name = "notes"))),
             parents = "dataDscr",
             children = list("labl", "txt", "concept", "defntn", "universe", "notes"),
             title = "nCube Group",
@@ -5167,8 +9583,52 @@ assign(
                     optional = TRUE,
                     recommended = TRUE,
                     deprecated = FALSE
+                ),
+                isTranslated = list(
+                    type = "boolean",
+                    description = "Whether the content is a translation rather than the original text.",
+                    values = c("true", "false"),
+                    default = "false",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                isTranslatable = list(
+                    type = "boolean",
+                    description = "Whether the content is intended to be translated.",
+                    values = c("true", "false"),
+                    default = "true",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationSourceLanguage = list(
+                    type = "string",
+                    description = "Languages or language codes of the source text, separated by spaces.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationDate = list(
+                    type = "date",
+                    description = "Date of translation, expressed as YYYY-MM-DD.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
                 )
             ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list(list(
+                kind = "sequence", min = 1, max = 1, particles = list(list(
+                    kind = "choice", min = 0, max = Inf, particles = list(
+                        list(kind = "sequence", min = 1, max = 1, particles = list()),
+                        list(kind = "sequence", min = 1, max = 1, particles = list()),
+                        list(kind = "sequence", min = 1, max = 1, particles = list()),
+                        list(kind = "element", min = 1, max = 1, name = "concept"),
+                        list(kind = "element", min = 1, max = 1, name = "txt"))))))),
             parents = "sumDscr",
             children = list("concept", "txt"),
             title = "Country",
@@ -5184,7 +9644,47 @@ assign(
             repeatable = FALSE,
             recommended = FALSE,
             deprecated = FALSE,
-            attributes = list(),
+            attributes = list(
+                isTranslated = list(
+                    type = "boolean",
+                    description = "Whether the content is a translation rather than the original text.",
+                    values = c("true", "false"),
+                    default = "false",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                isTranslatable = list(
+                    type = "boolean",
+                    description = "Whether the content is intended to be translated.",
+                    values = c("true", "false"),
+                    default = "true",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationSourceLanguage = list(
+                    type = "string",
+                    description = "Languages or language codes of the source text, separated by spaces.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationDate = list(
+                    type = "date",
+                    description = "Date of translation, expressed as YYYY-MM-DD.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                )
+            ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list(list(
+                kind = "choice", min = 0, max = Inf, particles = list(list(
+                    kind = "sequence", min = 1, max = 1, particles = list()))))),
             parents = "geoBndBox",
             children = list(),
             title = "North Bounding Latitude",
@@ -5260,8 +9760,51 @@ assign(
                     optional = TRUE,
                     recommended = FALSE,
                     deprecated = FALSE
+                ),
+                isTranslated = list(
+                    type = "boolean",
+                    description = "Whether the content is a translation rather than the original text.",
+                    values = c("true", "false"),
+                    default = "false",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                isTranslatable = list(
+                    type = "boolean",
+                    description = "Whether the content is intended to be translated.",
+                    values = c("true", "false"),
+                    default = "true",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationSourceLanguage = list(
+                    type = "string",
+                    description = "Languages or language codes of the source text, separated by spaces.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationDate = list(
+                    type = "date",
+                    description = "Date of translation, expressed as YYYY-MM-DD.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
                 )
             ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list(list(
+                kind = "sequence", min = 1, max = 1, particles = list(list(
+                    kind = "choice", min = 0, max = Inf, particles = list(
+                        list(kind = "sequence", min = 1, max = 1, particles = list()),
+                        list(kind = "sequence", min = 1, max = 1, particles = list()),
+                        list(kind = "sequence", min = 1, max = 1, particles = list()),
+                        list(kind = "element", min = 1, max = 1, name = "table"))))))),
             parents = c("citation", "dataAccs", "dataDscr", "docDscr", "docSrc", "fileDscr", "fileStrc", "fileCitation", "invalrng", "metadataAccs", "method", "nCube", "nCubeGrp", "otherMat", "setAvail", "sourceCitation", "stdyDscr", "stdyInfo", "valrng", "var", "varGrp", "verStmt"),
             children = list("table"),
             title = "Notes and comments",
@@ -5347,7 +9890,7 @@ assign(
                     recommended = FALSE,
                     deprecated = FALSE
                 ),
-                isPersistantIdentifier = list(
+                isPersistentIdentifier = list(
                     type = "boolean",
                     description = "Indicate if the agent identifier is intended to be a persistent identifier",
                     values = c("true", "false"),
@@ -5364,8 +9907,45 @@ assign(
                     optional = TRUE,
                     recommended = FALSE,
                     deprecated = FALSE
+                ),
+                isTranslated = list(
+                    type = "boolean",
+                    description = "Whether the content is a translation rather than the original text.",
+                    values = c("true", "false"),
+                    default = "false",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                isTranslatable = list(
+                    type = "boolean",
+                    description = "Whether the content is intended to be translated.",
+                    values = c("true", "false"),
+                    default = "true",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationSourceLanguage = list(
+                    type = "string",
+                    description = "Languages or language codes of the source text, separated by spaces.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationDate = list(
+                    type = "date",
+                    description = "Date of translation, expressed as YYYY-MM-DD.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
                 )
             ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list()),
             parents = "setAvail",
             children = list(),
             title = "Archive Where Study Originally Stored",
@@ -5433,7 +10013,7 @@ assign(
                     recommended = FALSE,
                     deprecated = FALSE
                 ),
-                isPersistantIdentifier = list(
+                isPersistentIdentifier = list(
                     type = "boolean",
                     description = "Indicate if the agent identifier is intended to be a persistent identifier",
                     values = c("true", "false"),
@@ -5450,8 +10030,45 @@ assign(
                     optional = TRUE,
                     recommended = FALSE,
                     deprecated = FALSE
+                ),
+                isTranslated = list(
+                    type = "boolean",
+                    description = "Whether the content is a translation rather than the original text.",
+                    values = c("true", "false"),
+                    default = "false",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                isTranslatable = list(
+                    type = "boolean",
+                    description = "Whether the content is intended to be translated.",
+                    values = c("true", "false"),
+                    default = "true",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationSourceLanguage = list(
+                    type = "string",
+                    description = "Languages or language codes of the source text, separated by spaces.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationDate = list(
+                    type = "date",
+                    description = "Date of translation, expressed as YYYY-MM-DD.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
                 )
             ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list()),
             parents = "rspStmt",
             children = list(),
             title = "Other Identifications /Acknowledgments",
@@ -5464,7 +10081,50 @@ assign(
             repeatable = TRUE,
             recommended = FALSE,
             deprecated = FALSE,
-            attributes = list(),
+            attributes = list(
+                isTranslated = list(
+                    type = "boolean",
+                    description = "Whether the content is a translation rather than the original text.",
+                    values = c("true", "false"),
+                    default = "false",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                isTranslatable = list(
+                    type = "boolean",
+                    description = "Whether the content is intended to be translated.",
+                    values = c("true", "false"),
+                    default = "true",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationSourceLanguage = list(
+                    type = "string",
+                    description = "Languages or language codes of the source text, separated by spaces.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationDate = list(
+                    type = "date",
+                    description = "Date of translation, expressed as YYYY-MM-DD.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                )
+            ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list(list(
+                kind = "choice", min = 0, max = Inf, particles = list(list(
+                    kind = "sequence", min = 1, max = 1, particles = list()),
+                    list(kind = "sequence", min = 1, max = 1, particles = list()),
+                    list(kind = "sequence", min = 1, max = 1, particles = list()),
+                    list(kind = "element", min = 1, max = 1, name = "citation"))))),
             parents = "othrStdyMat",
             children = list("citation"),
             title = "Other References Notes",
@@ -5509,6 +10169,15 @@ assign(
                     deprecated = FALSE
                 )
             ),
+            contentModel = list(kind = "choice", min = 1, max = 1, particles = list(list(
+                kind = "sequence", min = 1, max = 1, particles = list(list(
+                    kind = "element", min = 0, max = Inf, name = "typeOfOtherMaterial"),
+                    list(kind = "element", min = 0, max = Inf, name = "labl"),
+                    list(kind = "element", min = 0, max = Inf, name = "txt"),
+                    list(kind = "element", min = 0, max = Inf, name = "notes"),
+                    list(kind = "element", min = 0, max = Inf, name = "table"),
+                    list(kind = "element", min = 0, max = 1, name = "citation"),
+                    list(kind = "element", min = 0, max = Inf, name = "otherMat"))))),
             parents = c("codeBook", "otherMat"),
             children = list("typeOfOtherMaterial", "labl", "txt", "notes", "table", "citation", "otherMat"),
             title = "Other Study-Related Materials",
@@ -5526,6 +10195,11 @@ assign(
             recommended = FALSE,
             deprecated = FALSE,
             attributes = list(),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list(list(
+                kind = "element", min = 0, max = Inf, name = "relMat"), list(
+                kind = "element", min = 0, max = Inf, name = "relStdy"),
+                list(kind = "element", min = 0, max = Inf, name = "relPubl"),
+                list(kind = "element", min = 0, max = Inf, name = "othRefs"))),
             parents = "stdyDscr",
             children = list("relMat", "relStdy", "relPubl", "othRefs"),
             title = "Other Study Description Materials",
@@ -5533,15 +10207,58 @@ assign(
             examples = c()
         ),
         outcome = list(
+            type = "simpleTextType",
             optional = TRUE,
             repeatable = TRUE,
             recommended = FALSE,
             deprecated = FALSE,
-            attributes = list(),
+            attributes = list(
+                isTranslated = list(
+                    type = "boolean",
+                    description = "Whether the content is a translation rather than the original text.",
+                    values = c("true", "false"),
+                    default = "false",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                isTranslatable = list(
+                    type = "boolean",
+                    description = "Whether the content is intended to be translated.",
+                    values = c("true", "false"),
+                    default = "true",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationSourceLanguage = list(
+                    type = "string",
+                    description = "Languages or language codes of the source text, separated by spaces.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationDate = list(
+                    type = "date",
+                    description = "Date of translation, expressed as YYYY-MM-DD.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                )
+            ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list(list(
+                kind = "choice", min = 0, max = Inf, particles = list(list(
+                    kind = "sequence", min = 1, max = 1, particles = list()),
+                    list(kind = "sequence", min = 1, max = 1, particles = list()),
+                    list(kind = "sequence", min = 1, max = 1, particles = list()))))),
             parents = "developmentActivity",
             children = list(),
-            title = "",
-            description = "",
+            title = "Development Activity Outcome",
+            description = "Result of the development activity.",
             examples = c()
         ),
         outcomes = list(
@@ -5550,7 +10267,49 @@ assign(
             repeatable = TRUE,
             recommended = FALSE,
             deprecated = FALSE,
-            attributes = list(),
+            attributes = list(
+                isTranslated = list(
+                    type = "boolean",
+                    description = "Whether the content is a translation rather than the original text.",
+                    values = c("true", "false"),
+                    default = "false",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                isTranslatable = list(
+                    type = "boolean",
+                    description = "Whether the content is intended to be translated.",
+                    values = c("true", "false"),
+                    default = "true",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationSourceLanguage = list(
+                    type = "string",
+                    description = "Languages or language codes of the source text, separated by spaces.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationDate = list(
+                    type = "date",
+                    description = "Date of translation, expressed as YYYY-MM-DD.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                )
+            ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list(list(
+                kind = "choice", min = 0, max = Inf, particles = list(list(
+                    kind = "sequence", min = 1, max = 1, particles = list()),
+                    list(kind = "sequence", min = 1, max = 1, particles = list()),
+                    list(kind = "sequence", min = 1, max = 1, particles = list()))))),
             parents = "exPostEvaluation",
             children = list(),
             title = "Evaluation Outcomes",
@@ -5558,15 +10317,58 @@ assign(
             examples = "<outcomes>The following steps were highly effective in increasing response rates, and should be repeated in the next collection cycle...</outcomes>"
         ),
         otherQualityStatement = list(
+            type = "simpleTextType",
             optional = TRUE,
             repeatable = TRUE,
             recommended = FALSE,
             deprecated = FALSE,
-            attributes = list(),
+            attributes = list(
+                isTranslated = list(
+                    type = "boolean",
+                    description = "Whether the content is a translation rather than the original text.",
+                    values = c("true", "false"),
+                    default = "false",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                isTranslatable = list(
+                    type = "boolean",
+                    description = "Whether the content is intended to be translated.",
+                    values = c("true", "false"),
+                    default = "true",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationSourceLanguage = list(
+                    type = "string",
+                    description = "Languages or language codes of the source text, separated by spaces.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationDate = list(
+                    type = "date",
+                    description = "Date of translation, expressed as YYYY-MM-DD.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                )
+            ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list(list(
+                kind = "choice", min = 0, max = Inf, particles = list(list(
+                    kind = "sequence", min = 1, max = 1, particles = list()),
+                    list(kind = "sequence", min = 1, max = 1, particles = list()),
+                    list(kind = "sequence", min = 1, max = 1, particles = list()))))),
             parents = "qualityStatement",
             children = list(),
-            title = "",
-            description = "",
+            title = "Other Quality Statement",
+            description = "Additional information about study quality beyond the listed standards-compliance statements.",
             examples = c()
         ),
         participant = list(
@@ -5621,7 +10423,7 @@ assign(
                     recommended = FALSE,
                     deprecated = FALSE
                 ),
-                isPersistantIdentifier = list(
+                isPersistentIdentifier = list(
                     type = "boolean",
                     description = "Indicate if the agent identifier is intended to be a persistent identifier",
                     values = c("true", "false"),
@@ -5638,8 +10440,45 @@ assign(
                     optional = TRUE,
                     recommended = FALSE,
                     deprecated = FALSE
+                ),
+                isTranslated = list(
+                    type = "boolean",
+                    description = "Whether the content is a translation rather than the original text.",
+                    values = c("true", "false"),
+                    default = "false",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                isTranslatable = list(
+                    type = "boolean",
+                    description = "Whether the content is intended to be translated.",
+                    values = c("true", "false"),
+                    default = "true",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationSourceLanguage = list(
+                    type = "string",
+                    description = "Languages or language codes of the source text, separated by spaces.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationDate = list(
+                    type = "date",
+                    description = "Date of translation, expressed as YYYY-MM-DD.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
                 )
             ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list()),
             parents = "developmentActivity",
             children = list(),
             title = "Participant",
@@ -5652,7 +10491,49 @@ assign(
             repeatable = TRUE,
             recommended = FALSE,
             deprecated = FALSE,
-            attributes = list(),
+            attributes = list(
+                isTranslated = list(
+                    type = "boolean",
+                    description = "Whether the content is a translation rather than the original text.",
+                    values = c("true", "false"),
+                    default = "false",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                isTranslatable = list(
+                    type = "boolean",
+                    description = "Whether the content is intended to be translated.",
+                    values = c("true", "false"),
+                    default = "true",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationSourceLanguage = list(
+                    type = "string",
+                    description = "Languages or language codes of the source text, separated by spaces.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationDate = list(
+                    type = "date",
+                    description = "Date of translation, expressed as YYYY-MM-DD.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                )
+            ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list(list(
+                kind = "choice", min = 0, max = Inf, particles = list(list(
+                    kind = "sequence", min = 1, max = 1, particles = list()),
+                    list(kind = "sequence", min = 1, max = 1, particles = list()),
+                    list(kind = "sequence", min = 1, max = 1, particles = list()))))),
             parents = "titlStmt",
             children = list(),
             title = "Parallel Title",
@@ -5715,6 +10596,7 @@ assign(
                     deprecated = FALSE
                 )
             ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list()),
             parents = "dataItem",
             children = list(),
             title = "Physical Location",
@@ -5734,6 +10616,9 @@ assign(
             recommended = FALSE,
             deprecated = FALSE,
             attributes = list(),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list(list(
+                kind = "element", min = 1, max = 1, name = "gringLat"), list(
+                kind = "element", min = 1, max = 1, name = "gringLon"))),
             parents = "polygon",
             children = list("gringLat", "gringLon"),
             title = "Point",
@@ -5747,6 +10632,8 @@ assign(
             recommended = FALSE,
             deprecated = FALSE,
             attributes = list(),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list(list(
+                kind = "element", min = 1, max = Inf, name = "point"))),
             parents = "boundPoly",
             children = list("point"),
             title = "Polygon",
@@ -5759,7 +10646,49 @@ assign(
             repeatable = TRUE,
             recommended = FALSE,
             deprecated = FALSE,
-            attributes = list(),
+            attributes = list(
+                isTranslated = list(
+                    type = "boolean",
+                    description = "Whether the content is a translation rather than the original text.",
+                    values = c("true", "false"),
+                    default = "false",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                isTranslatable = list(
+                    type = "boolean",
+                    description = "Whether the content is intended to be translated.",
+                    values = c("true", "false"),
+                    default = "true",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationSourceLanguage = list(
+                    type = "string",
+                    description = "Languages or language codes of the source text, separated by spaces.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationDate = list(
+                    type = "date",
+                    description = "Date of translation, expressed as YYYY-MM-DD.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                )
+            ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list(list(
+                kind = "choice", min = 0, max = Inf, particles = list(list(
+                    kind = "sequence", min = 1, max = 1, particles = list()),
+                    list(kind = "sequence", min = 1, max = 1, particles = list()),
+                    list(kind = "sequence", min = 1, max = 1, particles = list()))))),
             parents = "qstn",
             children = list(),
             title = "PostQuestion Text",
@@ -5775,7 +10704,49 @@ assign(
             repeatable = TRUE,
             recommended = FALSE,
             deprecated = FALSE,
-            attributes = list(),
+            attributes = list(
+                isTranslated = list(
+                    type = "boolean",
+                    description = "Whether the content is a translation rather than the original text.",
+                    values = c("true", "false"),
+                    default = "false",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                isTranslatable = list(
+                    type = "boolean",
+                    description = "Whether the content is intended to be translated.",
+                    values = c("true", "false"),
+                    default = "true",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationSourceLanguage = list(
+                    type = "string",
+                    description = "Languages or language codes of the source text, separated by spaces.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationDate = list(
+                    type = "date",
+                    description = "Date of translation, expressed as YYYY-MM-DD.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                )
+            ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list(list(
+                kind = "choice", min = 0, max = Inf, particles = list(list(
+                    kind = "sequence", min = 1, max = 1, particles = list()),
+                    list(kind = "sequence", min = 1, max = 1, particles = list()),
+                    list(kind = "sequence", min = 1, max = 1, particles = list()))))),
             parents = "qstn",
             children = list(),
             title = "PreQuestion Text",
@@ -5873,8 +10844,45 @@ assign(
                     optional = TRUE,
                     recommended = FALSE,
                     deprecated = FALSE
+                ),
+                isTranslated = list(
+                    type = "boolean",
+                    description = "Whether the content is a translation rather than the original text.",
+                    values = c("true", "false"),
+                    default = "false",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                isTranslatable = list(
+                    type = "boolean",
+                    description = "Whether the content is intended to be translated.",
+                    values = c("true", "false"),
+                    default = "true",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationSourceLanguage = list(
+                    type = "string",
+                    description = "Languages or language codes of the source text, separated by spaces.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationDate = list(
+                    type = "date",
+                    description = "Date of translation, expressed as YYYY-MM-DD.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
                 )
             ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list()),
             parents = "fileTxt",
             children = list(),
             title = "Processing Status",
@@ -5893,7 +10901,43 @@ assign(
             attributes = list(
                 date = list(
                     type = "string",
-                    description = "",
+                    description = "Date of production, preferably expressed in ISO format (YYYY-MM-DD, optionally followed by a time).",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                isTranslated = list(
+                    type = "boolean",
+                    description = "Whether the content is a translation rather than the original text.",
+                    values = c("true", "false"),
+                    default = "false",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                isTranslatable = list(
+                    type = "boolean",
+                    description = "Whether the content is intended to be translated.",
+                    values = c("true", "false"),
+                    default = "true",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationSourceLanguage = list(
+                    type = "string",
+                    description = "Languages or language codes of the source text, separated by spaces.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationDate = list(
+                    type = "date",
+                    description = "Date of translation, expressed as YYYY-MM-DD.",
                     values = c(),
                     default = c(),
                     optional = TRUE,
@@ -5901,6 +10945,7 @@ assign(
                     deprecated = FALSE
                 )
             ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list()),
             parents = "prodStmt",
             children = list(),
             title = "Date of Production",
@@ -5913,7 +10958,49 @@ assign(
             repeatable = TRUE,
             recommended = FALSE,
             deprecated = FALSE,
-            attributes = list(),
+            attributes = list(
+                isTranslated = list(
+                    type = "boolean",
+                    description = "Whether the content is a translation rather than the original text.",
+                    values = c("true", "false"),
+                    default = "false",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                isTranslatable = list(
+                    type = "boolean",
+                    description = "Whether the content is intended to be translated.",
+                    values = c("true", "false"),
+                    default = "true",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationSourceLanguage = list(
+                    type = "string",
+                    description = "Languages or language codes of the source text, separated by spaces.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationDate = list(
+                    type = "date",
+                    description = "Date of translation, expressed as YYYY-MM-DD.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                )
+            ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list(list(
+                kind = "choice", min = 0, max = Inf, particles = list(list(
+                    kind = "sequence", min = 1, max = 1, particles = list()),
+                    list(kind = "sequence", min = 1, max = 1, particles = list()),
+                    list(kind = "sequence", min = 1, max = 1, particles = list()))))),
             parents = "prodStmt",
             children = list(),
             title = "Place of Production",
@@ -5927,6 +11014,16 @@ assign(
             recommended = FALSE,
             deprecated = FALSE,
             attributes = list(),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list(list(
+                kind = "element", min = 0, max = Inf, name = "language"),
+                list(kind = "element", min = 0, max = Inf, name = "producer"),
+                list(kind = "element", min = 0, max = Inf, name = "copyright"),
+                list(kind = "element", min = 0, max = Inf, name = "license"),
+                list(kind = "element", min = 0, max = Inf, name = "prodDate"),
+                list(kind = "element", min = 0, max = Inf, name = "prodPlac"),
+                list(kind = "element", min = 0, max = Inf, name = "software"),
+                list(kind = "element", min = 0, max = Inf, name = "fundAg"),
+                list(kind = "element", min = 0, max = Inf, name = "grantNo"))),
             parents = c("citation", "docSrc", "fileCitation", "sourceCitation"),
             children = list("language", "producer", "copyright", "license", "prodDate", "prodPlac", "software", "fundAg", "grantNo"),
             title = "Production Statement",
@@ -5985,7 +11082,7 @@ assign(
                     recommended = FALSE,
                     deprecated = FALSE
                 ),
-                isPersistantIdentifier = list(
+                isPersistentIdentifier = list(
                     type = "boolean",
                     description = "Indicate if the agent identifier is intended to be a persistent identifier",
                     values = c("true", "false"),
@@ -6002,8 +11099,45 @@ assign(
                     optional = TRUE,
                     recommended = FALSE,
                     deprecated = FALSE
+                ),
+                isTranslated = list(
+                    type = "boolean",
+                    description = "Whether the content is a translation rather than the original text.",
+                    values = c("true", "false"),
+                    default = "false",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                isTranslatable = list(
+                    type = "boolean",
+                    description = "Whether the content is intended to be translated.",
+                    values = c("true", "false"),
+                    default = "true",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationSourceLanguage = list(
+                    type = "string",
+                    description = "Languages or language codes of the source text, separated by spaces.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationDate = list(
+                    type = "date",
+                    description = "Date of translation, expressed as YYYY-MM-DD.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
                 )
             ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list()),
             parents = c("prodStmt", "standard"),
             children = list(),
             title = "Producer",
@@ -6056,8 +11190,45 @@ assign(
                     optional = TRUE,
                     recommended = FALSE,
                     deprecated = FALSE
+                ),
+                isTranslated = list(
+                    type = "boolean",
+                    description = "Whether the content is a translation rather than the original text.",
+                    values = c("true", "false"),
+                    default = "false",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                isTranslatable = list(
+                    type = "boolean",
+                    description = "Whether the content is intended to be translated.",
+                    values = c("true", "false"),
+                    default = "true",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationSourceLanguage = list(
+                    type = "string",
+                    description = "Languages or language codes of the source text, separated by spaces.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationDate = list(
+                    type = "date",
+                    description = "Date of translation, expressed as YYYY-MM-DD.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
                 )
             ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list()),
             parents = "nCube",
             children = list(),
             title = "Purpose",
@@ -6133,8 +11304,55 @@ assign(
                     optional = TRUE,
                     recommended = FALSE,
                     deprecated = FALSE
+                ),
+                isTranslated = list(
+                    type = "boolean",
+                    description = "Whether the content is a translation rather than the original text.",
+                    values = c("true", "false"),
+                    default = "false",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                isTranslatable = list(
+                    type = "boolean",
+                    description = "Whether the content is intended to be translated.",
+                    values = c("true", "false"),
+                    default = "true",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationSourceLanguage = list(
+                    type = "string",
+                    description = "Languages or language codes of the source text, separated by spaces.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationDate = list(
+                    type = "date",
+                    description = "Date of translation, expressed as YYYY-MM-DD.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
                 )
             ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list(list(
+                kind = "choice", min = 0, max = Inf, particles = list(list(
+                    kind = "sequence", min = 1, max = 1, particles = list()),
+                    list(kind = "sequence", min = 1, max = 1, particles = list()),
+                    list(kind = "sequence", min = 1, max = 1, particles = list()),
+                    list(kind = "element", min = 1, max = 1, name = "preQTxt"),
+                    list(kind = "element", min = 1, max = 1, name = "qstnLit"),
+                    list(kind = "element", min = 1, max = 1, name = "postQTxt"),
+                    list(kind = "element", min = 1, max = 1, name = "forward"),
+                    list(kind = "element", min = 1, max = 1, name = "backward"),
+                    list(kind = "element", min = 1, max = 1, name = "ivuInstr"))))),
             parents = "var",
             children = list(choice = c("preQTxt", "qstnLit", "postQTxt", "forward", "backward", "ivuInstr")),
             title = "Question",
@@ -6159,8 +11377,45 @@ assign(
                     optional = TRUE,
                     recommended = FALSE,
                     deprecated = FALSE
+                ),
+                isTranslated = list(
+                    type = "boolean",
+                    description = "Whether the content is a translation rather than the original text.",
+                    values = c("true", "false"),
+                    default = "false",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                isTranslatable = list(
+                    type = "boolean",
+                    description = "Whether the content is intended to be translated.",
+                    values = c("true", "false"),
+                    default = "true",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationSourceLanguage = list(
+                    type = "string",
+                    description = "Languages or language codes of the source text, separated by spaces.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationDate = list(
+                    type = "date",
+                    description = "Date of translation, expressed as YYYY-MM-DD.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
                 )
             ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list()),
             parents = "qstn",
             children = list(),
             title = "Literal Question",
@@ -6174,10 +11429,13 @@ assign(
             recommended = FALSE,
             deprecated = FALSE,
             attributes = list(),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list(list(
+                kind = "element", min = 0, max = Inf, name = "standardsCompliance"),
+                list(kind = "element", min = 0, max = Inf, name = "otherQualityStatement"))),
             parents = "stdyInfo",
             children = list("standardsCompliance", "otherQualityStatement"),
             title = "Quality Statement",
-            description = "This structure consists of two parts, \"standardsCompliance\" and \"otherQualityStatements\". In \"standardsCompliance\" list all specific standards complied with during the execution of this study. Note the standard name and producer and how the study complied with the standard. Enter any additional quality statements in \"otherQualityStatements\".",
+            description = "This structure consists of two parts, \"standardsCompliance\" and \"otherQualityStatement\". In \"standardsCompliance\" list all specific standards complied with during the execution of this study. Note the standard name and producer and how the study complied with the standard. Enter any additional quality statements in \"otherQualityStatement\".",
             examples = c()
         ),
         range = list(
@@ -6233,6 +11491,7 @@ assign(
                     deprecated = FALSE
                 )
             ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list()),
             parents = c("cohort", "invalrng", "valrng"),
             children = list(),
             title = "Value Range",
@@ -6259,6 +11518,10 @@ assign(
                     deprecated = FALSE
                 )
             ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list(list(
+                kind = "element", min = 0, max = 1, name = "varQnty"), list(
+                kind = "element", min = 0, max = 1, name = "caseQnty"), list(
+                kind = "element", min = 0, max = 1, name = "logRecL"))),
             parents = "recGrp",
             children = list("varQnty", "caseQnty", "logRecL"),
             title = "Dimensions (of record)",
@@ -6336,6 +11599,9 @@ assign(
                     deprecated = FALSE
                 )
             ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list(list(
+                kind = "element", min = 0, max = Inf, name = "labl"), list(
+                kind = "element", min = 0, max = 1, name = "recDimnsn"))),
             parents = "fileStrc",
             children = list("labl", "recDimnsn"),
             title = "Record or Record Group",
@@ -6348,7 +11614,49 @@ assign(
             repeatable = TRUE,
             recommended = FALSE,
             deprecated = FALSE,
-            attributes = list(),
+            attributes = list(
+                isTranslated = list(
+                    type = "boolean",
+                    description = "Whether the content is a translation rather than the original text.",
+                    values = c("true", "false"),
+                    default = "false",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                isTranslatable = list(
+                    type = "boolean",
+                    description = "Whether the content is intended to be translated.",
+                    values = c("true", "false"),
+                    default = "true",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationSourceLanguage = list(
+                    type = "string",
+                    description = "Languages or language codes of the source text, separated by spaces.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationDate = list(
+                    type = "date",
+                    description = "Date of translation, expressed as YYYY-MM-DD.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                )
+            ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list(list(
+                kind = "choice", min = 0, max = Inf, particles = list(list(
+                    kind = "sequence", min = 1, max = 1, particles = list()),
+                    list(kind = "sequence", min = 1, max = 1, particles = list()),
+                    list(kind = "sequence", min = 1, max = 1, particles = list()))))),
             parents = "dimensns",
             children = list(),
             title = "Overall Number of Records",
@@ -6361,7 +11669,49 @@ assign(
             repeatable = TRUE,
             recommended = FALSE,
             deprecated = FALSE,
-            attributes = list(),
+            attributes = list(
+                isTranslated = list(
+                    type = "boolean",
+                    description = "Whether the content is a translation rather than the original text.",
+                    values = c("true", "false"),
+                    default = "false",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                isTranslatable = list(
+                    type = "boolean",
+                    description = "Whether the content is intended to be translated.",
+                    values = c("true", "false"),
+                    default = "true",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationSourceLanguage = list(
+                    type = "string",
+                    description = "Languages or language codes of the source text, separated by spaces.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationDate = list(
+                    type = "date",
+                    description = "Date of translation, expressed as YYYY-MM-DD.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                )
+            ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list(list(
+                kind = "choice", min = 0, max = Inf, particles = list(list(
+                    kind = "sequence", min = 1, max = 1, particles = list()),
+                    list(kind = "sequence", min = 1, max = 1, particles = list()),
+                    list(kind = "sequence", min = 1, max = 1, particles = list()))))),
             parents = "dimensns",
             children = list(),
             title = "Records per Case",
@@ -6383,8 +11733,45 @@ assign(
                     optional = TRUE,
                     recommended = FALSE,
                     deprecated = FALSE
+                ),
+                isTranslated = list(
+                    type = "boolean",
+                    description = "Whether the content is a translation rather than the original text.",
+                    values = c("true", "false"),
+                    default = "false",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                isTranslatable = list(
+                    type = "boolean",
+                    description = "Whether the content is intended to be translated.",
+                    values = c("true", "false"),
+                    default = "true",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationSourceLanguage = list(
+                    type = "string",
+                    description = "Languages or language codes of the source text, separated by spaces.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationDate = list(
+                    type = "date",
+                    description = "Date of translation, expressed as YYYY-MM-DD.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
                 )
             ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list()),
             parents = "sampleFrame",
             children = list(),
             title = "Reference Period",
@@ -6433,8 +11820,51 @@ assign(
                     optional = TRUE,
                     recommended = FALSE,
                     deprecated = FALSE
+                ),
+                isTranslated = list(
+                    type = "boolean",
+                    description = "Whether the content is a translation rather than the original text.",
+                    values = c("true", "false"),
+                    default = "false",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                isTranslatable = list(
+                    type = "boolean",
+                    description = "Whether the content is intended to be translated.",
+                    values = c("true", "false"),
+                    default = "true",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationSourceLanguage = list(
+                    type = "string",
+                    description = "Languages or language codes of the source text, separated by spaces.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationDate = list(
+                    type = "date",
+                    description = "Date of translation, expressed as YYYY-MM-DD.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
                 )
             ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list(list(
+                kind = "sequence", min = 1, max = 1, particles = list(list(
+                    kind = "choice", min = 0, max = Inf, particles = list(
+                        list(kind = "sequence", min = 1, max = 1, particles = list()),
+                        list(kind = "sequence", min = 1, max = 1, particles = list()),
+                        list(kind = "sequence", min = 1, max = 1, particles = list()),
+                        list(kind = "element", min = 1, max = 1, name = "citation"))))))),
             parents = "othrStdyMat",
             children = list("citation"),
             title = "Related Materials",
@@ -6451,7 +11881,50 @@ assign(
             repeatable = TRUE,
             recommended = FALSE,
             deprecated = FALSE,
-            attributes = list(),
+            attributes = list(
+                isTranslated = list(
+                    type = "boolean",
+                    description = "Whether the content is a translation rather than the original text.",
+                    values = c("true", "false"),
+                    default = "false",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                isTranslatable = list(
+                    type = "boolean",
+                    description = "Whether the content is intended to be translated.",
+                    values = c("true", "false"),
+                    default = "true",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationSourceLanguage = list(
+                    type = "string",
+                    description = "Languages or language codes of the source text, separated by spaces.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationDate = list(
+                    type = "date",
+                    description = "Date of translation, expressed as YYYY-MM-DD.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                )
+            ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list(list(
+                kind = "choice", min = 0, max = Inf, particles = list(list(
+                    kind = "sequence", min = 1, max = 1, particles = list()),
+                    list(kind = "sequence", min = 1, max = 1, particles = list()),
+                    list(kind = "sequence", min = 1, max = 1, particles = list()),
+                    list(kind = "element", min = 1, max = 1, name = "citation"))))),
             parents = "othrStdyMat",
             children = list("citation"),
             title = "Related Publications",
@@ -6467,7 +11940,50 @@ assign(
             repeatable = TRUE,
             recommended = FALSE,
             deprecated = FALSE,
-            attributes = list(),
+            attributes = list(
+                isTranslated = list(
+                    type = "boolean",
+                    description = "Whether the content is a translation rather than the original text.",
+                    values = c("true", "false"),
+                    default = "false",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                isTranslatable = list(
+                    type = "boolean",
+                    description = "Whether the content is intended to be translated.",
+                    values = c("true", "false"),
+                    default = "true",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationSourceLanguage = list(
+                    type = "string",
+                    description = "Languages or language codes of the source text, separated by spaces.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationDate = list(
+                    type = "date",
+                    description = "Date of translation, expressed as YYYY-MM-DD.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                )
+            ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list(list(
+                kind = "choice", min = 0, max = Inf, particles = list(list(
+                    kind = "sequence", min = 1, max = 1, particles = list()),
+                    list(kind = "sequence", min = 1, max = 1, particles = list()),
+                    list(kind = "sequence", min = 1, max = 1, particles = list()),
+                    list(kind = "element", min = 1, max = 1, name = "citation"))))),
             parents = "othrStdyMat",
             children = list("citation"),
             title = "Related Studies",
@@ -6489,8 +12005,52 @@ assign(
                     optional = TRUE,
                     recommended = FALSE,
                     deprecated = TRUE
+                ),
+                isTranslated = list(
+                    type = "boolean",
+                    description = "Whether the content is a translation rather than the original text.",
+                    values = c("true", "false"),
+                    default = "false",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                isTranslatable = list(
+                    type = "boolean",
+                    description = "Whether the content is intended to be translated.",
+                    values = c("true", "false"),
+                    default = "true",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationSourceLanguage = list(
+                    type = "string",
+                    description = "Languages or language codes of the source text, separated by spaces.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationDate = list(
+                    type = "date",
+                    description = "Date of translation, expressed as YYYY-MM-DD.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
                 )
             ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list(list(
+                kind = "sequence", min = 1, max = 1, particles = list(list(
+                    kind = "choice", min = 0, max = Inf, particles = list(
+                        list(kind = "sequence", min = 1, max = 1, particles = list()),
+                        list(kind = "sequence", min = 1, max = 1, particles = list()),
+                        list(kind = "sequence", min = 1, max = 1, particles = list()),
+                        list(kind = "element", min = 1, max = 1, name = "concept"),
+                        list(kind = "element", min = 1, max = 1, name = "txt"))))))),
             parents = "dataColl",
             children = list("concept", "txt"),
             title = "Type of Research Instrument",
@@ -6504,6 +12064,12 @@ assign(
             recommended = FALSE,
             deprecated = FALSE,
             attributes = list(),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list(list(
+                kind = "element", min = 0, max = Inf, name = "typeOfDataSrc"),
+                list(kind = "element", min = 0, max = Inf, name = "dataSrc"),
+                list(kind = "element", min = 0, max = Inf, name = "srcOrig"),
+                list(kind = "element", min = 0, max = Inf, name = "srcChar"),
+                list(kind = "element", min = 0, max = Inf, name = "srcDocu"))),
             parents = "developmentActivity",
             children = list("typeOfDataSrc", "dataSrc", "srcOrig", "srcChar", "srcDocu"),
             title = "Resource",
@@ -6516,7 +12082,49 @@ assign(
             repeatable = TRUE,
             recommended = FALSE,
             deprecated = FALSE,
-            attributes = list(),
+            attributes = list(
+                isTranslated = list(
+                    type = "boolean",
+                    description = "Whether the content is a translation rather than the original text.",
+                    values = c("true", "false"),
+                    default = "false",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                isTranslatable = list(
+                    type = "boolean",
+                    description = "Whether the content is intended to be translated.",
+                    values = c("true", "false"),
+                    default = "true",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationSourceLanguage = list(
+                    type = "string",
+                    description = "Languages or language codes of the source text, separated by spaces.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationDate = list(
+                    type = "date",
+                    description = "Date of translation, expressed as YYYY-MM-DD.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                )
+            ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list(list(
+                kind = "choice", min = 0, max = Inf, particles = list(list(
+                    kind = "sequence", min = 1, max = 1, particles = list()),
+                    list(kind = "sequence", min = 1, max = 1, particles = list()),
+                    list(kind = "sequence", min = 1, max = 1, particles = list()))))),
             parents = "anlyInfo",
             children = list(),
             title = "Response Rate",
@@ -6532,13 +12140,57 @@ assign(
             repeatable = TRUE,
             recommended = FALSE,
             deprecated = FALSE,
-            attributes = list(),
+            attributes = list(
+                isTranslated = list(
+                    type = "boolean",
+                    description = "Whether the content is a translation rather than the original text.",
+                    values = c("true", "false"),
+                    default = "false",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                isTranslatable = list(
+                    type = "boolean",
+                    description = "Whether the content is intended to be translated.",
+                    values = c("true", "false"),
+                    default = "true",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationSourceLanguage = list(
+                    type = "string",
+                    description = "Languages or language codes of the source text, separated by spaces.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationDate = list(
+                    type = "date",
+                    description = "Date of translation, expressed as YYYY-MM-DD.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                )
+            ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list(list(
+                kind = "choice", min = 0, max = Inf, particles = list(list(
+                    kind = "sequence", min = 1, max = 1, particles = list()),
+                    list(kind = "sequence", min = 1, max = 1, particles = list()),
+                    list(kind = "sequence", min = 1, max = 1, particles = list()),
+                    list(kind = "element", min = 1, max = 1, name = "concept"),
+                    list(kind = "element", min = 1, max = 1, name = "txt"))))),
             parents = c("nCube", "var"),
             children = list(choice = c("concept", "txt")),
             title = "Response Unit",
-            description = "Provides information regarding who is intended to provide the information contained within the variable/nCube, e.g., respondent, proxy, interviewer. This element contains the sub-element \"concept\". DDI provides a Controlled Vocabulary for this location: \"ResponseUnit\". PLEASE NOTE A CHANGE IN USAGE INSTRUCTIONS: The string content of the element now contains the language specific label obtained from the controlled vocabulary. This allows for multiple languages through the repeated entry of the \"concept\" element. See the high level documentation for a complete description of usage. Additional textual description is entered in the mixed text content or using the sub-element \"txt\".",
+            description = "Provides information regarding who is intended to provide the information contained within the variable/nCube, e.g., respondent, proxy, interviewer. This element contains the sub-element \"concept\". DDI provides a Controlled Vocabulary for this location: \"ResponseUnit\". PLEASE NOTE A CHANGE IN USAGE INSTRUCTIONS: The string content of \"concept\" now contains the language specific label obtained from the controlled vocabulary. This allows for multiple languages through the repeated entry of the \"concept\" element. See the high level documentation for a complete description of usage. Additional textual description is entered in the mixed text content or using the sub-element \"txt\".",
             examples = c(
-                "<var><respUnit><concept vocab=\"IPUMS_ResponseUnit\" vocabAgency=\"IPUMS\" vocabInstanceCodeTerm=\"HouseholdHead\">Head of household</concept>If the Head of Household is unavailable the information may be provided by the proxy respondent.</respUnit></var>",
+                "<var><respUnit><concept vocab=\"IPUMS_ResponseUnit\" vocabAgencyName=\"IPUMS\" vocabInstanceCodeTerm=\"HouseholdHead\">Head of household</concept>If the Head of Household is unavailable the information may be provided by the proxy respondent.</respUnit></var>",
                 "<nCube><respUnit>Head of household</respUnit></nCube>"
             )
         ),
@@ -6548,7 +12200,49 @@ assign(
             repeatable = TRUE,
             recommended = TRUE,
             deprecated = FALSE,
-            attributes = list(),
+            attributes = list(
+                isTranslated = list(
+                    type = "boolean",
+                    description = "Whether the content is a translation rather than the original text.",
+                    values = c("true", "false"),
+                    default = "false",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                isTranslatable = list(
+                    type = "boolean",
+                    description = "Whether the content is intended to be translated.",
+                    values = c("true", "false"),
+                    default = "true",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationSourceLanguage = list(
+                    type = "string",
+                    description = "Languages or language codes of the source text, separated by spaces.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationDate = list(
+                    type = "date",
+                    description = "Date of translation, expressed as YYYY-MM-DD.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                )
+            ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list(list(
+                kind = "choice", min = 0, max = Inf, particles = list(list(
+                    kind = "sequence", min = 1, max = 1, particles = list()),
+                    list(kind = "sequence", min = 1, max = 1, particles = list()),
+                    list(kind = "sequence", min = 1, max = 1, particles = list()))))),
             parents = "useStmt",
             children = list(),
             title = "Restrictions",
@@ -6567,7 +12261,7 @@ assign(
             attributes = list(
                 rowsep = list(
                     type = "string",
-                    description = "",
+                    description = "A row of entries in a table header or body.",
                     values = c(),
                     default = c(),
                     optional = TRUE,
@@ -6584,6 +12278,8 @@ assign(
                     deprecated = FALSE
                 )
             ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list(list(
+                kind = "element", min = 1, max = Inf, name = "entry"))),
             parents = c("tbody", "thead"),
             children = list("entry"),
             title = "Table Row",
@@ -6597,6 +12293,9 @@ assign(
             recommended = FALSE,
             deprecated = FALSE,
             attributes = list(),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list(list(
+                kind = "element", min = 0, max = Inf, name = "AuthEnty"),
+                list(kind = "element", min = 0, max = Inf, name = "othId"))),
             parents = c("citation", "docSrc", "fileCitation", "sourceCitation"),
             children = list("AuthEnty", "othId"),
             title = "Responsibility Statement",
@@ -6610,6 +12309,17 @@ assign(
             recommended = FALSE,
             deprecated = FALSE,
             attributes = list(),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list(list(
+                kind = "element", min = 0, max = Inf, name = "sampleFrameName"),
+                list(kind = "element", min = 0, max = Inf, name = "labl"),
+                list(kind = "element", min = 0, max = Inf, name = "txt"),
+                list(kind = "element", min = 0, max = Inf, name = "validPeriod"),
+                list(kind = "element", min = 0, max = Inf, name = "custodian"),
+                list(kind = "element", min = 0, max = Inf, name = "useStmt"),
+                list(kind = "element", min = 0, max = Inf, name = "universe"),
+                list(kind = "element", min = 0, max = Inf, name = "frameUnit"),
+                list(kind = "element", min = 0, max = Inf, name = "referencePeriod"),
+                list(kind = "element", min = 0, max = Inf, name = "updateProcedure"))),
             parents = "dataColl",
             children = list("sampleFrameName", "labl", "txt", "validPeriod", "custodian", "useStmt", "universe", "frameUnit", "referencePeriod", "updateProcedure"),
             title = "Sample Frame",
@@ -6622,7 +12332,45 @@ assign(
             repeatable = TRUE,
             recommended = FALSE,
             deprecated = FALSE,
-            attributes = list(),
+            attributes = list(
+                isTranslated = list(
+                    type = "boolean",
+                    description = "Whether the content is a translation rather than the original text.",
+                    values = c("true", "false"),
+                    default = "false",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                isTranslatable = list(
+                    type = "boolean",
+                    description = "Whether the content is intended to be translated.",
+                    values = c("true", "false"),
+                    default = "true",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationSourceLanguage = list(
+                    type = "string",
+                    description = "Languages or language codes of the source text, separated by spaces.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationDate = list(
+                    type = "date",
+                    description = "Date of translation, expressed as YYYY-MM-DD.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                )
+            ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list()),
             parents = "sampleFrame",
             children = list(),
             title = "Sample Frame Name",
@@ -6635,7 +12383,45 @@ assign(
             repeatable = FALSE,
             recommended = FALSE,
             deprecated = FALSE,
-            attributes = list(),
+            attributes = list(
+                isTranslated = list(
+                    type = "boolean",
+                    description = "Whether the content is a translation rather than the original text.",
+                    values = c("true", "false"),
+                    default = "false",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                isTranslatable = list(
+                    type = "boolean",
+                    description = "Whether the content is intended to be translated.",
+                    values = c("true", "false"),
+                    default = "true",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationSourceLanguage = list(
+                    type = "string",
+                    description = "Languages or language codes of the source text, separated by spaces.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationDate = list(
+                    type = "date",
+                    description = "Date of translation, expressed as YYYY-MM-DD.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                )
+            ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list()),
             parents = "targetSampleSize",
             children = list(),
             title = "Sample Size",
@@ -6648,7 +12434,45 @@ assign(
             repeatable = TRUE,
             recommended = FALSE,
             deprecated = FALSE,
-            attributes = list(),
+            attributes = list(
+                isTranslated = list(
+                    type = "boolean",
+                    description = "Whether the content is a translation rather than the original text.",
+                    values = c("true", "false"),
+                    default = "false",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                isTranslatable = list(
+                    type = "boolean",
+                    description = "Whether the content is intended to be translated.",
+                    values = c("true", "false"),
+                    default = "true",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationSourceLanguage = list(
+                    type = "string",
+                    description = "Languages or language codes of the source text, separated by spaces.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationDate = list(
+                    type = "date",
+                    description = "Date of translation, expressed as YYYY-MM-DD.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                )
+            ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list()),
             parents = "targetSampleSize",
             children = list(),
             title = "Sample Size Formula",
@@ -6661,7 +12485,51 @@ assign(
             repeatable = TRUE,
             recommended = FALSE,
             deprecated = FALSE,
-            attributes = list(),
+            attributes = list(
+                isTranslated = list(
+                    type = "boolean",
+                    description = "Whether the content is a translation rather than the original text.",
+                    values = c("true", "false"),
+                    default = "false",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                isTranslatable = list(
+                    type = "boolean",
+                    description = "Whether the content is intended to be translated.",
+                    values = c("true", "false"),
+                    default = "true",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationSourceLanguage = list(
+                    type = "string",
+                    description = "Languages or language codes of the source text, separated by spaces.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationDate = list(
+                    type = "date",
+                    description = "Date of translation, expressed as YYYY-MM-DD.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                )
+            ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list(list(
+                kind = "choice", min = 0, max = Inf, particles = list(list(
+                    kind = "sequence", min = 1, max = 1, particles = list()),
+                    list(kind = "sequence", min = 1, max = 1, particles = list()),
+                    list(kind = "sequence", min = 1, max = 1, particles = list()),
+                    list(kind = "element", min = 1, max = 1, name = "concept"),
+                    list(kind = "element", min = 1, max = 1, name = "txt"))))),
             parents = "dataColl",
             children = list(choice = c("concept", "txt")),
             title = "Sampling Procedure",
@@ -6690,8 +12558,45 @@ assign(
                     optional = TRUE,
                     recommended = FALSE,
                     deprecated = FALSE
+                ),
+                isTranslated = list(
+                    type = "boolean",
+                    description = "Whether the content is a translation rather than the original text.",
+                    values = c("true", "false"),
+                    default = "false",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                isTranslatable = list(
+                    type = "boolean",
+                    description = "Whether the content is intended to be translated.",
+                    values = c("true", "false"),
+                    default = "true",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationSourceLanguage = list(
+                    type = "string",
+                    description = "Languages or language codes of the source text, separated by spaces.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationDate = list(
+                    type = "date",
+                    description = "Date of translation, expressed as YYYY-MM-DD.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
                 )
             ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list()),
             parents = c("nCube", "var"),
             children = list(),
             title = "Security",
@@ -6708,6 +12613,7 @@ assign(
             recommended = FALSE,
             deprecated = FALSE,
             attributes = list(),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list()),
             parents = "usage",
             children = list(),
             title = "Selector",
@@ -6720,7 +12626,49 @@ assign(
             repeatable = TRUE,
             recommended = FALSE,
             deprecated = FALSE,
-            attributes = list(),
+            attributes = list(
+                isTranslated = list(
+                    type = "boolean",
+                    description = "Whether the content is a translation rather than the original text.",
+                    values = c("true", "false"),
+                    default = "false",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                isTranslatable = list(
+                    type = "boolean",
+                    description = "Whether the content is intended to be translated.",
+                    values = c("true", "false"),
+                    default = "true",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationSourceLanguage = list(
+                    type = "string",
+                    description = "Languages or language codes of the source text, separated by spaces.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationDate = list(
+                    type = "date",
+                    description = "Date of translation, expressed as YYYY-MM-DD.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                )
+            ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list(list(
+                kind = "choice", min = 0, max = Inf, particles = list(list(
+                    kind = "sequence", min = 1, max = 1, particles = list()),
+                    list(kind = "sequence", min = 1, max = 1, particles = list()),
+                    list(kind = "sequence", min = 1, max = 1, particles = list()))))),
             parents = "serStmt",
             children = list(),
             title = "Series Information",
@@ -6742,8 +12690,45 @@ assign(
                     optional = TRUE,
                     recommended = FALSE,
                     deprecated = FALSE
+                ),
+                isTranslated = list(
+                    type = "boolean",
+                    description = "Whether the content is a translation rather than the original text.",
+                    values = c("true", "false"),
+                    default = "false",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                isTranslatable = list(
+                    type = "boolean",
+                    description = "Whether the content is intended to be translated.",
+                    values = c("true", "false"),
+                    default = "true",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationSourceLanguage = list(
+                    type = "string",
+                    description = "Languages or language codes of the source text, separated by spaces.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationDate = list(
+                    type = "date",
+                    description = "Date of translation, expressed as YYYY-MM-DD.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
                 )
             ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list()),
             parents = "serStmt",
             children = list(),
             title = "Series Name",
@@ -6767,6 +12752,9 @@ assign(
                     deprecated = FALSE
                 )
             ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list(list(
+                kind = "element", min = 0, max = Inf, name = "serName"),
+                list(kind = "element", min = 0, max = Inf, name = "serInfo"))),
             parents = c("citation", "docSrc", "fileCitation", "sourceCitation"),
             children = list("serName", "serInfo"),
             title = "Series Statement",
@@ -6817,6 +12805,15 @@ assign(
                     deprecated = TRUE
                 )
             ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list(list(
+                kind = "element", min = 0, max = Inf, name = "typeOfSetAvailability"),
+                list(kind = "element", min = 0, max = Inf, name = "accsPlac"),
+                list(kind = "element", min = 0, max = Inf, name = "origArch"),
+                list(kind = "element", min = 0, max = Inf, name = "avlStatus"),
+                list(kind = "element", min = 0, max = Inf, name = "collSize"),
+                list(kind = "element", min = 0, max = Inf, name = "complete"),
+                list(kind = "element", min = 0, max = Inf, name = "fileQnty"),
+                list(kind = "element", min = 0, max = Inf, name = "notes"))),
             parents = "dataAccs",
             children = list("typeOfSetAvailability", "accsPlac", "origArch", "avlStatus", "collSize", "complete", "fileQnty", "notes"),
             title = "Data Set Availability",
@@ -6928,8 +12925,45 @@ assign(
                     optional = TRUE,
                     recommended = FALSE,
                     deprecated = FALSE
+                ),
+                isTranslated = list(
+                    type = "boolean",
+                    description = "Whether the content is a translation rather than the original text.",
+                    values = c("true", "false"),
+                    default = "false",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                isTranslatable = list(
+                    type = "boolean",
+                    description = "Whether the content is intended to be translated.",
+                    values = c("true", "false"),
+                    default = "true",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationSourceLanguage = list(
+                    type = "string",
+                    description = "Languages or language codes of the source text, separated by spaces.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationDate = list(
+                    type = "date",
+                    description = "Date of translation, expressed as YYYY-MM-DD.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
                 )
             ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list()),
             parents = c("fileTxt", "prodStmt"),
             children = list(),
             title = "Software used in Production",
@@ -6949,6 +12983,15 @@ assign(
             recommended = FALSE,
             deprecated = FALSE,
             attributes = list(),
+            contentModel = list(kind = "choice", min = 1, max = 1, particles = list(list(
+                kind = "sequence", min = 1, max = 1, particles = list(list(
+                    kind = "element", min = 0, max = Inf, name = "typeOfDataSrc"),
+                    list(kind = "element", min = 0, max = Inf, name = "dataSrc"),
+                    list(kind = "element", min = 0, max = Inf, name = "sourceCitation"),
+                    list(kind = "element", min = 0, max = Inf, name = "srcOrig"),
+                    list(kind = "element", min = 0, max = Inf, name = "srcChar"),
+                    list(kind = "element", min = 0, max = Inf, name = "srcDocu"),
+                    list(kind = "element", min = 0, max = Inf, name = "sources"))))),
             parents = c("dataColl", "sources"),
             children = list("typeOfDataSrc", "dataSrc", "sourceCitation", "srcOrig", "srcChar", "srcDocu", "sources"),
             title = "Sources Statement",
@@ -6972,6 +13015,17 @@ assign(
                     deprecated = FALSE
                 )
             ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list(list(
+                kind = "element", min = 1, max = 1, name = "titlStmt"), list(
+                kind = "element", min = 0, max = 1, name = "rspStmt"), list(
+                kind = "element", min = 0, max = 1, name = "prodStmt"), list(
+                kind = "element", min = 0, max = 1, name = "distStmt"), list(
+                kind = "element", min = 0, max = Inf, name = "serStmt"),
+                list(kind = "element", min = 0, max = Inf, name = "verStmt"),
+                list(kind = "element", min = 0, max = Inf, name = "biblCit"),
+                list(kind = "element", min = 0, max = Inf, name = "holdings"),
+                list(kind = "element", min = 0, max = Inf, name = "notes"),
+                list(kind = "sequence", min = 1, max = 1, particles = list()))),
             parents = "sources",
             children = list("titlStmt", "rspStmt", "prodStmt", "distStmt", "serStmt", "verStmt", "biblCit", "holdings", "notes"),
             title = "Source Citation",
@@ -6984,7 +13038,47 @@ assign(
             repeatable = FALSE,
             recommended = FALSE,
             deprecated = FALSE,
-            attributes = list(),
+            attributes = list(
+                isTranslated = list(
+                    type = "boolean",
+                    description = "Whether the content is a translation rather than the original text.",
+                    values = c("true", "false"),
+                    default = "false",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                isTranslatable = list(
+                    type = "boolean",
+                    description = "Whether the content is intended to be translated.",
+                    values = c("true", "false"),
+                    default = "true",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationSourceLanguage = list(
+                    type = "string",
+                    description = "Languages or language codes of the source text, separated by spaces.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationDate = list(
+                    type = "date",
+                    description = "Date of translation, expressed as YYYY-MM-DD.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                )
+            ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list(list(
+                kind = "choice", min = 0, max = Inf, particles = list(list(
+                    kind = "sequence", min = 1, max = 1, particles = list()))))),
             parents = "geoBndBox",
             children = list(),
             title = "South Bounding Latitude",
@@ -7017,6 +13111,7 @@ assign(
                     deprecated = FALSE
                 )
             ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list()),
             parents = "usage",
             children = list(),
             title = "Specific Elements",
@@ -7056,8 +13151,45 @@ assign(
                     optional = TRUE,
                     recommended = FALSE,
                     deprecated = FALSE
+                ),
+                isTranslated = list(
+                    type = "boolean",
+                    description = "Whether the content is a translation rather than the original text.",
+                    values = c("true", "false"),
+                    default = "false",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                isTranslatable = list(
+                    type = "boolean",
+                    description = "Whether the content is intended to be translated.",
+                    values = c("true", "false"),
+                    default = "true",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationSourceLanguage = list(
+                    type = "string",
+                    description = "Languages or language codes of the source text, separated by spaces.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationDate = list(
+                    type = "date",
+                    description = "Date of translation, expressed as YYYY-MM-DD.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
                 )
             ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list()),
             parents = "useStmt",
             children = list(),
             title = "Special Permissions",
@@ -7070,7 +13202,49 @@ assign(
             repeatable = TRUE,
             recommended = FALSE,
             deprecated = FALSE,
-            attributes = list(),
+            attributes = list(
+                isTranslated = list(
+                    type = "boolean",
+                    description = "Whether the content is a translation rather than the original text.",
+                    values = c("true", "false"),
+                    default = "false",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                isTranslatable = list(
+                    type = "boolean",
+                    description = "Whether the content is intended to be translated.",
+                    values = c("true", "false"),
+                    default = "true",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationSourceLanguage = list(
+                    type = "string",
+                    description = "Languages or language codes of the source text, separated by spaces.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationDate = list(
+                    type = "date",
+                    description = "Date of translation, expressed as YYYY-MM-DD.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                )
+            ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list(list(
+                kind = "choice", min = 0, max = Inf, particles = list(list(
+                    kind = "sequence", min = 1, max = 1, particles = list()),
+                    list(kind = "sequence", min = 1, max = 1, particles = list()),
+                    list(kind = "sequence", min = 1, max = 1, particles = list()))))),
             parents = c("sources", "resource"),
             children = list(),
             title = "Characteristics of Source Noted",
@@ -7083,7 +13257,49 @@ assign(
             repeatable = TRUE,
             recommended = FALSE,
             deprecated = FALSE,
-            attributes = list(),
+            attributes = list(
+                isTranslated = list(
+                    type = "boolean",
+                    description = "Whether the content is a translation rather than the original text.",
+                    values = c("true", "false"),
+                    default = "false",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                isTranslatable = list(
+                    type = "boolean",
+                    description = "Whether the content is intended to be translated.",
+                    values = c("true", "false"),
+                    default = "true",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationSourceLanguage = list(
+                    type = "string",
+                    description = "Languages or language codes of the source text, separated by spaces.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationDate = list(
+                    type = "date",
+                    description = "Date of translation, expressed as YYYY-MM-DD.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                )
+            ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list(list(
+                kind = "choice", min = 0, max = Inf, particles = list(list(
+                    kind = "sequence", min = 1, max = 1, particles = list()),
+                    list(kind = "sequence", min = 1, max = 1, particles = list()),
+                    list(kind = "sequence", min = 1, max = 1, particles = list()))))),
             parents = c("sources", "resource"),
             children = list(),
             title = "Documentation and Access to Sources",
@@ -7096,7 +13312,51 @@ assign(
             repeatable = TRUE,
             recommended = FALSE,
             deprecated = FALSE,
-            attributes = list(),
+            attributes = list(
+                isTranslated = list(
+                    type = "boolean",
+                    description = "Whether the content is a translation rather than the original text.",
+                    values = c("true", "false"),
+                    default = "false",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                isTranslatable = list(
+                    type = "boolean",
+                    description = "Whether the content is intended to be translated.",
+                    values = c("true", "false"),
+                    default = "true",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationSourceLanguage = list(
+                    type = "string",
+                    description = "Languages or language codes of the source text, separated by spaces.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationDate = list(
+                    type = "date",
+                    description = "Date of translation, expressed as YYYY-MM-DD.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                )
+            ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list(list(
+                kind = "choice", min = 0, max = Inf, particles = list(list(
+                    kind = "sequence", min = 1, max = 1, particles = list()),
+                    list(kind = "sequence", min = 1, max = 1, particles = list()),
+                    list(kind = "sequence", min = 1, max = 1, particles = list()),
+                    list(kind = "element", min = 1, max = 1, name = "concept"),
+                    list(kind = "element", min = 1, max = 1, name = "txt"))))),
             parents = c("sources", "resource"),
             children = list(choice = c("concept", "txt")),
             title = "Origins of Sources",
@@ -7136,8 +13396,45 @@ assign(
                     optional = TRUE,
                     recommended = FALSE,
                     deprecated = FALSE
+                ),
+                isTranslated = list(
+                    type = "boolean",
+                    description = "Whether the content is a translation rather than the original text.",
+                    values = c("true", "false"),
+                    default = "false",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                isTranslatable = list(
+                    type = "boolean",
+                    description = "Whether the content is intended to be translated.",
+                    values = c("true", "false"),
+                    default = "true",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationSourceLanguage = list(
+                    type = "string",
+                    description = "Languages or language codes of the source text, separated by spaces.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationDate = list(
+                    type = "date",
+                    description = "Date of translation, expressed as YYYY-MM-DD.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
                 )
             ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list()),
             parents = "var",
             children = list(),
             title = "Standard Categories",
@@ -7159,8 +13456,52 @@ assign(
                     optional = TRUE,
                     recommended = FALSE,
                     deprecated = TRUE
+                ),
+                isTranslated = list(
+                    type = "boolean",
+                    description = "Whether the content is a translation rather than the original text.",
+                    values = c("true", "false"),
+                    default = "false",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                isTranslatable = list(
+                    type = "boolean",
+                    description = "Whether the content is intended to be translated.",
+                    values = c("true", "false"),
+                    default = "true",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationSourceLanguage = list(
+                    type = "string",
+                    description = "Languages or language codes of the source text, separated by spaces.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationDate = list(
+                    type = "date",
+                    description = "Date of translation, expressed as YYYY-MM-DD.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
                 )
             ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list(list(
+                kind = "sequence", min = 1, max = 1, particles = list(list(
+                    kind = "choice", min = 0, max = Inf, particles = list(
+                        list(kind = "sequence", min = 1, max = 1, particles = list()),
+                        list(kind = "sequence", min = 1, max = 1, particles = list()),
+                        list(kind = "sequence", min = 1, max = 1, particles = list()),
+                        list(kind = "element", min = 1, max = 1, name = "concept"),
+                        list(kind = "element", min = 1, max = 1, name = "txt"))))))),
             parents = "method",
             children = list("concept", "txt"),
             title = "Class of the Study",
@@ -7188,6 +13529,16 @@ assign(
                     deprecated = FALSE
                 )
             ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list(list(
+                kind = "element", min = 1, max = Inf, name = "citation"),
+                list(kind = "element", min = 0, max = Inf, name = "studyAuthorization"),
+                list(kind = "element", min = 0, max = Inf, name = "stdyInfo"),
+                list(kind = "element", min = 0, max = Inf, name = "studyDevelopment"),
+                list(kind = "element", min = 0, max = Inf, name = "method"),
+                list(kind = "element", min = 0, max = Inf, name = "dataAccs"),
+                list(kind = "element", min = 0, max = Inf, name = "metadataAccs"),
+                list(kind = "element", min = 0, max = Inf, name = "othrStdyMat"),
+                list(kind = "element", min = 0, max = Inf, name = "notes"))),
             parents = "codeBook",
             children = list("citation", "studyAuthorization", "stdyInfo", "studyDevelopment", "method", "dataAccs", "metadataAccs", "othrStdyMat", "notes"),
             title = "Study Description",
@@ -7201,6 +13552,8 @@ assign(
             recommended = FALSE,
             deprecated = FALSE,
             attributes = list(),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list(list(
+                kind = "element", min = 0, max = Inf, name = "developmentActivity"))),
             parents = "stdyDscr",
             children = list("developmentActivity"),
             title = "Study Development",
@@ -7227,6 +13580,9 @@ assign(
                     deprecated = FALSE
                 )
             ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list(list(
+                kind = "element", min = 0, max = Inf, name = "authorizingAgency"),
+                list(kind = "element", min = 0, max = Inf, name = "authorizationStatement"))),
             parents = "stdyDscr",
             children = list("authorizingAgency", "authorizationStatement"),
             title = "Study Authorization",
@@ -7240,6 +13596,14 @@ assign(
             recommended = FALSE,
             deprecated = FALSE,
             attributes = list(),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list(list(
+                kind = "element", min = 0, max = Inf, name = "studyBudget"),
+                list(kind = "element", min = 0, max = Inf, name = "subject"),
+                list(kind = "element", min = 0, max = Inf, name = "abstract"),
+                list(kind = "element", min = 0, max = Inf, name = "sumDscr"),
+                list(kind = "element", min = 0, max = 1, name = "qualityStatement"),
+                list(kind = "element", min = 0, max = Inf, name = "notes"),
+                list(kind = "element", min = 0, max = Inf, name = "exPostEvaluation"))),
             parents = "stdyDscr",
             children = list("studyBudget", "subject", "abstract", "sumDscr", "qualityStatement", "notes", "exPostEvaluation"),
             title = "Study Scope",
@@ -7253,6 +13617,9 @@ assign(
             recommended = FALSE,
             deprecated = FALSE,
             attributes = list(),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list(list(
+                kind = "element", min = 1, max = 1, name = "standard"), list(
+                kind = "element", min = 0, max = Inf, name = "complianceDescription"))),
             parents = "qualityStatement",
             children = list("standard", "complianceDescription"),
             title = "Standards Compliance",
@@ -7266,10 +13633,13 @@ assign(
             recommended = FALSE,
             deprecated = FALSE,
             attributes = list(),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list(list(
+                kind = "element", min = 0, max = Inf, name = "standardName"),
+                list(kind = "element", min = 0, max = Inf, name = "producer"))),
             parents = "standardsCompliance",
             children = list("standardName", "producer"),
             title = "Standard",
-            description = "Describes a standard with which the study complies.",
+            description = "Describes a standard with which the study complies. Specify its name using \"standardName\" and its producer using \"producer\".",
             examples = c()
         ),
         standardName = list(
@@ -7305,8 +13675,45 @@ assign(
                     optional = TRUE,
                     recommended = FALSE,
                     deprecated = FALSE
+                ),
+                isTranslated = list(
+                    type = "boolean",
+                    description = "Whether the content is a translation rather than the original text.",
+                    values = c("true", "false"),
+                    default = "false",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                isTranslatable = list(
+                    type = "boolean",
+                    description = "Whether the content is intended to be translated.",
+                    values = c("true", "false"),
+                    default = "true",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationSourceLanguage = list(
+                    type = "string",
+                    description = "Languages or language codes of the source text, separated by spaces.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationDate = list(
+                    type = "date",
+                    description = "Date of translation, expressed as YYYY-MM-DD.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
                 )
             ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list()),
             parents = "standard",
             children = list(),
             title = "Standard Name",
@@ -7319,7 +13726,49 @@ assign(
             repeatable = TRUE,
             recommended = FALSE,
             deprecated = FALSE,
-            attributes = list(),
+            attributes = list(
+                isTranslated = list(
+                    type = "boolean",
+                    description = "Whether the content is a translation rather than the original text.",
+                    values = c("true", "false"),
+                    default = "false",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                isTranslatable = list(
+                    type = "boolean",
+                    description = "Whether the content is intended to be translated.",
+                    values = c("true", "false"),
+                    default = "true",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationSourceLanguage = list(
+                    type = "string",
+                    description = "Languages or language codes of the source text, separated by spaces.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationDate = list(
+                    type = "date",
+                    description = "Date of translation, expressed as YYYY-MM-DD.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                )
+            ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list(list(
+                kind = "choice", min = 0, max = Inf, particles = list(list(
+                    kind = "sequence", min = 1, max = 1, particles = list()),
+                    list(kind = "sequence", min = 1, max = 1, particles = list()),
+                    list(kind = "sequence", min = 1, max = 1, particles = list()))))),
             parents = "stdyInfo",
             children = list(),
             title = "Study Budget",
@@ -7332,7 +13781,49 @@ assign(
             repeatable = TRUE,
             recommended = FALSE,
             deprecated = FALSE,
-            attributes = list(),
+            attributes = list(
+                isTranslated = list(
+                    type = "boolean",
+                    description = "Whether the content is a translation rather than the original text.",
+                    values = c("true", "false"),
+                    default = "false",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                isTranslatable = list(
+                    type = "boolean",
+                    description = "Whether the content is intended to be translated.",
+                    values = c("true", "false"),
+                    default = "true",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationSourceLanguage = list(
+                    type = "string",
+                    description = "Languages or language codes of the source text, separated by spaces.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationDate = list(
+                    type = "date",
+                    description = "Date of translation, expressed as YYYY-MM-DD.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                )
+            ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list(list(
+                kind = "choice", min = 0, max = Inf, particles = list(list(
+                    kind = "sequence", min = 1, max = 1, particles = list()),
+                    list(kind = "sequence", min = 1, max = 1, particles = list()),
+                    list(kind = "sequence", min = 1, max = 1, particles = list()))))),
             parents = "titlStmt",
             children = list(),
             title = "Subtitle",
@@ -7351,6 +13842,9 @@ assign(
             recommended = FALSE,
             deprecated = FALSE,
             attributes = list(),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list(list(
+                kind = "element", min = 0, max = Inf, name = "keyword"),
+                list(kind = "element", min = 0, max = Inf, name = "topcClas"))),
             parents = "stdyInfo",
             children = list("keyword", "topcClas"),
             title = "Subject Information",
@@ -7364,6 +13858,18 @@ assign(
             recommended = FALSE,
             deprecated = FALSE,
             attributes = list(),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list(list(
+                kind = "element", min = 0, max = Inf, name = "timePrd"),
+                list(kind = "element", min = 0, max = Inf, name = "collDate"),
+                list(kind = "element", min = 0, max = Inf, name = "nation"),
+                list(kind = "element", min = 0, max = Inf, name = "geogCover"),
+                list(kind = "element", min = 0, max = Inf, name = "geogUnit"),
+                list(kind = "element", min = 0, max = 1, name = "geoBndBox"),
+                list(kind = "element", min = 0, max = Inf, name = "boundPoly"),
+                list(kind = "element", min = 0, max = Inf, name = "anlyUnit"),
+                list(kind = "element", min = 0, max = Inf, name = "universe"),
+                list(kind = "element", min = 0, max = Inf, name = "dataKind"),
+                list(kind = "element", min = 0, max = Inf, name = "generalDataFormat"))),
             parents = "stdyInfo",
             children = list("timePrd", "collDate", "nation", "geogCover", "geogUnit", "geoBndBox", "boundPoly", "anlyUnit", "universe", "dataKind", "generalDataFormat"),
             title = "Summary Data Description",
@@ -7396,7 +13902,7 @@ assign(
                     description = "Reference to the variable(s) containing the weight used.",
                     values = c(),
                     default = c(),
-                    optional = FALSE,
+                    optional = TRUE,
                     recommended = FALSE,
                     deprecated = FALSE
                 ),
@@ -7435,8 +13941,45 @@ assign(
                     optional = TRUE,
                     recommended = FALSE,
                     deprecated = FALSE
+                ),
+                isTranslated = list(
+                    type = "boolean",
+                    description = "Whether the content is a translation rather than the original text.",
+                    values = c("true", "false"),
+                    default = "false",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                isTranslatable = list(
+                    type = "boolean",
+                    description = "Whether the content is intended to be translated.",
+                    values = c("true", "false"),
+                    default = "true",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationSourceLanguage = list(
+                    type = "string",
+                    description = "Languages or language codes of the source text, separated by spaces.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationDate = list(
+                    type = "date",
+                    description = "Date of translation, expressed as YYYY-MM-DD.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
                 )
             ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list()),
             parents = "var",
             children = list(),
             title = "Summary Statistics",
@@ -7456,7 +13999,7 @@ assign(
             attributes = list(
                 frame = list(
                     type = "NMTOKEN",
-                    description = "",
+                    description = "Tabular presentation of information, organized into one or more table groups with an optional title.",
                     values = c("top", "bottom", "topbot", "all", "sides", "none"),
                     default = c(),
                     optional = TRUE,
@@ -7491,6 +14034,9 @@ assign(
                     deprecated = FALSE
                 )
             ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list(list(
+                kind = "element", min = 0, max = Inf, name = "titl"), list(
+                kind = "element", min = 1, max = Inf, name = "tgroup"))),
             parents = c("key", "notes", "otherMat", "txt"),
             children = list("titl", "tgroup"),
             title = "Table",
@@ -7504,6 +14050,9 @@ assign(
             recommended = FALSE,
             deprecated = FALSE,
             attributes = list(),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list(list(
+                kind = "element", min = 0, max = 1, name = "sampleSize"),
+                list(kind = "element", min = 0, max = Inf, name = "sampleSizeFormula"))),
             parents = "dataColl",
             children = list("sampleSize", "sampleSizeFormula"),
             title = "Target Sample Size",
@@ -7519,7 +14068,7 @@ assign(
             attributes = list(
                 valign = list(
                     type = "NMTOKEN",
-                    description = "",
+                    description = "Body of a table group, containing its data rows.",
                     values = c("top", "middle", "bottom"),
                     default = c(),
                     optional = TRUE,
@@ -7527,6 +14076,8 @@ assign(
                     deprecated = FALSE
                 )
             ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list(list(
+                kind = "element", min = 1, max = Inf, name = "row"))),
             parents = "tgroup",
             children = list("row"),
             title = "Table Body",
@@ -7542,7 +14093,7 @@ assign(
             attributes = list(
                 cols = list(
                     type = "string",
-                    description = "",
+                    description = "Group of columns and rows within a table, with column specifications, an optional header and a body.",
                     values = c(),
                     default = c(),
                     optional = FALSE,
@@ -7577,6 +14128,10 @@ assign(
                     deprecated = FALSE
                 )
             ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list(list(
+                kind = "element", min = 0, max = Inf, name = "colspec"),
+                list(kind = "element", min = 0, max = 1, name = "thead"),
+                list(kind = "element", min = 1, max = 1, name = "tbody"))),
             parents = "table",
             children = list("colspec", "thead", "tbody"),
             title = "Table Group",
@@ -7592,7 +14147,7 @@ assign(
             attributes = list(
                 valign = list(
                     type = "NMTOKEN",
-                    description = "",
+                    description = "Header rows of a table group.",
                     values = c("top", "middle", "bottom"),
                     default = c(),
                     optional = TRUE,
@@ -7600,6 +14155,8 @@ assign(
                     deprecated = FALSE
                 )
             ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list(list(
+                kind = "element", min = 1, max = Inf, name = "row"))),
             parents = "tgroup",
             children = list("row"),
             title = "Table Head",
@@ -7621,8 +14178,52 @@ assign(
                     optional = TRUE,
                     recommended = FALSE,
                     deprecated = TRUE
+                ),
+                isTranslated = list(
+                    type = "boolean",
+                    description = "Whether the content is a translation rather than the original text.",
+                    values = c("true", "false"),
+                    default = "false",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                isTranslatable = list(
+                    type = "boolean",
+                    description = "Whether the content is intended to be translated.",
+                    values = c("true", "false"),
+                    default = "true",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationSourceLanguage = list(
+                    type = "string",
+                    description = "Languages or language codes of the source text, separated by spaces.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationDate = list(
+                    type = "date",
+                    description = "Date of translation, expressed as YYYY-MM-DD.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
                 )
             ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list(list(
+                kind = "sequence", min = 1, max = 1, particles = list(list(
+                    kind = "choice", min = 0, max = Inf, particles = list(
+                        list(kind = "sequence", min = 1, max = 1, particles = list()),
+                        list(kind = "sequence", min = 1, max = 1, particles = list()),
+                        list(kind = "sequence", min = 1, max = 1, particles = list()),
+                        list(kind = "element", min = 1, max = 1, name = "concept"),
+                        list(kind = "element", min = 1, max = 1, name = "txt"))))))),
             parents = "dataColl",
             children = list("concept", "txt"),
             title = "Time Method",
@@ -7667,8 +14268,45 @@ assign(
                     optional = TRUE,
                     recommended = FALSE,
                     deprecated = FALSE
+                ),
+                isTranslated = list(
+                    type = "boolean",
+                    description = "Whether the content is a translation rather than the original text.",
+                    values = c("true", "false"),
+                    default = "false",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                isTranslatable = list(
+                    type = "boolean",
+                    description = "Whether the content is intended to be translated.",
+                    values = c("true", "false"),
+                    default = "true",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationSourceLanguage = list(
+                    type = "string",
+                    description = "Languages or language codes of the source text, separated by spaces.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationDate = list(
+                    type = "date",
+                    description = "Date of translation, expressed as YYYY-MM-DD.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
                 )
             ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list()),
             parents = "sumDscr",
             children = list(),
             title = "Time Period Covered",
@@ -7684,7 +14322,49 @@ assign(
             repeatable = TRUE,
             recommended = FALSE,
             deprecated = FALSE,
-            attributes = list(),
+            attributes = list(
+                isTranslated = list(
+                    type = "boolean",
+                    description = "Whether the content is a translation rather than the original text.",
+                    values = c("true", "false"),
+                    default = "false",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                isTranslatable = list(
+                    type = "boolean",
+                    description = "Whether the content is intended to be translated.",
+                    values = c("true", "false"),
+                    default = "true",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationSourceLanguage = list(
+                    type = "string",
+                    description = "Languages or language codes of the source text, separated by spaces.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationDate = list(
+                    type = "date",
+                    description = "Date of translation, expressed as YYYY-MM-DD.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                )
+            ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list(list(
+                kind = "choice", min = 0, max = Inf, particles = list(list(
+                    kind = "sequence", min = 1, max = 1, particles = list()),
+                    list(kind = "sequence", min = 1, max = 1, particles = list()),
+                    list(kind = "sequence", min = 1, max = 1, particles = list()))))),
             parents = c("table", "titlStmt"),
             children = list(),
             title = "Title",
@@ -7702,6 +14382,12 @@ assign(
             recommended = FALSE,
             deprecated = FALSE,
             attributes = list(),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list(list(
+                kind = "element", min = 1, max = 1, name = "titl"), list(
+                kind = "element", min = 0, max = Inf, name = "subTitl"),
+                list(kind = "element", min = 0, max = Inf, name = "altTitl"),
+                list(kind = "element", min = 0, max = Inf, name = "parTitl"),
+                list(kind = "element", min = 0, max = Inf, name = "IDNo"))),
             parents = c("citation", "docSrc", "fileCitation", "sourceCitation"),
             children = list("titl", "subTitl", "altTitl", "parTitl", "IDNo"),
             title = "Title Statement",
@@ -7795,8 +14481,45 @@ assign(
                     optional = TRUE,
                     recommended = FALSE,
                     deprecated = FALSE
+                ),
+                isTranslated = list(
+                    type = "boolean",
+                    description = "Whether the content is a translation rather than the original text.",
+                    values = c("true", "false"),
+                    default = "false",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                isTranslatable = list(
+                    type = "boolean",
+                    description = "Whether the content is intended to be translated.",
+                    values = c("true", "false"),
+                    default = "true",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationSourceLanguage = list(
+                    type = "string",
+                    description = "Languages or language codes of the source text, separated by spaces.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationDate = list(
+                    type = "date",
+                    description = "Date of translation, expressed as YYYY-MM-DD.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
                 )
             ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list()),
             parents = "subject",
             children = list(),
             title = "Topic Classification",
@@ -7812,7 +14535,49 @@ assign(
             repeatable = TRUE,
             recommended = FALSE,
             deprecated = FALSE,
-            attributes = list(),
+            attributes = list(
+                isTranslated = list(
+                    type = "boolean",
+                    description = "Whether the content is a translation rather than the original text.",
+                    values = c("true", "false"),
+                    default = "false",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                isTranslatable = list(
+                    type = "boolean",
+                    description = "Whether the content is intended to be translated.",
+                    values = c("true", "false"),
+                    default = "true",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationSourceLanguage = list(
+                    type = "string",
+                    description = "Languages or language codes of the source text, separated by spaces.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationDate = list(
+                    type = "date",
+                    description = "Date of translation, expressed as YYYY-MM-DD.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                )
+            ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list(list(
+                kind = "choice", min = 0, max = Inf, particles = list(list(
+                    kind = "sequence", min = 1, max = 1, particles = list()),
+                    list(kind = "sequence", min = 1, max = 1, particles = list()),
+                    list(kind = "sequence", min = 1, max = 1, particles = list()))))),
             parents = "var",
             children = list(),
             title = "Total Responses",
@@ -7846,8 +14611,51 @@ assign(
                     optional = TRUE,
                     recommended = FALSE,
                     deprecated = FALSE
+                ),
+                isTranslated = list(
+                    type = "boolean",
+                    description = "Whether the content is a translation rather than the original text.",
+                    values = c("true", "false"),
+                    default = "false",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                isTranslatable = list(
+                    type = "boolean",
+                    description = "Whether the content is intended to be translated.",
+                    values = c("true", "false"),
+                    default = "true",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationSourceLanguage = list(
+                    type = "string",
+                    description = "Languages or language codes of the source text, separated by spaces.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationDate = list(
+                    type = "date",
+                    description = "Date of translation, expressed as YYYY-MM-DD.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
                 )
             ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list(list(
+                kind = "sequence", min = 1, max = 1, particles = list(list(
+                    kind = "choice", min = 0, max = Inf, particles = list(
+                        list(kind = "sequence", min = 1, max = 1, particles = list()),
+                        list(kind = "sequence", min = 1, max = 1, particles = list()),
+                        list(kind = "sequence", min = 1, max = 1, particles = list()),
+                        list(kind = "element", min = 1, max = 1, name = "table"))))))),
             parents = c("actMin", "anlyUnit", "anlysUnit", "avlStatus", "catgry", "catgryGrp", "collMode", "dataAppr", "dataChck", "sampleFrame", "frameUnit", "unitType", "instrumentDevelopment", "updateProcedure", "collectorTraining", "dataKind", "frequenc", "geogCover", "geogUnit", "codingInstructions", "dataProcessing", "nCube", "nCubeGrp", "nation", "otherMat", "resInstru", "respUnit", "sampProc", "srcOrig", "stdyClas", "evaluationProcess", "timeMeth", "universe", "var", "varGrp", "weight"),
             children = list("table"),
             title = "Descriptive Text",
@@ -7951,8 +14759,45 @@ assign(
                     optional = TRUE,
                     recommended = FALSE,
                     deprecated = FALSE
+                ),
+                isTranslated = list(
+                    type = "boolean",
+                    description = "Whether the content is a translation rather than the original text.",
+                    values = c("true", "false"),
+                    default = "false",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                isTranslatable = list(
+                    type = "boolean",
+                    description = "Whether the content is intended to be translated.",
+                    values = c("true", "false"),
+                    default = "true",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationSourceLanguage = list(
+                    type = "string",
+                    description = "Languages or language codes of the source text, separated by spaces.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationDate = list(
+                    type = "date",
+                    description = "Date of translation, expressed as YYYY-MM-DD.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
                 )
             ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list()),
             parents = c("dataAccs", "metadataAccs"),
             children = list(),
             title = "Type of Access",
@@ -8046,8 +14891,45 @@ assign(
                     optional = TRUE,
                     recommended = FALSE,
                     deprecated = FALSE
+                ),
+                isTranslated = list(
+                    type = "boolean",
+                    description = "Whether the content is a translation rather than the original text.",
+                    values = c("true", "false"),
+                    default = "false",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                isTranslatable = list(
+                    type = "boolean",
+                    description = "Whether the content is intended to be translated.",
+                    values = c("true", "false"),
+                    default = "true",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationSourceLanguage = list(
+                    type = "string",
+                    description = "Languages or language codes of the source text, separated by spaces.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationDate = list(
+                    type = "date",
+                    description = "Date of translation, expressed as YYYY-MM-DD.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
                 )
             ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list()),
             parents = "codingInstructions",
             children = list(),
             title = "Type of Coding Instruction",
@@ -8141,8 +15023,45 @@ assign(
                     optional = TRUE,
                     recommended = FALSE,
                     deprecated = FALSE
+                ),
+                isTranslated = list(
+                    type = "boolean",
+                    description = "Whether the content is a translation rather than the original text.",
+                    values = c("true", "false"),
+                    default = "false",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                isTranslatable = list(
+                    type = "boolean",
+                    description = "Whether the content is intended to be translated.",
+                    values = c("true", "false"),
+                    default = "true",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationSourceLanguage = list(
+                    type = "string",
+                    description = "Languages or language codes of the source text, separated by spaces.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationDate = list(
+                    type = "date",
+                    description = "Date of translation, expressed as YYYY-MM-DD.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
                 )
             ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list()),
             parents = "otherMat",
             children = list(),
             title = "Type of Other Material",
@@ -8236,8 +15155,45 @@ assign(
                     optional = TRUE,
                     recommended = FALSE,
                     deprecated = FALSE
+                ),
+                isTranslated = list(
+                    type = "boolean",
+                    description = "Whether the content is a translation rather than the original text.",
+                    values = c("true", "false"),
+                    default = "false",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                isTranslatable = list(
+                    type = "boolean",
+                    description = "Whether the content is intended to be translated.",
+                    values = c("true", "false"),
+                    default = "true",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationSourceLanguage = list(
+                    type = "string",
+                    description = "Languages or language codes of the source text, separated by spaces.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationDate = list(
+                    type = "date",
+                    description = "Date of translation, expressed as YYYY-MM-DD.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
                 )
             ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list()),
             parents = "setAvail",
             children = list(),
             title = "Type of Set Availability",
@@ -8331,8 +15287,45 @@ assign(
                     optional = TRUE,
                     recommended = FALSE,
                     deprecated = FALSE
+                ),
+                isTranslated = list(
+                    type = "boolean",
+                    description = "Whether the content is a translation rather than the original text.",
+                    values = c("true", "false"),
+                    default = "false",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                isTranslatable = list(
+                    type = "boolean",
+                    description = "Whether the content is intended to be translated.",
+                    values = c("true", "false"),
+                    default = "true",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationSourceLanguage = list(
+                    type = "string",
+                    description = "Languages or language codes of the source text, separated by spaces.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationDate = list(
+                    type = "date",
+                    description = "Date of translation, expressed as YYYY-MM-DD.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
                 )
             ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list()),
             parents = c("sources", "resource"),
             children = list(),
             title = "Type of Data Source",
@@ -8426,8 +15419,45 @@ assign(
                     optional = TRUE,
                     recommended = FALSE,
                     deprecated = FALSE
+                ),
+                isTranslated = list(
+                    type = "boolean",
+                    description = "Whether the content is a translation rather than the original text.",
+                    values = c("true", "false"),
+                    default = "false",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                isTranslatable = list(
+                    type = "boolean",
+                    description = "Whether the content is intended to be translated.",
+                    values = c("true", "false"),
+                    default = "true",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationSourceLanguage = list(
+                    type = "string",
+                    description = "Languages or language codes of the source text, separated by spaces.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationDate = list(
+                    type = "date",
+                    description = "Date of translation, expressed as YYYY-MM-DD.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
                 )
             ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list()),
             parents = "developmentActivity",
             children = list(),
             title = "Type of Development Activity",
@@ -8521,8 +15551,45 @@ assign(
                     optional = TRUE,
                     recommended = FALSE,
                     deprecated = FALSE
+                ),
+                isTranslated = list(
+                    type = "boolean",
+                    description = "Whether the content is a translation rather than the original text.",
+                    values = c("true", "false"),
+                    default = "false",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                isTranslatable = list(
+                    type = "boolean",
+                    description = "Whether the content is intended to be translated.",
+                    values = c("true", "false"),
+                    default = "true",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationSourceLanguage = list(
+                    type = "string",
+                    description = "Languages or language codes of the source text, separated by spaces.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationDate = list(
+                    type = "date",
+                    description = "Date of translation, expressed as YYYY-MM-DD.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
                 )
             ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list()),
             parents = "exPostEvaluation",
             children = list(),
             title = "Type of ExPost Evaluation",
@@ -8535,7 +15602,49 @@ assign(
             repeatable = TRUE,
             recommended = FALSE,
             deprecated = FALSE,
-            attributes = list(),
+            attributes = list(
+                isTranslated = list(
+                    type = "boolean",
+                    description = "Whether the content is a translation rather than the original text.",
+                    values = c("true", "false"),
+                    default = "false",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                isTranslatable = list(
+                    type = "boolean",
+                    description = "Whether the content is intended to be translated.",
+                    values = c("true", "false"),
+                    default = "true",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationSourceLanguage = list(
+                    type = "string",
+                    description = "Languages or language codes of the source text, separated by spaces.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationDate = list(
+                    type = "date",
+                    description = "Date of translation, expressed as YYYY-MM-DD.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                )
+            ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list(list(
+                kind = "choice", min = 0, max = Inf, particles = list(list(
+                    kind = "sequence", min = 1, max = 1, particles = list()),
+                    list(kind = "sequence", min = 1, max = 1, particles = list()),
+                    list(kind = "sequence", min = 1, max = 1, particles = list()))))),
             parents = "var",
             children = list(),
             title = "List of Undocumented Codes",
@@ -8548,20 +15657,69 @@ assign(
             repeatable = TRUE,
             recommended = FALSE,
             deprecated = FALSE,
-            attributes = list(),
+            attributes = list(
+                isTranslated = list(
+                    type = "boolean",
+                    description = "Whether the content is a translation rather than the original text.",
+                    values = c("true", "false"),
+                    default = "false",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                isTranslatable = list(
+                    type = "boolean",
+                    description = "Whether the content is intended to be translated.",
+                    values = c("true", "false"),
+                    default = "true",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationSourceLanguage = list(
+                    type = "string",
+                    description = "Languages or language codes of the source text, separated by spaces.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationDate = list(
+                    type = "date",
+                    description = "Date of translation, expressed as YYYY-MM-DD.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                )
+            ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list(list(
+                kind = "choice", min = 0, max = Inf, particles = list(list(
+                    kind = "sequence", min = 1, max = 1, particles = list()),
+                    list(kind = "sequence", min = 1, max = 1, particles = list()),
+                    list(kind = "sequence", min = 1, max = 1, particles = list()),
+                    list(kind = "element", min = 1, max = 1, name = "concept"),
+                    list(kind = "element", min = 1, max = 1, name = "txt"))))),
             parents = "sampleFrame",
             children = list(choice = c("concept", "txt")),
             title = "Instrument Development",
-            description = "Description of how and with what frequency the sample frame is updated. This element contains the sub-element \"concept\" to support the use of an external controlled vocabulary. PLEASE NOTE A CHANGE IN USAGE INSTRUCTIONS: The string content of the element now contains the language specific label obtained from the controlled vocabulary. This allows for multiple languages through the repeated entry of the \"concept\" element. The attribute \"vocabInstanceCodeTerm\" has been added to accommodate the code term as it appears in the controlled vocabulary. See the high level documentation for a complete description of usage. Additional textual description is entered in the mixed text content or using the sub-element \"txt\".",
+            description = "Description of how and with what frequency the sample frame is updated. This element contains the sub-element \"concept\" to support the use of an external controlled vocabulary. PLEASE NOTE A CHANGE IN USAGE INSTRUCTIONS: The string content of \"concept\" now contains the language specific label obtained from the controlled vocabulary. This allows for multiple languages through the repeated entry of the \"concept\" element. The attribute \"vocabInstanceCodeTerm\" has been added to accommodate the code term as it appears in the controlled vocabulary. See the high level documentation for a complete description of usage. Additional textual description is entered in the mixed text content or using the sub-element \"txt\".",
             examples = "<updateProcedure>Changes are collected as they occur through registration and loss of phone number from the specified geographic area. Data are compiled for the date June 1st of odd numbered years, and published on July 1st for the following two-year period.</updateProcedure>"
         ),
         usage = list(
             type = "usageType",
-            optional = TRUE,
+            optional = FALSE,
             repeatable = TRUE,
             recommended = FALSE,
             deprecated = FALSE,
             attributes = list(),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list(list(
+                kind = "choice", min = 1, max = 1, particles = list(list(
+                    kind = "element", min = 1, max = 1, name = "selector"),
+                    list(kind = "element", min = 1, max = 1, name = "specificElements"))),
+                list(kind = "element", min = 0, max = 1, name = "attribute"))),
             parents = "controlledVocabUsed",
             children = list(choice = c("selector", "specificElements"), "attribute"),
             title = "Usage",
@@ -8575,6 +15733,15 @@ assign(
             recommended = FALSE,
             deprecated = FALSE,
             attributes = list(),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list(list(
+                kind = "element", min = 0, max = Inf, name = "confDec"),
+                list(kind = "element", min = 0, max = Inf, name = "specPerm"),
+                list(kind = "element", min = 0, max = Inf, name = "restrctn"),
+                list(kind = "element", min = 0, max = Inf, name = "contact"),
+                list(kind = "element", min = 0, max = Inf, name = "citReq"),
+                list(kind = "element", min = 0, max = Inf, name = "deposReq"),
+                list(kind = "element", min = 0, max = Inf, name = "conditions"),
+                list(kind = "element", min = 0, max = Inf, name = "disclaimer"))),
             parents = c("dataAccs", "sampleFrame", "metadataAccs"),
             children = list("confDec", "specPerm", "restrctn", "contact", "citReq", "deposReq", "conditions", "disclaimer"),
             title = "Use Statement",
@@ -8605,8 +15772,52 @@ assign(
                     optional = TRUE,
                     recommended = FALSE,
                     deprecated = FALSE
+                ),
+                isTranslated = list(
+                    type = "boolean",
+                    description = "Whether the content is a translation rather than the original text.",
+                    values = c("true", "false"),
+                    default = "false",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                isTranslatable = list(
+                    type = "boolean",
+                    description = "Whether the content is intended to be translated.",
+                    values = c("true", "false"),
+                    default = "true",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationSourceLanguage = list(
+                    type = "string",
+                    description = "Languages or language codes of the source text, separated by spaces.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationDate = list(
+                    type = "date",
+                    description = "Date of translation, expressed as YYYY-MM-DD.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
                 )
             ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list(list(
+                kind = "sequence", min = 1, max = 1, particles = list(list(
+                    kind = "choice", min = 0, max = Inf, particles = list(
+                        list(kind = "sequence", min = 1, max = 1, particles = list()),
+                        list(kind = "sequence", min = 1, max = 1, particles = list()),
+                        list(kind = "sequence", min = 1, max = 1, particles = list()),
+                        list(kind = "element", min = 1, max = 1, name = "concept"),
+                        list(kind = "element", min = 1, max = 1, name = "txt"))))))),
             parents = c("sampleFrame", "nCube", "nCubeGrp", "sumDscr", "var", "varGrp"),
             children = list("concept", "txt"),
             title = "Universe",
@@ -8631,8 +15842,52 @@ assign(
                     optional = TRUE,
                     recommended = FALSE,
                     deprecated = FALSE
+                ),
+                isTranslated = list(
+                    type = "boolean",
+                    description = "Whether the content is a translation rather than the original text.",
+                    values = c("true", "false"),
+                    default = "false",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                isTranslatable = list(
+                    type = "boolean",
+                    description = "Whether the content is intended to be translated.",
+                    values = c("true", "false"),
+                    default = "true",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationSourceLanguage = list(
+                    type = "string",
+                    description = "Languages or language codes of the source text, separated by spaces.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationDate = list(
+                    type = "date",
+                    description = "Date of translation, expressed as YYYY-MM-DD.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
                 )
             ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list(list(
+                kind = "sequence", min = 1, max = 1, particles = list(list(
+                    kind = "choice", min = 0, max = Inf, particles = list(
+                        list(kind = "sequence", min = 1, max = 1, particles = list()),
+                        list(kind = "sequence", min = 1, max = 1, particles = list()),
+                        list(kind = "sequence", min = 1, max = 1, particles = list()),
+                        list(kind = "element", min = 1, max = 1, name = "concept"),
+                        list(kind = "element", min = 1, max = 1, name = "txt"))))))),
             parents = "frameUnit",
             children = list("concept", "txt"),
             title = "Unit Type",
@@ -8654,8 +15909,45 @@ assign(
                     optional = TRUE,
                     recommended = FALSE,
                     deprecated = FALSE
+                ),
+                isTranslated = list(
+                    type = "boolean",
+                    description = "Whether the content is a translation rather than the original text.",
+                    values = c("true", "false"),
+                    default = "false",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                isTranslatable = list(
+                    type = "boolean",
+                    description = "Whether the content is intended to be translated.",
+                    values = c("true", "false"),
+                    default = "true",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationSourceLanguage = list(
+                    type = "string",
+                    description = "Languages or language codes of the source text, separated by spaces.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationDate = list(
+                    type = "date",
+                    description = "Date of translation, expressed as YYYY-MM-DD.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
                 )
             ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list()),
             parents = "sampleFrame",
             children = list(),
             title = "Valid Period",
@@ -8679,6 +15971,12 @@ assign(
                     deprecated = FALSE
                 )
             ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list(list(
+                kind = "choice", min = 1, max = Inf, particles = list(list(
+                    kind = "element", min = 1, max = 1, name = "item"), list(
+                    kind = "element", min = 1, max = 1, name = "range"))),
+                list(kind = "element", min = 0, max = Inf, name = "key"),
+                list(kind = "element", min = 0, max = Inf, name = "notes"))),
             parents = "var",
             children = list(choice = c("item", "range"), "key", "notes"),
             title = "Range of Valid Data Values",
@@ -8718,7 +16016,7 @@ assign(
                     description = "Reference to the variable(s) containing the weight used.",
                     values = c(),
                     default = c(),
-                    optional = FALSE,
+                    optional = TRUE,
                     recommended = FALSE,
                     deprecated = FALSE
                 ),
@@ -8957,6 +16255,33 @@ assign(
                     deprecated = FALSE
                 )
             ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list(list(
+                kind = "element", min = 0, max = Inf, name = "location"),
+                list(kind = "element", min = 0, max = Inf, name = "labl"),
+                list(kind = "element", min = 0, max = Inf, name = "imputation"),
+                list(kind = "element", min = 0, max = Inf, name = "security"),
+                list(kind = "element", min = 0, max = Inf, name = "embargo"),
+                list(kind = "element", min = 0, max = Inf, name = "respUnit"),
+                list(kind = "element", min = 0, max = Inf, name = "anlysUnit"),
+                list(kind = "element", min = 0, max = Inf, name = "qstn"),
+                list(kind = "element", min = 0, max = Inf, name = "valrng"),
+                list(kind = "element", min = 0, max = Inf, name = "invalrng"),
+                list(kind = "element", min = 0, max = Inf, name = "undocCod"),
+                list(kind = "element", min = 0, max = Inf, name = "universe"),
+                list(kind = "element", min = 0, max = Inf, name = "TotlResp"),
+                list(kind = "element", min = 0, max = Inf, name = "sumStat"),
+                list(kind = "element", min = 0, max = Inf, name = "txt"),
+                list(kind = "element", min = 0, max = Inf, name = "stdCatgry"),
+                list(kind = "element", min = 0, max = Inf, name = "catgryGrp"),
+                list(kind = "element", min = 0, max = Inf, name = "catgry"),
+                list(kind = "element", min = 0, max = Inf, name = "codInstr"),
+                list(kind = "element", min = 0, max = Inf, name = "verStmt"),
+                list(kind = "element", min = 0, max = Inf, name = "concept"),
+                list(kind = "element", min = 0, max = 1, name = "derivation"),
+                list(kind = "element", min = 0, max = 1, name = "varFormat"),
+                list(kind = "element", min = 0, max = Inf, name = "geoMap"),
+                list(kind = "element", min = 0, max = Inf, name = "catLevel"),
+                list(kind = "element", min = 0, max = Inf, name = "notes"))),
             parents = "dataDscr",
             children = list("location", "labl", "imputation", "security", "embargo", "respUnit", "anlysUnit", "qstn", "valrng", "invalrng", "undocCod", "universe", "TotlResp", "sumStat", "txt", "stdCatgry", "catgryGrp", "catgry", "codInstr", "verStmt", "concept", "derivation", "varFormat", "geoMap", "catLevel", "notes"),
             title = "Variable",
@@ -9032,8 +16357,45 @@ assign(
                     optional = TRUE,
                     recommended = FALSE,
                     deprecated = FALSE
+                ),
+                isTranslated = list(
+                    type = "boolean",
+                    description = "Whether the content is a translation rather than the original text.",
+                    values = c("true", "false"),
+                    default = "false",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                isTranslatable = list(
+                    type = "boolean",
+                    description = "Whether the content is intended to be translated.",
+                    values = c("true", "false"),
+                    default = "true",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationSourceLanguage = list(
+                    type = "string",
+                    description = "Languages or language codes of the source text, separated by spaces.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationDate = list(
+                    type = "date",
+                    description = "Date of translation, expressed as YYYY-MM-DD.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
                 )
             ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list()),
             parents = "var",
             children = list(),
             title = "Variable Format",
@@ -9158,6 +16520,13 @@ assign(
                     deprecated = TRUE
                 )
             ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list(list(
+                kind = "element", min = 0, max = Inf, name = "labl"), list(
+                kind = "element", min = 0, max = Inf, name = "txt"), list(
+                kind = "element", min = 0, max = Inf, name = "concept"),
+                list(kind = "element", min = 0, max = Inf, name = "defntn"),
+                list(kind = "element", min = 0, max = Inf, name = "universe"),
+                list(kind = "element", min = 0, max = Inf, name = "notes"))),
             parents = "dataDscr",
             children = list("labl", "txt", "concept", "defntn", "universe", "notes"),
             title = "Variable Group",
@@ -9193,6 +16562,7 @@ assign(
                     deprecated = FALSE
                 )
             ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list()),
             parents = "derivation",
             children = list(),
             title = "Variable Range",
@@ -9205,7 +16575,49 @@ assign(
             repeatable = TRUE,
             recommended = FALSE,
             deprecated = FALSE,
-            attributes = list(),
+            attributes = list(
+                isTranslated = list(
+                    type = "boolean",
+                    description = "Whether the content is a translation rather than the original text.",
+                    values = c("true", "false"),
+                    default = "false",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                isTranslatable = list(
+                    type = "boolean",
+                    description = "Whether the content is intended to be translated.",
+                    values = c("true", "false"),
+                    default = "true",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationSourceLanguage = list(
+                    type = "string",
+                    description = "Languages or language codes of the source text, separated by spaces.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationDate = list(
+                    type = "date",
+                    description = "Date of translation, expressed as YYYY-MM-DD.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                )
+            ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list(list(
+                kind = "choice", min = 0, max = Inf, particles = list(list(
+                    kind = "sequence", min = 1, max = 1, particles = list()),
+                    list(kind = "sequence", min = 1, max = 1, particles = list()),
+                    list(kind = "sequence", min = 1, max = 1, particles = list()))))),
             parents = c("dimensns", "recDimnsn"),
             children = list(),
             title = "Overall Variable Count",
@@ -9246,7 +16658,7 @@ assign(
                     recommended = FALSE,
                     deprecated = FALSE
                 ),
-                isPersistantIdentifier = list(
+                isPersistentIdentifier = list(
                     type = "boolean",
                     description = "Indicate if the agent identifier is intended to be a persistent identifier",
                     values = c("true", "false"),
@@ -9263,8 +16675,45 @@ assign(
                     optional = TRUE,
                     recommended = FALSE,
                     deprecated = FALSE
+                ),
+                isTranslated = list(
+                    type = "boolean",
+                    description = "Whether the content is a translation rather than the original text.",
+                    values = c("true", "false"),
+                    default = "false",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                isTranslatable = list(
+                    type = "boolean",
+                    description = "Whether the content is intended to be translated.",
+                    values = c("true", "false"),
+                    default = "true",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationSourceLanguage = list(
+                    type = "string",
+                    description = "Languages or language codes of the source text, separated by spaces.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationDate = list(
+                    type = "date",
+                    description = "Date of translation, expressed as YYYY-MM-DD.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
                 )
             ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list()),
             parents = "verStmt",
             children = list(),
             title = "Version Responsibility Statement",
@@ -9283,6 +16732,10 @@ assign(
             recommended = FALSE,
             deprecated = FALSE,
             attributes = list(),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list(list(
+                kind = "element", min = 0, max = Inf, name = "version"),
+                list(kind = "element", min = 0, max = Inf, name = "verResp"),
+                list(kind = "element", min = 0, max = Inf, name = "notes"))),
             parents = c("citation", "docSrc", "fileTxt", "fileCitation", "nCube", "sourceCitation", "var"),
             children = list("version", "verResp", "notes"),
             title = "Version Statement",
@@ -9313,8 +16766,45 @@ assign(
                     optional = TRUE,
                     recommended = FALSE,
                     deprecated = FALSE
+                ),
+                isTranslated = list(
+                    type = "boolean",
+                    description = "Whether the content is a translation rather than the original text.",
+                    values = c("true", "false"),
+                    default = "false",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                isTranslatable = list(
+                    type = "boolean",
+                    description = "Whether the content is intended to be translated.",
+                    values = c("true", "false"),
+                    default = "true",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationSourceLanguage = list(
+                    type = "string",
+                    description = "Languages or language codes of the source text, separated by spaces.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationDate = list(
+                    type = "date",
+                    description = "Date of translation, expressed as YYYY-MM-DD.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
                 )
             ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list()),
             parents = "verStmt",
             children = list(),
             title = "Version",
@@ -9331,7 +16821,51 @@ assign(
             repeatable = TRUE,
             recommended = FALSE,
             deprecated = FALSE,
-            attributes = list(),
+            attributes = list(
+                isTranslated = list(
+                    type = "boolean",
+                    description = "Whether the content is a translation rather than the original text.",
+                    values = c("true", "false"),
+                    default = "false",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                isTranslatable = list(
+                    type = "boolean",
+                    description = "Whether the content is intended to be translated.",
+                    values = c("true", "false"),
+                    default = "true",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationSourceLanguage = list(
+                    type = "string",
+                    description = "Languages or language codes of the source text, separated by spaces.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationDate = list(
+                    type = "date",
+                    description = "Date of translation, expressed as YYYY-MM-DD.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                )
+            ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list(list(
+                kind = "choice", min = 0, max = Inf, particles = list(list(
+                    kind = "sequence", min = 1, max = 1, particles = list()),
+                    list(kind = "sequence", min = 1, max = 1, particles = list()),
+                    list(kind = "sequence", min = 1, max = 1, particles = list()),
+                    list(kind = "element", min = 1, max = 1, name = "concept"),
+                    list(kind = "element", min = 1, max = 1, name = "txt"))))),
             parents = "dataColl",
             children = list(choice = c("concept", "txt")),
             title = "Weighting",
@@ -9347,7 +16881,47 @@ assign(
             repeatable = FALSE,
             recommended = FALSE,
             deprecated = FALSE,
-            attributes = list(),
+            attributes = list(
+                isTranslated = list(
+                    type = "boolean",
+                    description = "Whether the content is a translation rather than the original text.",
+                    values = c("true", "false"),
+                    default = "false",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                isTranslatable = list(
+                    type = "boolean",
+                    description = "Whether the content is intended to be translated.",
+                    values = c("true", "false"),
+                    default = "true",
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationSourceLanguage = list(
+                    type = "string",
+                    description = "Languages or language codes of the source text, separated by spaces.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                ),
+                translationDate = list(
+                    type = "date",
+                    description = "Date of translation, expressed as YYYY-MM-DD.",
+                    values = c(),
+                    default = c(),
+                    optional = TRUE,
+                    recommended = FALSE,
+                    deprecated = FALSE
+                )
+            ),
+            contentModel = list(kind = "sequence", min = 1, max = 1, particles = list(list(
+                kind = "choice", min = 0, max = Inf, particles = list(list(
+                    kind = "sequence", min = 1, max = 1, particles = list()))))),
             parents = "geoBndBox",
             children = list(),
             title = "West Bounding Longitude",

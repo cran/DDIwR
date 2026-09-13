@@ -1,6 +1,6 @@
 Package: DDIwR
 Title: DDI with R
-Version: 0.20
+Version: 0.21
 Authors@R: person(
     "Adrian", "Dusa",
     email = "dusa.adrian@unibuc.ro",
@@ -18,9 +18,9 @@ Imports: admisc (> 0.36), base64enc, declared (> 0.25), digest, tools,
 Language: en-US
 Encoding: UTF-8
 NeedsCompilation: yes
-Packaged: 2026-08-22 02:49:51 UTC; dusadrian
+Packaged: 2026-09-13 01:43:45 UTC; dusadrian
 Author: Adrian Dusa [aut, cre, cph] (ORCID:
     <https://orcid.org/0000-0002-3525-9253>)
 Maintainer: Adrian Dusa <dusa.adrian@unibuc.ro>
 Repository: CRAN
-Date/Publication: 2026-08-22 03:20:02 UTC
+Date/Publication: 2026-09-13 03:30:02 UTC
