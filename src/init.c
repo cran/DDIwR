@@ -65,8 +65,9 @@ extern SEXP make_datadscr_xml(
     SEXP cat_freq
 );
 extern SEXP collect_xml_metadata(SEXP data, SEXP include_formats);
-extern SEXP collect_datadscr_stats(SEXP data, SEXP variables, SEXP dates);
+extern SEXP collect_datadscr_stats(SEXP data, SEXP variables, SEXP dates, SEXP include_projection);
 extern SEXP label_freqs(SEXP x, SEXP labels, SEXP wt);
+extern SEXP readstat_parallel_supported_(void);
 extern SEXP declared_df_parse_dta_file(SEXP spec, SEXP encoding, SEXP cols_skip, SEXP n_max, SEXP rows_skip);
 extern SEXP declared_df_parse_dta_file_parallel(SEXP spec, SEXP encoding, SEXP cols_skip, SEXP n_max, SEXP rows_skip, SEXP num_threads);
 extern SEXP declared_sav_parallel_prototype(SEXP spec, SEXP num_threads);
@@ -80,7 +81,22 @@ extern SEXP declared_write_sas_(SEXP data, SEXP path, SEXP dictionary);
 extern SEXP declared_write_sav_(SEXP data, SEXP path, SEXP compress);
 extern SEXP declared_write_xpt_(SEXP data, SEXP path, SEXP version, SEXP name, SEXP label, SEXP dictionary);
 
+extern SEXP metadata_snapshot_create(SEXP records);
+extern SEXP metadata_clean_text(SEXP text);
+extern SEXP metadata_snapshot_normalized(SEXP pointer, SEXP columns, SEXP fields, SEXP threads);
+extern SEXP metadata_snapshot_raw(SEXP data, SEXP fields);
+extern SEXP metadata_snapshot_read(SEXP pointer, SEXP columns, SEXP fields);
+extern SEXP metadata_snapshot_close(SEXP pointer);
+extern SEXP metadata_values_copy(SEXP data, SEXP columns);
+
 static const R_CallMethodDef CallEntries[] = {
+    {"metadata_snapshot_create", (DL_FUNC) &metadata_snapshot_create, 1},
+    {"metadata_clean_text", (DL_FUNC) &metadata_clean_text, 1},
+    {"metadata_snapshot_normalized", (DL_FUNC) &metadata_snapshot_normalized, 4},
+    {"metadata_snapshot_raw", (DL_FUNC) &metadata_snapshot_raw, 2},
+    {"metadata_snapshot_read", (DL_FUNC) &metadata_snapshot_read, 3},
+    {"metadata_snapshot_close", (DL_FUNC) &metadata_snapshot_close, 1},
+    {"metadata_values_copy", (DL_FUNC) &metadata_values_copy, 2},
     {"write_text_file", (DL_FUNC) &write_text_file, 2},
     {"all_numeric_chars_", (DL_FUNC) &all_numeric_chars_, 1},
     {"can_build_dictionary_", (DL_FUNC) &can_build_dictionary_, 3},
@@ -89,8 +105,9 @@ static const R_CallMethodDef CallEntries[] = {
     {"recode_to_spss_full_", (DL_FUNC) &recode_to_spss_full_, 6},
     {"make_datadscr_xml", (DL_FUNC) &make_datadscr_xml, 26},
     {"collect_xml_metadata", (DL_FUNC) &collect_xml_metadata, 2},
-    {"collect_datadscr_stats", (DL_FUNC) &collect_datadscr_stats, 3},
+    {"collect_datadscr_stats", (DL_FUNC) &collect_datadscr_stats, 4},
     {"label_freqs", (DL_FUNC) &label_freqs, 3},
+    {"readstat_parallel_supported_", (DL_FUNC) &readstat_parallel_supported_, 0},
     {"declared_df_parse_dta_file", (DL_FUNC) &declared_df_parse_dta_file, 5},
     {"declared_df_parse_dta_file_parallel", (DL_FUNC) &declared_df_parse_dta_file_parallel, 6},
     {"declared_sav_parallel_prototype", (DL_FUNC) &declared_sav_parallel_prototype, 2},
