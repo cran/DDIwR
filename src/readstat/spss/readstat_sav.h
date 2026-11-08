@@ -104,8 +104,11 @@ typedef struct sav_ctx_s {
 
     const char    *input_encoding;
     const char    *output_encoding;
+    int            charset_code;      /* from record 7 subtype 3 */
+    char           charset_name[64];  /* from record 7 subtype 20 */
     char           file_label[4*64+1];
     time_t         timestamp;
+    int            timestamp_present;
     uint32_t      *variable_display_values;
     size_t         variable_display_values_count;
     iconv_t        converter;
@@ -113,6 +116,7 @@ typedef struct sav_ctx_s {
     int            var_offset;
     int            var_count;
     int            record_count;
+    int64_t        source_record_count;
     int            row_limit;
     int            row_offset;
     int            current_row;
@@ -131,6 +135,7 @@ typedef struct sav_ctx_s {
 
     size_t         multiple_response_sets_length;
     mr_set_t      *mr_sets;
+    readstat_attribute_t *spss_attributes;
 
     double         bias;
     int            format_version;
@@ -167,6 +172,7 @@ typedef struct ddiwr_sav_prepared_s {
 #define SAV_RECORD_SUBTYPE_INTEGER_INFO       3
 #define SAV_RECORD_SUBTYPE_FP_INFO            4
 #define SAV_RECORD_SUBTYPE_MULTIPLE_RESPONSE_SETS 7
+#define SAV_RECORD_SUBTYPE_MULTIPLE_RESPONSE_SETS_V14 19
 #define SAV_RECORD_SUBTYPE_PRODUCT_INFO      10
 #define SAV_RECORD_SUBTYPE_VAR_DISPLAY       11
 #define SAV_RECORD_SUBTYPE_LONG_VAR_NAME     13

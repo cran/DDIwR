@@ -41,51 +41,250 @@ SAS files}
 or SAS files}
 
 \item{...}{Additional options specific to the source or destination format,
-including \code{language} when importing translated DDI labels; see the Details
-section}
+including \code{language} when importing translated DDI labels, \code{catalog_file}
+and \code{catalog_encoding} for SAS catalog input, and \code{catalog_to} for paired
+SAS value-label catalog output; see the Details section}
 }
 \value{
 An invisible R data frame, when the argument \strong{\code{to}} is NULL.
 }
 \description{
 This function converts (or transfers) between R, Stata, SPSS, SAS, Excel and
-DDI XML files. Unlike the regular import / export functions from packages
-\bold{\pkg{haven}} or \bold{\pkg{rio}}, this function uses the DDI standard
-as an exchange platform and facilitates a consistent conversion of the
-missing values.
+DDI XML files. It uses the DDI standard as an exchange platform and
+facilitates a consistent conversion of missing values. Statistical files
+are read and written through ReadStat directly, without the haven package.
 }
 \details{
 When the argument \strong{\code{to}} specifies a certain statistical package
 (\code{"R"}, \code{"Stata"}, \code{"SPSS"}, \code{"SAS"}, \code{"XPT"}) or \code{"Excel"}, the name of the
 destination file will be identical to the one in the argument \strong{\code{from}},
-with an automatically added software specific extension.
+with an automatically added software specific extension. \code{to = "SAS"}
+retains the XPT destination. Supply an explicit \code{.sas7bdat} path to select
+native SAS7BDAT output.
 
 SPSS portable file (with the extension \code{".por"}) can only be read, but not
 written.
 
+SPSS exports default to byte compression for \code{.sav} destinations and ZSAV
+compression for \code{.zsav} destinations. Supply \code{compress = "none"}, \code{"byte"}
+or \code{"zsav"} through \code{...} to override that default. \code{compress = FALSE}
+selects no compression and \code{compress = TRUE} selects ZSAV compression.
+
+SAS transport exports (\code{.xpt} or \code{to = "SAS"}) accept data frames without
+labels. A companion SAS setup script is generated only when the data has
+variable or value labels.
+
+SPSS system files (\code{.sav} and \code{.zsav}) preserve custom dataset and variable
+attributes. They are stored in the R attribute \code{spss.attributes} on the data
+frame and on each column, as a named list of character vectors. For example,
+\code{attr(data, "spss.attributes") <- list(source = "Archive")} and
+\code{attr(data$answer, "spss.attributes") <- list(foo = "bar")} are written as
+SPSS dataset and variable attributes, respectively. A character vector with
+several elements represents an attribute array; a single element represents
+a scalar. Custom names such as \code{label} remain separate from standard R
+metadata. Names must be valid SPSS attribute names of at most 64 UTF-8 bytes,
+unique ignoring case within their scope. Values must be non-missing strings
+without line feeds, which the SPSS attribute format cannot represent.
+
+Stata dataset and variable characteristics are preserved in \code{.dta} files
+through the R attribute \code{stata.characteristics} on the data frame and each
+column. Use a named list of single, non-missing strings, for example
+\code{attr(data, "stata.characteristics") <- list(Source = "Archive")} and
+\code{attr(data$answer, "stata.characteristics") <- list(Foo = "bar")}.
+Characteristic names are case sensitive and may contain at most 32
+characters. Values may contain line feeds and trailing spaces, and may use
+at most 67783 bytes in the target encoding (67784 including the terminating
+zero byte). Stata 14 and later use UTF-8.
+Earlier versions write characteristic values in Windows-1252 and require
+ASCII characteristic names; unrepresentable values are rejected. When
+importing these older files with \code{convert()}, specify
+\code{encoding = "windows-1252"} (or their actual source encoding).
+Dataset and variable note characteristics, including \code{note0}, are retained.
+Raw dataset note characteristics take precedence over the legacy R \code{notes}
+attribute when writing, preserving note numbering and contents.
+If no raw note characteristics are present, dataset \code{notes} are written as
+Stata note characteristics.
+
+Import to R and conversion to RDS retain the formats, storage widths,
+display widths, temporal classes and units, and custom SPSS/Stata metadata
+returned by the readers, including during declared conversion and missing
+recoding. Dataset labels and notes are retained in R. Character-to-numeric
+recoding removes obsolete string formats and storage widths. Preservation
+in exported statistical files depends on the destination writer's support.
+
+SPSS exports and the native SAS7BDAT writer preserve the data frame's \code{label}
+attribute as the dataset label. When exporting to SPSS, \code{label} in \code{...}
+overrides that attribute: \code{convert(data, "data.sav", label = "Survey")}.
+An explicit \code{label = NULL} or \code{label = ""} clears the exported dataset label;
+omitting the argument retains it. Variable labels and custom attributes named
+\code{label} are separate. Dataset labels must be single, non-missing character
+strings of at most 64 UTF-8 bytes for SPSS or 256 bytes for native SAS7BDAT,
+or NULL. Invalid labels cause an error before opening the destination file.
+Trailing padding spaces are removed on import. Export does not modify the
+input object's label.
+
+Optional \code{spss_metadata}, \code{stata_metadata} and \code{sas_metadata} attributes
+group format-specific metadata in ordinary named R lists on data frames or
+columns. These are DDIwR's metadata containers. Field names must be nonempty
+and unique. Statistical file readers store formats, storage widths, display
+widths and dataset notes only in these lists. Shared attributes such as
+\code{label}, \code{labels}, \code{na_values} and \code{na_range} remain separate. Edit the list
+fields after import; legacy attributes are accepted as writer fallbacks for
+older R objects but are not emitted by readers.
+
+Writers use explicit arguments first, then fields in the destination vendor's
+list, then existing attributes, then their usual defaults. A missing list
+field falls back to the existing attribute; a present \code{NULL} field clears
+it and uses the writer default. For example,
+\code{attr(data$answer, "spss_metadata") <- list(format = "F12.3")} overrides
+\code{format.spss}, while \code{list(format = NULL)} clears it. Other vendors' lists
+are not interpreted. Input objects are not modified.
+Use \code{\link[=vendorMetadata]{vendorMetadata()}} to read or replace list fields without editing attributes.
+Use \code{\link[=clearFormats]{clearFormats()}} or \code{\link[=clearWidths]{clearWidths()}} to remove the corresponding column
+metadata from both vendor lists and existing attributes, preventing legacy
+fallback from restoring cleared fields.
+
+Supported column fields are \code{format} for all three vendors, \code{width} for
+all three vendors, and \code{display_width}, \code{measure} and \code{alignment} for SPSS.
+SPSS measurement levels are \code{"nominal"}, \code{"ordinal"} and \code{"scale"};
+alignments are \code{"left"}, \code{"right"} and \code{"center"}. SAS also supports
+\code{informat}. Formats and informats are single, non-missing, nonempty strings;
+widths are nonnegative whole numbers up to R's integer
+maximum. String storage is enlarged when needed to fit the values. Numeric
+storage width is fixed at eight bytes in SAV output. Numeric SAS7BDAT and
+XPT widths must be 3 through 8 bytes, or 0 for the eight-byte default.
+Native SAS7BDAT output discards the least significant bytes of the stored
+double, which can change fractions and large integers. Date/time values
+are shortened after conversion to SAS units. Use eight bytes to retain full
+precision. Numeric SAS7BDAT widths in the existing \code{width} attribute follow
+the same rules. Invalid widths cause an error before opening the destination.
+
+Stata column \code{type} selects \code{"byte"}, \code{"int"}, \code{"long"}, \code{"float"},
+\code{"double"} or \code{"strL"}. Numeric storage must represent all exported values
+exactly, including converted date/time units; unsafe choices cause an error.
+Clear \code{type} to restore automatic storage selection after editing values.
+\code{"strL"} requires a character column and Stata 13 or later. Readers retain
+numeric storage types and \code{strL} in \code{stata_metadata}. Fixed Stata string
+\code{width} records the on-disk byte capacity, excluding the buffer terminator.
+
+Dataset \code{notes} are supported for SPSS and Stata as character vectors without
+missing values. SPSS notes allow at most 80 UTF-8 bytes per entry, including
+empty entries; trailing padding spaces are removed on import. Stata list
+notes override both legacy \code{notes} and raw dataset note characteristics.
+Unchanged imported notes retain their original raw numbering; other
+characteristics remain intact. Dataset \code{version} uses Stata release numbers
+8 through 15, or 5 and 8 for SAS XPT. On import, shared Stata file formats
+map to the earliest supported release that writes them (8, 10, 12, 13, 14
+or 15). Without metadata, \code{convert()} defaults to Stata 14 or XPT 5;
+\code{version = NULL} explicitly selects that default. SAS dataset \code{table_name}
+is supported for SAS7BDAT and XPT, and supplies the default for the XPT
+writer's \code{name} argument.
+
+Dataset \code{created} and \code{modified} timestamps are read as \code{POSIXct} values
+displayed in UTC. Fields are included only when the format provides a
+timestamp that the reader can parse. Blank or unavailable timestamps remain
+absent through conversion, recoding and RDS storage; the Unix epoch (zero)
+is a valid timestamp and is not treated as missing. SPSS and Stata imports
+expose their single header timestamp as \code{created}, without a \code{modified} field.
+\code{created} can be written for all three vendors, and
+\code{sas_metadata$modified} can be written to SAS7BDAT and XPT versions 5 and 8.
+Each writable timestamp must be one finite \code{POSIXct} value with whole-second
+precision. An absent or NULL \code{modified} uses the creation timestamp; setting
+only \code{modified} leaves creation at the writer's current-time default. The
+current-time default also applies when exporting without \code{created}.
+Local time is used for file headers without
+timezone information; Stata timestamps have minute precision. SPSS creation
+years must be 1970 through 2069 and both XPT timestamps must use years 1960
+through 2059 because their headers use two-digit years. XPT imports use the
+dataset member's timestamps, falling back to the corresponding library
+timestamps when the member fields are blank. Creation and modification are
+resolved independently; one does not substitute for the other. SAS7BDAT stores
+separate UTC
+offsets for the two timestamps, preserving instants across timezone changes.
+SPSS and Stata headers have no separate modification timestamp:
+\code{spss_metadata$modified} and \code{stata_metadata$modified} remain preserved in R
+and RDS but are ignored on export, leaving the creation timestamp unchanged.
+
+SPSS multiple-response definitions are read and written through dataset
+\code{spss_metadata$mr_sets}, a list named by set name. Each entry contains \code{type},
+\code{label}, \code{is_dichotomy}, \code{counted_value}, \code{counted_string}, \code{variables} and
+\code{label_from_var_label}. Counted fields apply to dichotomies; \code{counted_string}
+retains the source token, including string values. Variable references use
+long variable names; exports translate them to the file's short names.
+Definitions are retained in R and RDS and written in SAV and ZSAV files.
+
+To create a set, supply \code{type} (\code{"C"} for categories, \code{"D"} for dichotomies
+labelled by variables, or \code{"E"} for dichotomies labelled by counted values)
+and at least two distinct, existing \code{variables}, all numeric or all string.
+Set names must begin with \code{$}, follow SPSS naming rules, fit in 64 UTF-8
+bytes, and be unique ignoring case. For example, this defines a numeric
+dichotomy set:
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{attr(data, "spss_metadata") <- list(mr_sets = list(
+    "$choices" = list(type = "D", variables = c("first", "second"), counted_value = 1)
+))
+}\if{html}{\out{</div>}}
+
+Optional \code{label} defaults to \code{""} and is
+limited to 256 UTF-8 bytes. \code{label_from_var_label = TRUE} is allowed only
+for type \code{"E"} with an empty label. \code{is_dichotomy}, when supplied, must
+agree with \code{type}.
+
+For dichotomies, \code{counted_string} takes precedence over \code{counted_value}.
+Numeric sets require an integer token or a finite whole-number
+\code{counted_value}; string sets require \code{counted_string}, which must fit the
+narrowest exported member. Category sets cannot specify either counted
+field. Trailing padding spaces are removed from counted strings; imported
+labels also lose trailing padding spaces. Labels and counted strings cannot
+contain line breaks. Unknown fields, invalid definitions and missing member
+variables cause an error before opening the destination. NULL or empty
+\code{mr_sets} writes no definitions. Files group types \code{"C"} and \code{"D"} before
+\code{"E"}, preserving relative set order within each group.
+
+All list fields, including unsupported ones, are retained during conversion
+to R or RDS and missing-value recoding. Character-to-numeric recoding removes
+list fields describing string storage (\code{format}, \code{width}, SAS \code{informat}
+and Stata \code{type}). Export warns about non-NULL destination-vendor fields the
+writer cannot honor, apart from the read-only dataset \code{modified} field for
+SPSS and Stata.
+These lists are separate from custom \code{spss.attributes} and
+\code{stata.characteristics}. Malformed lists and supported fields with invalid
+types or shapes cause an error before the destination file is opened.
+The native writers also enforce their format-specific restrictions.
+
+Stata export converts R \code{Date} columns to days since 1960-01-01 and
+\code{POSIXct} columns to milliseconds since that date. Integer storage is used
+only when the converted values fit its range and precision. System and
+extended missing values are preserved separately from the date/time values.
+
 The argument \strong{\code{to}} can also be specified as a path to a specific file,
 in which case the software package is determined from its file extension.
+Home-directory paths beginning with \code{~} are supported.
+DDI exports include the required study description with generic defaults.
+Supply \code{titl}, \code{IDNo}, \code{agency}, \code{distrbtr}, \code{URI} and \code{abstract} through
+\code{...} to describe the actual study.
+XML exports are validated against the bundled DDI Codebook 2.6 schema before
+writing. Invalid XML causes an error and leaves destination files unchanged.
 The following extentions are currently recognized: \code{.xml} for DDI,
-\code{.rds} for R, \code{.dta} for Stata, \code{.sav} for SPSS, \code{.xpt} for SAS, and
+\code{.rds} for R, \code{.dta} for Stata, \code{.sav} and \code{.zsav} for SPSS, \code{.xpt} for SAS, and
 \code{.xlsx} for Excel.
 
 Additional parameters can be specified via the three dots argument
-\strong{\code{...}}, that are passed to the respective functions from packages
-\bold{\pkg{haven}} and \bold{\pkg{readxl}}. For instance the function
-\bold{\code{\link[haven]{write_dta}()}} has an additional argument called
-\strong{\code{version}} when writing a Stata file.
+\strong{\code{...}}, for the destination or source format. For example, \strong{\code{version}}
+selects the Stata release when writing a \code{.dta} file. Excel import options
+are passed to \bold{\pkg{readxl}}.
 
 The formal arguments \strong{\code{n_max}} and \strong{\code{skip}} are used only when importing
 foreign data files through the direct ReadStat readers, namely SPSS (\code{.sav},
 \code{.zsav}, \code{.por}), Stata (\code{.dta}) and SAS (\code{.sas7bdat}, \code{.xpt}). They can be
 used to read only the first \code{n_max} rows or to import large files in batches
 by skipping the first \code{skip} rows.
+Use \code{\link[=inspectFile]{inspectFile()}} to inspect column definitions and metadata without
+decoding observations, including the original row count when the file's
+metadata provides one. Unlike inspection, \code{n_max = 0} uses a limited data read.
 
-The most important argument to consider is called \strong{\code{user_na}}, part of
-the function \bold{\code{\link[haven]{read_sav}()}}. Defaulted to \code{FALSE} in
-package \bold{\pkg{haven}}, in package \bold{\pkg{DDIwR}} it is used as
-having the value of \code{TRUE}, and it can be deactivated by explicitly
-specifying \code{user_na = FALSE} in function \strong{\code{convert()}}.
+SPSS user-defined missing codes are retained by default. Specify
+\code{user_na = FALSE} in \strong{\code{convert()}} to discard them during import.
 
 The same three dots argument is used to pass additional parameters to other
 functions in this package, for instance \strong{\code{exportCodebook()}} when writing
@@ -140,18 +339,121 @@ generated codebook is unique to this package and automatically detected when
 converting to another statistical software. This will likely be replaced with
 a time insensitive text version.
 
-Converting to SAS is experimental, and it relies on the same package
-\bold{\pkg{haven}} that uses the ReadStat C library. The safest way to
-convert, which at the same time consistently converts the missing values, is
-to export the data to a CSV file and create a setup file produced by function
-\bold{\code{\link{setupfile}()}} and run the commands manually.
+Native SAS import uses ReadStat directly. SAS value-label definitions are
+read from a companion format catalog. Supply its path via \strong{\code{catalog_file}},
+or place it alongside the \code{.sas7bdat} file with the same base name and the
+extension \code{.sas7bcat} for automatic discovery.
+When a catalog does not declare an encoding, it inherits the effective
+data-file encoding. Use \strong{\code{encoding}} and \strong{\code{catalog_encoding}} to override
+their encodings independently; a catalog override does not affect data-file
+decoding.
 
-Converting data from SAS is possible, however reading the metadata is also
-experimental (the current version of \bold{haven} only partially imports the
-metadata). Either specify the path to the catalog file using the argument
-\strong{\code{catalog_file}} from the function \bold{\code{\link[haven]{read_sas}()}},
-or have the catalog file in the same directory as the data set, with the same
-file name and the extension \code{.sas7bcat}
+Catalog labels for \code{.A} through \code{.Z} use numeric keys -91 through -116 in
+the R \code{labels} attribute. A label for \code{._} retains an underscore-tagged NA
+key, distinct from the ordinary NA key for system missing. These keys also
+apply to dates and timestamps and are preserved in RDS storage.
+
+Standalone SAS7BDAT and XPT output does not contain value-label definitions.
+Native SAS7BDAT output supports an optional paired value-label catalog:
+\code{convert(data, "data.sas7bdat", catalog_to = "data.sas7bcat")}.
+\code{catalog_file} and \code{catalog_encoding} apply only to the input catalog;
+\code{catalog_to} is the output catalog path and is supported only with a
+\code{.sas7bdat} destination. Omitting \code{catalog_to}, or setting it to NULL,
+writes only the data file and leaves existing catalog files unchanged.
+An input catalog is never reused as an output
+destination implicitly. For example, this reads one catalog and writes another:
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{convert("input.sas7bdat", "output.sas7bdat",
+    catalog_file = "input.sas7bcat", catalog_to = "output.sas7bcat")
+}\if{html}{\out{</div>}}
+
+Native SAS7BDAT output preserves system missing, \code{._} and existing letter
+missing tags using SAS's native ordinal encoding at every numeric storage
+width. Readers also accept the older ASCII-tagged representation.
+Automatically generated dictionaries assign other missing codes to unused
+letters. An explicit \code{dictionary} can override that mapping. Native output does not
+generate an additional SAS setup script.
+Other destinations retain their existing behavior.
+Numeric, integer and logical columns, including factor codes, can have
+exact numeric value labels, system missing labels, \code{._} and \code{.A} through
+\code{.Z} labels. Character columns accept named character vectors of exact
+value-label keys, including an empty key for the blank character value.
+Keys must be non-missing and at most 32767 UTF-8 bytes. Trailing ASCII spaces
+are removed from character keys to match SAS padding semantics; leading
+spaces and other characters remain significant. Character label text retains
+its leading and trailing spaces, including empty labels. Keys that become duplicates
+after removing padding cause an error. \code{NA_character_} is not a catalog key;
+use \code{""} for a blank key. Unused definitions and empty datasets are supported.
+Labelled \code{Date}, \code{POSIXct}, \code{hms} and \code{difftime} columns are supported.
+Ordinary label keys use the column's R units, just like its data values:
+days since 1970 for dates, seconds since 1970 for timestamps, and the
+column's declared units for durations. Export converts both rows and keys
+to SAS days/seconds since 1960 or time seconds. Durations are normalized
+to seconds on import; timestamps retain their instant and are returned in UTC.
+System and extended missing-label keys are categories, never shifted or scaled.
+Numeric and character ranges, endpoint exclusions, LOW/HIGH and OTHER rules
+use column \code{sas_metadata$catalog_rules}, a data frame with character fields
+\code{start}, \code{end}, \code{label}, \code{hlo}, \code{sexcl} and \code{eexcl}, integer \code{default} and
+numeric \code{fuzz}. \code{end} defaults to \code{start}, \code{hlo} to \code{""}, exclusions to \code{"N"},
+\code{default} to the longest label's byte width (at least one), and \code{fuzz} to zero.
+\code{default} and \code{fuzz} must be constant within each format. HLO accepts \code{""},
+\code{"L"}, \code{"H"}, \code{"LH"} or \code{"O"}; exclusions accept \code{"N"} or \code{"Y"}. An OTHER
+row has no endpoints; L/H mark unbounded ordinary numeric/character bounds.
+Numeric endpoints are strings containing finite SAS numbers or missing tokens
+\code{"."}, \code{"._"}, \code{".A"} through \code{".Z"}. Temporal endpoints use native SAS units
+(days/seconds since 1960 or time seconds), as in PROC FORMAT/CNTLIN, rather
+than R date/time units. Character endpoints retain leading spaces and drop
+trailing ASCII padding. Endpoints and labels allow up to 32767 UTF-8 bytes,
+subject to native record/page capacity. Overlapping or empty intervals,
+multiple OTHER rows and unsupported rule fields are rejected before publication.
+Rule tables take precedence over \code{labels}; a NULL table restores exact labels.
+Imported ranges are retained as rules, never misrepresented as point labels;
+exact entries remain available in \code{labels}. Native default widths and numeric
+fuzz are retained. Rules are written only with a paired catalog. Multilabel,
+PICTURE, nested formats and executable expressions are not supported.
+Catalog output uses the native 64-bit layout, including SAS directory,
+index and format records. SAS catalogs depend on host layout; compatibility
+is checked with SAS 9.4M9 on Linux x86-64 in UTF-8.
+
+A custom label format cannot also identify a temporal type. Paired temporal
+export therefore supplies an absent \code{sas_metadata$informat} as \code{DATE9},
+\code{DATETIME25.6} or \code{TIME20.6}. An existing compatible informat is retained;
+an explicitly NULL, unrecognized or conflicting informat causes an error.
+On SAS import, a recognized temporal display format takes precedence;
+otherwise a recognized temporal informat determines the date/time class
+and unit conversion, even without a catalog. Ordinary catalog keys follow
+the same conversion; missing-code surrogates remain unchanged.
+
+A labelled column's SAS format reference must name a user-defined format.
+Numeric names allow up to 32 ASCII letters, digits and underscores, starting
+and ending with a letter or underscore. Character format names use a \code{$}
+prefix followed by up to 31 such characters. The prefix must match the
+column's type; numeric and character names are distinct. Display width is
+preserved separately. Decimal places apply only to numeric formats.
+Common built-in display formats are rejected; use \code{\link[=clearFormats]{clearFormats()}} before
+export to request generated names. Missing or explicitly cleared references
+get unique \code{DDI...F} names for numeric columns or \verb{$DDI...F} for character
+columns. Columns can share a format only when their exported keys and label
+texts agree. Label texts must be non-missing and at most 32767 UTF-8 bytes each.
+Duplicate keys, conflicting definitions and reduced numeric widths that
+cannot retain a label key exactly cause an error.
+
+Catalog imports retain a \code{sas_metadata$label_tags} character vector aligned
+with the value labels: \code{""} for ordinary keys, \code{"."} for system missing,
+\code{"_"} or an uppercase letter for tagged missing. This distinguishes label
+definitions even when no observations use them, without treating ordinary
+negative values as missing. Paired exports use these tags and the same
+missing-code dictionary as the data writer; mismatched tag-vector lengths
+and stale definitions cause an error. \code{label_tags} applies only to numeric
+label definitions and must be absent or NULL for character catalogs.
+Standalone SAS7BDAT and XPT exports
+retain their existing behavior and do not write these label definitions.
+
+Paired export writes both files to temporary siblings before replacing the
+destinations. Publication retains backups and attempts to restore both
+originals if either rename fails. The two renames are not a single atomic
+operation. Input objects are not modified. SAS value-label catalogs can
+also be supplied as setup commands; see \bold{\code{\link{setupfile}()}}.
 
 The argument \strong{\code{recode}} controls how missing values are treated. If the
 input file has SPSS like numeric codes, they will be recoded to extended
@@ -163,16 +465,26 @@ exporting to Stata or SAS. This automatically builds a dataset-level missing
 value dictionary when possible. Use \strong{\code{harmonize = FALSE}} via the three
 dots argument to deactivate this behavior. The alias
 \strong{\code{harmonise = FALSE}} is also accepted.
+If the dataset-level dictionary exceeds 26 codes, conversion falls back to
+separate dictionaries for each variable. A variable with more than 26
+distinct numeric missing codes cannot be represented this way and export fails.
+SAS's additional \code{._} tag is preserved as an \code{NA} with the name \code{"_"} in
+the column's \code{na_index} attribute, for numeric columns, dates and timestamps.
+It does not consume a letter-tag dictionary entry; the A-Z tags retain their
+existing numeric codes from -91 to -116.
 
-The character \strong{\code{encoding}} is usually passed to the corresponding functions
-from package \bold{\pkg{haven}}. It can be set to \code{NULL} to reset at the
-default in that package.
+The character \strong{\code{encoding}} is passed to the direct ReadStat readers that
+accept an encoding override. Set it to \code{NULL} to use the file's encoding
+information and the reader's fallback.
 
 Converting to SPSS works with numerical and character labelled vectors, with
-or without labels. Date/Time variables are partially supported by package
-\strong{haven}: either having such a variable with no labels and missing values,
-or if labels and missing values are declared the variable is automatically
-coerced to numeric, and users may have to make the proper settings in SPSS.
+or without labels. The native date/time adapters write SPSS dates and
+timestamps as seconds since 1582-10-14, SAS dates as days since 1960-01-01,
+and SAS timestamps as seconds since 1960-01-01. Integer-backed R temporal
+columns use double storage when exporting to SPSS or SAS to avoid overflow.
+SPSS user-missing codes and ranges remain separate from date/time values;
+they are retained when importing with \code{user_na = TRUE} and discarded with
+\code{user_na = FALSE}.
 }
 \examples{
 \dontrun{

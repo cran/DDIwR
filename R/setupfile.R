@@ -32,6 +32,14 @@
 #' Creates a setup file, based on a list of variable and value labels.
 #'
 #' @details
+#' A `codeBook` object is an R list containing DDI metadata, such as variable
+#' labels and value labels. It can be created from a labelled data frame with
+#' [getCodebook()]. A data frame can also be passed directly to `setupfile()`.
+#' The generated commands have a configuration section where input and output
+#' paths must be set before running them in the target software.
+#' Validation errors do not write blank lines to standard output. Output sinks
+#' already active in the caller are retained on success and error.
+#'
 #' When a path to a metadata directory is specified for the argument **`obj`**,
 #' then next argument **`file`** is silently ignored and all created setup files
 #' are saved in a directory called "Setup Files" that (if not already found) is
@@ -80,41 +88,57 @@
 #' A setup file to complement the imported raw dataset.
 #'
 #' @examples
+#' # A small dataset with variable and value labels
+#' survey <- data.frame(
+#'     age = declared(
+#'         c(28, 35, 42),
+#'         label = "Age in years"
+#'     ),
+#'     device = declared(
+#'         c(1, 2, 1),
+#'         label = "Device used",
+#'         labels = c(Desktop = 1, Mobile = 2)
+#'     )
+#' )
 #'
+#' # Use a temporary directory for the files created in this example
+#' temp_dir <- tempdir()
+#' csv_file <- file.path(temp_dir, "survey.csv")
+#' admisc::export(undeclare(survey, drop = TRUE), file = csv_file)
+#'
+#' # codeBook is an R object containing DDI metadata extracted from survey.
+#' # It describes the variables and their labels; the observations are in the CSV.
+#' codeBook <- getCodebook(survey)
+#'
+#' # Create Stata commands to import the CSV and apply the metadata
+#' # Edit the generated file's configuration paths before running it in Stata.
+#' setupfile(codeBook, file = file.path(temp_dir, "survey.do"), csv = csv_file)
+#'
+#' # A labelled data frame can also be supplied directly
+#' setupfile(survey, file = file.path(temp_dir, "survey.sps"))
+#'
+#' # The file extension selects the software: .do, .sps, .sas or .R.
+#' # A setup file contains import commands, not the observations themselves.
 #'
 #' \dontrun{
-#' # IMPORTANT:
-#' # make sure to set the working directory to a directory with
-#' # read/write permissions
-#' # setwd("/path/to/read/write/directory")
+#' # Alternatively, read metadata from an existing DDI XML file
+#' setupfile("/path/to/metadata.xml", file = "survey.do",
+#'     csv = "/path/to/survey.csv")
 #'
-#'
-#' setupfile(codeBook)
-#'
-#'
-#' # if the csv data file is available
-#' setupfile(codeBook, csv="/path/to/csv/file.csv")
-#'
-#'
-#' # generating a specific type of setup file
-#' setupfile(codeBook, file = "codeBook.do") # type = "Stata" also works
-#'
-#'
-#' # other types of possible utilizations, using paths to specific files
-#' # an XML file containing a DDI metadata object
-#'
-#' setupfile("/path/to/the/metadata/file.xml", csv="/path/to/csv/file.csv")
-#'
-#'
-#' # or in batch mode, specifying entire directories
-#' setupfile("/path/to/the/metadata/directory", csv="/path/to/csv/directory")
+#' # Batch processing: read metadata and CSV files from matching directories
+#' setupfile("/path/to/metadata/directory", csv = "/path/to/csv/directory")
 #' }
 #'
 #' @author Adrian Dusa
 #'
+#' @details
+#' Stored formats in `spss_metadata` and `stata_metadata` take precedence
+#' over legacy format attributes when the input is a data frame. A present
+#' `format = NULL` suppresses legacy fallback and uses the inferred format.
+#'
 #' @param obj
-#' A data frame, or a list object containing the metadata, or a path to a data
-#' file or to a directory where such objects are located, for batch processing
+#' A labelled data frame, a DDI `codeBook` list returned by [getCodebook()],
+#' or a path to a metadata file or directory for batch processing
 #'
 #' @param file Character, the (path to the) setup file to be created
 #'
@@ -144,7 +168,18 @@
 
     # TO DO: when obj is a path to a file or directory,
     # it should be (only) XML and not R anymore
-    on.exit(suppressWarnings(sink()))
+    output_sink_depth <- sink.number(type = "output")
+    restore_setupfile_output <- function() {
+        while (sink.number(type = "output") > output_sink_depth) {
+            sink(type = "output")
+        }
+        invisible(NULL)
+    }
+    on.exit(restore_setupfile_output())
+
+    stop_setupfile <- function(message) {
+        admisc::stopError(message, prenter = FALSE)
+    }
 
     funargs <- sapply(
         lapply(match.call(), deparse)[-1],
@@ -179,14 +214,14 @@
 
         if (is.na(tp$fileext)) {
             if (identical(toupper(type), "ALL") & !recall) {
-                admisc::stopError("Unknown file type.")
+                stop_setupfile("Unknown file type.")
             }
             else {
                 if (is.element(type, c(types, "ALL"))) {
                     tp$fileext <- exts[which(types == type)]
                 }
                 else {
-                    admisc::stopError("Unknown destination type.")
+                    stop_setupfile("Unknown destination type.")
                 }
             }
         }
@@ -196,7 +231,7 @@
                     type <- types[which(toupper(exts) == toupper(tp$fileext))]
                 }
                 else {
-                    admisc::stopError("Unknown file type.")
+                    stop_setupfile("Unknown file type.")
                 }
             }
             else {
@@ -204,7 +239,7 @@
                     (tp$fileext == "DO" & toupper(type) != "STATA") |
                     (tp$fileext == "SAS" & toupper(type) != "SAS") |
                     (tp$fileext == "R" & toupper(type) != "R")) {
-                    admisc::stopError("Incompatible type and file extension.")
+                    stop_setupfile("Incompatible type and file extension.")
                 }
             }
         }
@@ -246,14 +281,14 @@
     }
 
     if (missing(obj)) {
-        admisc::stopError(
+        stop_setupfile(
             "The argument <obj> is missing, with no default."
         )
     }
     else if (all(is.character(obj))) {
             # all() just in case someone provides a vector by mistake
         if (length(obj) > 1) {
-            admisc::stopError(
+            stop_setupfile(
                 paste(
                     "The argument <obj> should contain",
                     "a single path to the object."
@@ -265,7 +300,7 @@
 
         labelist <- treatPath(obj, check = FALSE)
         if (length(labelist) == 1) {
-            admisc::stopError(labelist)
+            stop_setupfile(labelist)
         }
         else {
             pathtofiles <- TRUE
@@ -289,7 +324,7 @@
 
         if (all(is.character(csv)) && !identical(csv, "")) {
             if (length(csv) > 1) {
-                admisc::stopError(
+                stop_setupfile(
                     paste(
                         "The argument <csv> should contain",
                         "a single path to the .csv file."
@@ -367,7 +402,7 @@
 
             if (is.data.frame(csv)) {
                 if (length(labelist$files) > 1) {
-                    admisc::stopError(
+                    stop_setupfile(
                         paste(
                             "There are multiple files containing labels",
                             "and only one .csv file provided."
@@ -414,7 +449,7 @@
                             )
                         )
                     ), error = function(x) {
-                    admisc::stopError(
+                    stop_setupfile(
                         paste(
                             "There is an error associated with the file \"",
                             labelist$files[i],
@@ -477,7 +512,7 @@
                                 )
 
                                 if (delim == "unknown") {
-                                    admisc::stopError(
+                                    stop_setupfile(
                                         paste(
                                             "Unknown column separator for the file",
                                             csvfiles[position[j]],
@@ -518,13 +553,7 @@
                                     ... = ...
                                 ),
                                 error = function(x) {
-                                    # if no sink() is needed, an invisible warning message will be returned
-                                    tryCatch(
-                                        sink(),
-                                        warning = function(y) {
-                                            return(invisible(y))
-                                        }
-                                    )
+                                    restore_setupfile_output()
                                     setwd(currentdir)
                                     cat(paste(
                                         "     There is an error associated with the file \"",
@@ -565,12 +594,7 @@
                             ... = ...
                         ),
                         error = function(x) {
-                            tryCatch(
-                                sink(),
-                                warning = function(y) {
-                                    return(invisible(y))
-                                }
-                            )
+                            restore_setupfile_output()
 
                             setwd(currentdir)
                             cat(paste(
@@ -626,12 +650,7 @@
                                 ... = ...
                             ),
                             error = function(x) {
-                                tryCatch(
-                                    sink(),
-                                    warning = function(y) {
-                                        return(invisible(y))
-                                    }
-                                )
+                                restore_setupfile_output()
                                 setwd(currentdir)
 
                                 cat(paste(
@@ -667,12 +686,7 @@
                             ... = ...
                         ),
                         error = function(x) {
-                            tryCatch(
-                                sink(),
-                                warning = function(y) {
-                                    return(invisible(y))
-                                }
-                            )
+                            restore_setupfile_output()
 
                             setwd(currentdir)
 
@@ -709,6 +723,9 @@
 
         return(invisible())
     }
+    else if (is.data.frame(obj)) {
+        outdir <- FALSE
+    }
     else if (
         is.list(obj) &&
         !is.null(obj$.extra) &&
@@ -716,9 +733,31 @@
     ) {
 
         if (is.null(dataDscr_vars)) {
-            # TODO: this should have the same output as collectRMetadata()...!
-            dataDscr_vars <- getChildren("codeBook/dataDscr/var", from = obj)
-            names(dataDscr_vars) <- sapply(dataDscr_vars, function(x) attr(x, "name"))
+            document <- xml2::as_xml_document(
+                list(codeBook = removeExtra(changeXMLang(obj)))
+            )
+
+            document <- xml2::read_xml(
+                as.character(document),
+                options = c("HUGE", "NONET", "NOBLANKS")
+            )
+
+            namespace <- getDNS(document)
+            variables <- xml2::xml_find_all(
+                document,
+                sprintf("/%scodeBook/%sdataDscr/%svar", namespace, namespace, namespace)
+            )
+
+            language <- resolveDDILanguage(variables, language = dots$language)
+
+            dataDscr_vars <- lapply(
+                variables,
+                XMLtoRmetadata,
+                dns = namespace,
+                language = language
+            )
+
+            names(dataDscr_vars) <- xml2::xml_attr(variables, "name")
         }
 
         if (identical(csv, "")) {
@@ -732,7 +771,7 @@
         outdir <- FALSE
     }
     else {
-        admisc::stopError("Unknown input for the argument <obj>.")
+        stop_setupfile("Unknown input for the argument <obj>.")
     }
 
     anymissing <- any(unlist(lapply(dataDscr_vars, function(x) {
@@ -746,7 +785,7 @@
     if (is.character(csv)) {
         if (all(csv != "")) {
             if (length(csv) > 1) {
-                admisc::stopError(
+                stop_setupfile(
                     paste(
                         "The argument <csv> should contain",
                         "a single path to the .csv file."
@@ -759,7 +798,7 @@
             if (length(csvlist) > 1) {
                 # no error
                 if (length(csvlist$files) > 1) {
-                    admisc::stopError(
+                    stop_setupfile(
                         paste(
                             "There is only one object containing",
                             "metadata and multiple csv files."
@@ -814,13 +853,13 @@
 
 
     if (is.null(names(dataDscr_vars)) | !checkvarlab(dataDscr_vars)) {
-        admisc::stopError(
+        stop_setupfile(
             "The object does not contain variables and / or labels."
         )
     }
 
     if (!is.element(toupper(type), c(types, "ALL"))) {
-        admisc::stopError("Unknown destination type.")
+        stop_setupfile("Unknown destination type.")
     }
 
     enter <- getEnter(OS = OS)
@@ -830,6 +869,9 @@
     maxchars <- max(nchar(varnames))
     varcheck <- rep(0, length(varnames))
     formats <- FALSE
+
+    # Without observations, column emptiness is unknown.
+    emptyvars <- setNames(rep(NA, length(varnames)), varnames)
 
     csv_is_df <- is.data.frame(csv)
 
@@ -868,7 +910,7 @@
                 )
 
                 if (delim == "unknown") {
-                    admisc::stopError(
+                    stop_setupfile(
                         paste(
                             "Unknown column separator for the file",
                             csvlist$files[1],
@@ -898,7 +940,7 @@
         csvnames <- colnames(csv)
         spssformats <- sastrings <- rep("", length(csvnames))
         if (!is.data.frame(csv)) {
-            admisc::stopError("The csv file should be a data frame.")
+            stop_setupfile("The csv file should be a data frame.")
         }
 
         gofurther <- TRUE
@@ -1006,7 +1048,14 @@
                     }
                 }
 
-                spssformats[i] <- getFormat(tempvar, type = "SPSS")
+                stored_format <- dataDscr_vars[[csvnames[i]]]$varFormat
+
+                if (length(stored_format) > 0L && !identical(stored_format, "date")) {
+                    spssformats[i] <- stored_format[1]
+                }
+                else {
+                    spssformats[i] <- getFormat(tempvar, type = "SPSS")
+                }
 
                 if (vartypes[i] == "string") {
                     sastrings[i] <- " $"
@@ -1078,7 +1127,7 @@
                         (tp$fileext == "DO" & toupper(type) != "STATA") |
                         (tp$fileext == "SAS" & toupper(type) != "SAS") |
                         (tp$fileext == "R" & toupper(type) != "R")) {
-                        admisc::stopError("Incompatible type and file extension.")
+                        stop_setupfile("Incompatible type and file extension.")
                     }
                 }
                 else {
@@ -1357,7 +1406,7 @@
 
 
                     # if (csv_is_df | csv_is_path) {
-                        if (emptyvars[[sv]]) {
+                        if (isTRUE(emptyvars[[sv]])) {
                             cat(paste(
                                 "* Variable ",
                                 toupper(sv),
@@ -2311,6 +2360,23 @@
                 sep = ""
             ))
         }
+
+        recoded_names <- c(names(stringvars)[unlist(stringvars)],
+            names(numerical_with_strings))
+
+        for (name in names(dataDscr_vars)) {
+            if (is.element(name, recoded_names)) {
+                next
+            }
+
+            stored_format <- dataDscr_vars[[name]]$varFormat
+
+            if (length(stored_format) >= 2L && !is.na(stored_format[2]) &&
+                nzchar(stored_format[2])) {
+                cat("format ", toupper(name), " ", stored_format[2], enter, sep = "")
+            }
+        }
+
         cat(paste(enter, enter, sep = ""))
 
         cat(paste(

@@ -35,6 +35,16 @@ Package \bold{DDIwR} uses numeric declared missing codes as its internal R
 representation. Recoding to \code{"Stata"} or \code{"SAS"} is therefore best viewed as
 an export-oriented temporary representation, not as a preferred internal
 storage strategy for declared vectors in R.
+SAS's \code{._} tag is retained separately as \code{"_"} in \code{na_index} when it is
+absent from the recoding dictionary. Columns with missing metadata alone
+are accepted, even without variable or value labels.
+
+Recoding retains variable formats, widths, temporal classes and units, custom
+SPSS attributes, Stata characteristics, the \code{spss_metadata}, \code{stata_metadata}
+and \code{sas_metadata} lists, and dataset labels and notes. Labels and missing-value
+definitions are updated to match the recoded values. Character-to-numeric
+recoding clears obsolete string storage fields in these lists, as described
+in \code{\link[=recodeCharcat]{recodeCharcat()}}.
 
 When no dictionary is provided, export-oriented recoding can be performed
 either by scanning the entire dataset for a harmonized mapping, or by

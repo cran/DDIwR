@@ -29,8 +29,10 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <stdlib.h>
 #include <time.h>
+#include <string.h>
 #include "readstat.h"
 #include "readstat_writer.h"
+#include "readstat_strings.h"
 
 #define VARIABLES_INITIAL_CAPACITY    50
 #define LABEL_SETS_INITIAL_CAPACITY   50
@@ -38,6 +40,200 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define VALUE_LABELS_INITIAL_CAPACITY 10
 #define STRING_REFS_INITIAL_CAPACITY 100
 #define LABEL_SET_VARIABLES_INITIAL_CAPACITY 2
+
+void readstat_attributes_free(readstat_attribute_t *attributes) {
+    while (attributes) {
+        readstat_attribute_t *next = attributes->next;
+        size_t i;
+        free(attributes->variable);
+        free(attributes->name);
+        for (i = 0; i < attributes->count; i++) {
+            free(attributes->values[i]);
+        }
+        free(attributes->values);
+        free(attributes);
+        attributes = next;
+    }
+}
+
+static readstat_error_t readstat_attribute_add_impl(readstat_attribute_t **attributes,
+        const char *variable, const char *name, const char *const *values, size_t count,
+        int case_sensitive) {
+    readstat_attribute_t *attribute;
+    readstat_attribute_t **tail = attributes;
+    size_t i;
+    if (!name || !*name || !values || count == 0 || count > SIZE_MAX / sizeof(char *)) {
+        return READSTAT_ERROR_PARSE;
+    }
+    while (*tail) {
+        int same_variable = variable && (*tail)->variable &&
+            (case_sensitive ? !strcmp(variable, (*tail)->variable) : !strcasecmp(variable, (*tail)->variable));
+        int same_name = case_sensitive ? !strcmp(name, (*tail)->name) : !strcasecmp(name, (*tail)->name);
+        if (((variable == NULL && (*tail)->variable == NULL) ||
+                same_variable) && same_name) {
+            return READSTAT_ERROR_PARSE;
+        }
+        tail = &(*tail)->next;
+    }
+    attribute = calloc(1, sizeof(*attribute));
+    if (!attribute) {
+        return READSTAT_ERROR_MALLOC;
+    }
+    attribute->name = strdup(name);
+    attribute->variable = variable ? strdup(variable) : NULL;
+    attribute->values = calloc(count, sizeof(char *));
+    if (!attribute->name || (variable && !attribute->variable) || !attribute->values) {
+        readstat_attributes_free(attribute);
+        return READSTAT_ERROR_MALLOC;
+    }
+    for (i = 0; i < count; i++) {
+        if (!values[i]) {
+            readstat_attributes_free(attribute);
+            return READSTAT_ERROR_PARSE;
+        }
+        attribute->values[i] = strdup(values[i]);
+        if (!attribute->values[i]) {
+            readstat_attributes_free(attribute);
+            return READSTAT_ERROR_MALLOC;
+        }
+        attribute->count++;
+    }
+    *tail = attribute;
+    return READSTAT_OK;
+}
+
+readstat_error_t readstat_attribute_add(readstat_attribute_t **attributes,
+        const char *variable, const char *name, const char *const *values, size_t count) {
+    return readstat_attribute_add_impl(attributes, variable, name, values, count, 0);
+}
+
+readstat_error_t readstat_characteristic_add(readstat_attribute_t **characteristics,
+        const char *variable, const char *name, const char *value) {
+    return readstat_attribute_add_impl(characteristics, variable, name, &value, 1, 1);
+}
+
+readstat_error_t readstat_writer_add_characteristic(readstat_writer_t *writer,
+        const readstat_variable_t *variable, const char *name, const char *value) {
+    if (writer->current_row || writer->row) {
+        return READSTAT_ERROR_PARSE;
+    }
+    if (variable) {
+        long i;
+        for (i = 0; i < writer->variables_count; i++) {
+            if (variable == writer->variables[i]) {
+                break;
+            }
+        }
+        if (i == writer->variables_count) {
+            return READSTAT_ERROR_PARSE;
+        }
+    }
+    return readstat_characteristic_add(&writer->stata_characteristics,
+            variable ? variable->name : NULL, name, value);
+}
+
+readstat_error_t readstat_attributes_copy(readstat_attribute_t **dest,
+        const readstat_attribute_t *source) {
+    for (; source; source = source->next) {
+        readstat_error_t status = readstat_attribute_add(dest, source->variable,
+                source->name, (const char *const *)source->values, source->count);
+        if (status != READSTAT_OK) {
+            return status;
+        }
+    }
+    return READSTAT_OK;
+}
+
+readstat_error_t readstat_writer_add_spss_attribute(readstat_writer_t *writer,
+        const readstat_variable_t *variable, const char *name,
+        const char *const *values, size_t count) {
+    size_t i;
+    if (writer->current_row || writer->row) {
+        return READSTAT_ERROR_PARSE;
+    }
+    if (variable) {
+        long index;
+        for (index = 0; index < writer->variables_count; index++) {
+            if (writer->variables[index] == variable) {
+                break;
+            }
+        }
+        if (index == writer->variables_count) {
+            return READSTAT_ERROR_PARSE;
+        }
+    }
+    /* Parentheses and line feeds delimit the on-disk syntax. Quotes inside
+     * values are literal, and must not be doubled or escaped. */
+    if (!name || !*name || strpbrk(name, "():/\n\r\t '")) {
+        return READSTAT_ERROR_PARSE;
+    }
+    for (i = 0; i < count; i++) {
+        if (!values || !values[i] || strchr(values[i], '\n')) {
+            return READSTAT_ERROR_PARSE;
+        }
+    }
+    return readstat_attribute_add(&writer->spss_attributes,
+            variable ? variable->name : NULL, name, values, count);
+}
+
+static void readstat_writer_mr_set_free(mr_set_t *set) {
+    free(set->name);
+    free(set->label);
+    free(set->counted_string);
+    for (int i = 0; i < set->num_subvars; i++) {
+        free(set->subvariables[i]);
+    }
+    free(set->subvariables);
+}
+
+readstat_error_t readstat_writer_add_mr_set(readstat_writer_t *writer, const mr_set_t *set) {
+    if (writer->current_row || writer->row || !set || !set->name || !set->label ||
+            (set->type != 'C' && set->type != 'D' && set->type != 'E') ||
+            set->num_subvars < 2 || !set->subvariables ||
+            (set->type != 'C' && !set->counted_string)) {
+        return READSTAT_ERROR_BAD_MR_STRING;
+    }
+    for (size_t i = 0; i < writer->mr_sets_count; i++) {
+        if (!strcasecmp(set->name, writer->mr_sets[i].name)) {
+            return READSTAT_ERROR_BAD_MR_STRING;
+        }
+    }
+    for (int i = 0; i < set->num_subvars; i++) {
+        if (!set->subvariables[i]) {
+            return READSTAT_ERROR_BAD_MR_STRING;
+        }
+    }
+    if (writer->mr_sets_count >= SIZE_MAX / sizeof(mr_set_t) - 1) {
+        return READSTAT_ERROR_MALLOC;
+    }
+    mr_set_t *sets = realloc(writer->mr_sets, (writer->mr_sets_count + 1) * sizeof(mr_set_t));
+    if (!sets) {
+        return READSTAT_ERROR_MALLOC;
+    }
+    writer->mr_sets = sets;
+    mr_set_t copy = { .type = set->type, .is_dichotomy = set->is_dichotomy,
+        .counted_value = set->counted_value, .label_from_var_label = set->label_from_var_label };
+    copy.name = strdup(set->name);
+    copy.label = strdup(set->label);
+    copy.counted_string = set->counted_string ? strdup(set->counted_string) : NULL;
+    copy.subvariables = calloc(set->num_subvars, sizeof(char *));
+    if (!copy.name || !copy.label || (set->counted_string && !copy.counted_string) || !copy.subvariables) {
+        goto allocation_error;
+    }
+    for (int i = 0; i < set->num_subvars; i++) {
+        copy.subvariables[i] = strdup(set->subvariables[i]);
+        if (!copy.subvariables[i]) {
+            goto allocation_error;
+        }
+        copy.num_subvars++;
+    }
+    writer->mr_sets[writer->mr_sets_count++] = copy;
+    return READSTAT_OK;
+
+allocation_error:
+    readstat_writer_mr_set_free(&copy);
+    return READSTAT_ERROR_MALLOC;
+}
 
 static readstat_error_t readstat_write_row_default_callback(void *writer_ctx, void *bytes, size_t len) {
     return readstat_write_bytes((readstat_writer_t *)writer_ctx, bytes, len);
@@ -56,6 +252,7 @@ static int readstat_compare_string_refs(const void *elem1, const void *elem2) {
 readstat_string_ref_t *readstat_string_ref_init(const char *string) {
     size_t len = strlen(string) + 1;
     readstat_string_ref_t *ref = calloc(1, sizeof(readstat_string_ref_t) + len);
+    if (ref == NULL) return NULL;
     ref->first_o = -1;
     ref->first_v = -1;
     ref->len = len;
@@ -78,7 +275,17 @@ readstat_writer_t *readstat_writer_init(void) {
     writer->string_refs = calloc(STRING_REFS_INITIAL_CAPACITY, sizeof(readstat_string_ref_t *));
     writer->string_refs_capacity = STRING_REFS_INITIAL_CAPACITY;
 
+#ifdef TIME_UTC
+    struct timespec now;
+    if (timespec_get(&now, TIME_UTC) == TIME_UTC) {
+        writer->timestamp = now.tv_sec;
+        writer->timestamp_fraction = now.tv_nsec / 1e9;
+    } else {
+        writer->timestamp = time(NULL);
+    }
+#else
     writer->timestamp = time(NULL);
+#endif
     writer->is_64bit = 1;
     writer->callbacks.write_row = &readstat_write_row_default_callback;
 
@@ -97,6 +304,7 @@ static void readstat_label_set_free(readstat_label_set_t *label_set) {
             free(value_label->label);
         if (value_label->string_key)
             free(value_label->string_key);
+        if (value_label->string_end) free(value_label->string_end);
     }
     free(label_set->value_labels);
     free(label_set->variables);
@@ -168,6 +376,7 @@ static readstat_error_t readstat_begin_writing_data(readstat_writer_t *writer) {
     }
     writer->row_len = row_len;
     writer->row = malloc(writer->row_len);
+    if (writer->row == NULL) { retval = READSTAT_ERROR_MALLOC; goto cleanup; }
     if (writer->callbacks.begin_data) {
         retval = writer->callbacks.begin_data(writer);
     }
@@ -179,6 +388,12 @@ cleanup:
 void readstat_writer_free(readstat_writer_t *writer) {
     int i;
     if (writer) {
+        readstat_attributes_free(writer->spss_attributes);
+        readstat_attributes_free(writer->stata_characteristics);
+        for (size_t j = 0; j < writer->mr_sets_count; j++) {
+            readstat_writer_mr_set_free(&writer->mr_sets[j]);
+        }
+        free(writer->mr_sets);
         if (writer->callbacks.module_ctx_free && writer->module_ctx) {
             writer->callbacks.module_ctx_free(writer->module_ctx);
         }
@@ -263,6 +478,8 @@ readstat_error_t readstat_write_line_padding(readstat_writer_t *writer, char pad
     readstat_error_t error = READSTAT_OK;
     ssize_t bytes_left_in_line = line_len - (writer->bytes_written % (line_len + line_sep_len));
     char *bytes = malloc(bytes_left_in_line);
+    if (bytes == NULL)
+        return READSTAT_ERROR_MALLOC;
     memset(bytes, pad, bytes_left_in_line);
 
     if ((error = readstat_write_bytes(writer, bytes, bytes_left_in_line)) != READSTAT_OK)
@@ -275,7 +492,7 @@ cleanup:
     if (bytes)
         free(bytes);
 
-    return READSTAT_OK;
+    return error;
 }
 
 readstat_error_t readstat_write_string(readstat_writer_t *writer, const char *bytes) {
@@ -318,7 +535,17 @@ readstat_error_t readstat_write_space_padded_string(readstat_writer_t *writer, c
     return readstat_write_spaces(writer, max_len - len);
 }
 
+/* Once the first row has been begun (or readstat_end_writing called on an
+ * empty data set) the file header, row layout, and section offsets have been
+ * computed from the registered metadata, so nothing more may be added */
+static int readstat_writer_data_has_begun(readstat_writer_t *writer) {
+    return writer->row != NULL;
+}
+
 readstat_label_set_t *readstat_add_label_set(readstat_writer_t *writer, readstat_type_t type, const char *name) {
+    if (readstat_writer_data_has_begun(writer))
+        return NULL;
+
     if (writer->label_sets_count == writer->label_sets_capacity) {
         writer->label_sets_capacity *= 2;
         writer->label_sets = realloc(writer->label_sets, 
@@ -370,7 +597,8 @@ readstat_variable_t *readstat_get_label_set_variable(readstat_label_set_t *label
 void readstat_label_double_value(readstat_label_set_t *label_set, double value, const char *label) {
     readstat_value_label_t *new_value_label = readstat_add_value_label(label_set, label);
     new_value_label->double_key = value;
-    new_value_label->int32_key = value;
+    /* Double label sets can contain missing or out-of-int32-range keys. */
+    new_value_label->int32_key = value >= INT32_MIN && value <= INT32_MAX ? (int32_t)value : 0;
 }
 
 void readstat_label_int32_value(readstat_label_set_t *label_set, int32_t value, const char *label) {
@@ -394,6 +622,9 @@ void readstat_label_tagged_value(readstat_label_set_t *label_set, char tag, cons
 }
 
 readstat_variable_t *readstat_add_variable(readstat_writer_t *writer, const char *name, readstat_type_t type, size_t width) {
+    if (readstat_writer_data_has_begun(writer))
+        return NULL;
+
     if (writer->variables_count == writer->variables_capacity) {
         writer->variables_capacity *= 2;
         writer->variables = realloc(writer->variables,
@@ -432,12 +663,21 @@ static void readstat_append_string_ref(readstat_writer_t *writer, readstat_strin
 }
 
 readstat_string_ref_t *readstat_add_string_ref(readstat_writer_t *writer, const char *string) {
+    if (readstat_writer_data_has_begun(writer))
+        return NULL;
+
     readstat_string_ref_t *ref = readstat_string_ref_init(string);
+    if (ref == NULL)
+        return NULL;
+
     readstat_append_string_ref(writer, ref);
     return ref;
 }
 
 void readstat_add_note(readstat_writer_t *writer, const char *note) {
+    if (readstat_writer_data_has_begun(writer))
+        return;
+
     if (writer->notes_count == writer->notes_capacity) {
         writer->notes_capacity *= 2;
         writer->notes = realloc(writer->notes,
@@ -461,6 +701,14 @@ void readstat_variable_set_format(readstat_variable_t *variable, const char *for
         snprintf(variable->format, sizeof(variable->format), "%s", format);
     } else {
         memset(variable->format, '\0', sizeof(variable->format));
+    }
+}
+
+void readstat_variable_set_informat(readstat_variable_t *variable, const char *informat) {
+    if (informat) {
+        snprintf(variable->informat, sizeof(variable->informat), "%s", informat);
+    } else {
+        memset(variable->informat, '\0', sizeof(variable->informat));
     }
 }
 
@@ -509,6 +757,14 @@ readstat_error_t readstat_writer_set_file_label(readstat_writer_t *writer, const
 
 readstat_error_t readstat_writer_set_file_timestamp(readstat_writer_t *writer, time_t timestamp) {
     writer->timestamp = timestamp;
+    writer->timestamp_fraction = 0.0;
+    writer->timestamp_set = 1;
+    return READSTAT_OK;
+}
+
+readstat_error_t readstat_writer_set_file_modified_timestamp(readstat_writer_t *writer, time_t timestamp) {
+    writer->modified_timestamp = timestamp;
+    writer->modified_timestamp_set = 1;
     return READSTAT_OK;
 }
 
@@ -564,13 +820,16 @@ readstat_error_t readstat_begin_row(readstat_writer_t *writer) {
     if (writer->current_row == 0)
         retval = readstat_begin_writing_data(writer);
 
+    if (retval != READSTAT_OK || writer->row == NULL)
+        return retval;
+
     memset(writer->row, '\0', writer->row_len);
     return retval;
 }
 
 // Then call one of these for each variable
 readstat_error_t readstat_insert_int8_value(readstat_writer_t *writer, const readstat_variable_t *variable, int8_t value) {
-    if (!writer->initialized)
+    if (!writer->initialized || writer->row == NULL)
         return READSTAT_ERROR_WRITER_NOT_INITIALIZED;
     if (variable->type != READSTAT_TYPE_INT8)
         return READSTAT_ERROR_VALUE_TYPE_MISMATCH;
@@ -579,7 +838,7 @@ readstat_error_t readstat_insert_int8_value(readstat_writer_t *writer, const rea
 }
 
 readstat_error_t readstat_insert_int16_value(readstat_writer_t *writer, const readstat_variable_t *variable, int16_t value) {
-    if (!writer->initialized)
+    if (!writer->initialized || writer->row == NULL)
         return READSTAT_ERROR_WRITER_NOT_INITIALIZED;
     if (variable->type != READSTAT_TYPE_INT16)
         return READSTAT_ERROR_VALUE_TYPE_MISMATCH;
@@ -588,7 +847,7 @@ readstat_error_t readstat_insert_int16_value(readstat_writer_t *writer, const re
 }
 
 readstat_error_t readstat_insert_int32_value(readstat_writer_t *writer, const readstat_variable_t *variable, int32_t value) {
-    if (!writer->initialized)
+    if (!writer->initialized || writer->row == NULL)
         return READSTAT_ERROR_WRITER_NOT_INITIALIZED;
     if (variable->type != READSTAT_TYPE_INT32)
         return READSTAT_ERROR_VALUE_TYPE_MISMATCH;
@@ -597,7 +856,7 @@ readstat_error_t readstat_insert_int32_value(readstat_writer_t *writer, const re
 }
 
 readstat_error_t readstat_insert_float_value(readstat_writer_t *writer, const readstat_variable_t *variable, float value) {
-    if (!writer->initialized)
+    if (!writer->initialized || writer->row == NULL)
         return READSTAT_ERROR_WRITER_NOT_INITIALIZED;
     if (variable->type != READSTAT_TYPE_FLOAT)
         return READSTAT_ERROR_VALUE_TYPE_MISMATCH;
@@ -606,7 +865,7 @@ readstat_error_t readstat_insert_float_value(readstat_writer_t *writer, const re
 }
 
 readstat_error_t readstat_insert_double_value(readstat_writer_t *writer, const readstat_variable_t *variable, double value) {
-    if (!writer->initialized)
+    if (!writer->initialized || writer->row == NULL)
         return READSTAT_ERROR_WRITER_NOT_INITIALIZED;
     if (variable->type != READSTAT_TYPE_DOUBLE)
         return READSTAT_ERROR_VALUE_TYPE_MISMATCH;
@@ -615,7 +874,7 @@ readstat_error_t readstat_insert_double_value(readstat_writer_t *writer, const r
 }
 
 readstat_error_t readstat_insert_string_value(readstat_writer_t *writer, const readstat_variable_t *variable, const char *value) {
-    if (!writer->initialized)
+    if (!writer->initialized || writer->row == NULL)
         return READSTAT_ERROR_WRITER_NOT_INITIALIZED;
     if (variable->type != READSTAT_TYPE_STRING)
         return READSTAT_ERROR_VALUE_TYPE_MISMATCH;
@@ -624,7 +883,7 @@ readstat_error_t readstat_insert_string_value(readstat_writer_t *writer, const r
 }
 
 readstat_error_t readstat_insert_string_ref(readstat_writer_t *writer, const readstat_variable_t *variable, readstat_string_ref_t *ref) {
-    if (!writer->initialized)
+    if (!writer->initialized || writer->row == NULL)
         return READSTAT_ERROR_WRITER_NOT_INITIALIZED;
     if (variable->type != READSTAT_TYPE_STRING_REF)
         return READSTAT_ERROR_VALUE_TYPE_MISMATCH;
@@ -640,7 +899,7 @@ readstat_error_t readstat_insert_string_ref(readstat_writer_t *writer, const rea
 }
 
 readstat_error_t readstat_insert_missing_value(readstat_writer_t *writer, const readstat_variable_t *variable) {
-    if (!writer->initialized)
+    if (!writer->initialized || writer->row == NULL)
         return READSTAT_ERROR_WRITER_NOT_INITIALIZED;
 
     if (variable->type == READSTAT_TYPE_STRING) {
@@ -654,7 +913,7 @@ readstat_error_t readstat_insert_missing_value(readstat_writer_t *writer, const 
 }
 
 readstat_error_t readstat_insert_tagged_missing_value(readstat_writer_t *writer, const readstat_variable_t *variable, char tag) {
-    if (!writer->initialized)
+    if (!writer->initialized || writer->row == NULL)
         return READSTAT_ERROR_WRITER_NOT_INITIALIZED;
     if (!writer->callbacks.write_missing_tagged) {
         /* Write out a missing number but return an error */

@@ -37,14 +37,24 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <string.h>
 
 #include "readstat.h"
+#include "spss_attributes.h"
+#include "stata_characteristics.h"
 #include "declared_types.h"
 #include "tagged_na.h"
+#include "vendor_metadata.h"
 
 typedef enum {
     LABELSET_NONE = 0,
     LABELSET_STRING = 1,
     LABELSET_DOUBLE = 2
 } LabelSetType;
+
+typedef struct {
+    char *start, *end, *label;
+    unsigned flags;
+    int default_width;
+    double fuzz;
+} SASRule;
 
 typedef struct {
     char *name;
@@ -54,6 +64,8 @@ typedef struct {
     char **labels;
     char **svalues;
     double *dvalues;
+    SASRule *rules;
+    size_t rules_n, rules_cap;
 } LabelSet;
 
 typedef struct {
@@ -72,6 +84,10 @@ typedef struct {
     FileExt ext;
     FileVendor vendor;
     int user_na;
+    int metadata_only;
+    double source_row_count;
+    SEXP storage_types;
+    SEXP storage_widths;
     long nrows;
     long nalloc;
     int ncols;
@@ -87,6 +103,8 @@ typedef struct {
     char **notes;
     size_t notes_n;
     size_t notes_cap;
+    readstat_attribute_t *spss_attributes;
+    readstat_attribute_t *stata_characteristics;
 } ReaderCtx;
 
 static char *str_dup(const char *x) {
@@ -117,6 +135,10 @@ static double tag_code_value(char tag) {
 static SEXP tag_code_name(char tag) {
     char buffer[32];
     double code = tag_code_value(tag);
+    /* SAS ._ has its own tag, outside the numeric A-Z mapping. */
+    if (tag == '_') {
+        return Rf_mkChar("_");
+    }
     if (ISNAN(code)) {
         return NA_STRING;
     }
@@ -243,6 +265,8 @@ static void reader_ctx_init(ReaderCtx *ctx, FileExt ext, int user_na, SEXP cols_
 }
 
 static void reader_ctx_free(ReaderCtx *ctx) {
+    readstat_attributes_free(ctx->spss_attributes);
+    readstat_attributes_free(ctx->stata_characteristics);
     size_t i;
     size_t j;
     if (ctx->cols_skip != NULL) {
@@ -275,6 +299,12 @@ static void reader_ctx_free(ReaderCtx *ctx) {
                 R_Free(ctx->label_sets[i].svalues[j]);
             }
         }
+        for (j = 0; j < ctx->label_sets[i].rules_n; j++) {
+            R_Free(ctx->label_sets[i].rules[j].start);
+            R_Free(ctx->label_sets[i].rules[j].end);
+            R_Free(ctx->label_sets[i].rules[j].label);
+        }
+        if (ctx->label_sets[i].rules) R_Free(ctx->label_sets[i].rules);
         if (ctx->label_sets[i].labels != NULL) {
             R_Free(ctx->label_sets[i].labels);
         }
@@ -355,11 +385,16 @@ static int reader_metadata(readstat_metadata_t *metadata, void *ctx_) {
     int var_count = readstat_get_var_count(metadata);
     int kept = var_count - ctx->cols_skip_n;
 
+    if (readstat_attributes_copy(&ctx->spss_attributes, metadata->spss_attributes) != READSTAT_OK) {
+        return READSTAT_HANDLER_ABORT;
+    }
+
     if (kept < 0) {
         kept = 0;
     }
 
-    ctx->nalloc = readstat_get_row_count(metadata);
+    ctx->source_row_count = metadata->row_count < 0 ? NA_REAL : (double)metadata->row_count;
+    ctx->nalloc = ctx->metadata_only ? 0 : readstat_get_row_count(metadata);
     if (ctx->nalloc < 0) {
         ctx->nalloc = 100000;
         ctx->nrows = 0;
@@ -371,7 +406,16 @@ static int reader_metadata(readstat_metadata_t *metadata, void *ctx_) {
     PROTECT(ctx->output = Rf_allocVector(VECSXP, kept));
     PROTECT(ctx->names = Rf_allocVector(STRSXP, kept));
     ctx->protect_count += 2;
+    if (ctx->metadata_only) {
+        ctx->storage_types = PROTECT(Rf_allocVector(STRSXP, kept));
+        ctx->storage_widths = PROTECT(Rf_allocVector(REALSXP, kept));
+        ctx->protect_count += 2;
+    }
     ctx->cols = (ColumnInfo *) R_Calloc((size_t) kept, ColumnInfo);
+
+    SEXP vendor_metadata = PROTECT(ddiwr_dataset_metadata(metadata, ctx->ext));
+    Rf_setAttrib(ctx->output, Rf_install(ddiwr_metadata_attribute(ctx->vendor)), vendor_metadata);
+    UNPROTECT(1);
 
     if (readstat_get_file_label(metadata) != NULL && strcmp(readstat_get_file_label(metadata), "") != 0) {
         Rf_setAttrib(ctx->output, Rf_install("label"), Rf_mkString(readstat_get_file_label(metadata)));
@@ -380,10 +424,18 @@ static int reader_metadata(readstat_metadata_t *metadata, void *ctx_) {
     return READSTAT_HANDLER_OK;
 }
 
+static int reader_characteristic(const readstat_variable_t *variable,
+        const char *name, const char *value, void *ctx_) {
+    ReaderCtx *ctx = (ReaderCtx *)ctx_;
+    return readstat_characteristic_add(&ctx->stata_characteristics,
+            variable ? variable->name : NULL, name, value) == READSTAT_OK ?
+        READSTAT_HANDLER_OK : READSTAT_HANDLER_ABORT;
+}
+
 static int reader_note(int note_index, const char *note, void *ctx_) {
     ReaderCtx *ctx = (ReaderCtx *) ctx_;
     (void) note_index;
-    if (note == NULL || strcmp(note, "") == 0) {
+    if (note == NULL) {
         return READSTAT_HANDLER_OK;
     }
     ensure_notes_capacity(ctx);
@@ -409,6 +461,13 @@ static int reader_variable(int index, readstat_variable_t *variable, const char 
     name = readstat_variable_get_name(variable);
     SET_STRING_ELT(ctx->names, var_index, Rf_mkCharCE(name == NULL ? "" : name, CE_UTF8));
 
+    if (ctx->metadata_only) {
+        const char *types[] = { "string", "int8", "int16", "int32", "float", "double", "string_ref" };
+        int type = readstat_variable_get_type(variable);
+        SET_STRING_ELT(ctx->storage_types, var_index, Rf_mkChar(types[type]));
+        REAL(ctx->storage_widths)[var_index] = (double)readstat_variable_get_storage_width(variable);
+    }
+
     switch (readstat_variable_get_type(variable)) {
         case READSTAT_TYPE_STRING_REF:
         case READSTAT_TYPE_STRING:
@@ -425,7 +484,8 @@ static int reader_variable(int index, readstat_variable_t *variable, const char 
 
     ctx->cols[var_index].vector = col;
     ctx->cols[var_index].readstat_type = readstat_variable_get_type(variable);
-    ctx->cols[var_index].var_type = numTypeFromFormat(ctx->vendor, readstat_variable_get_format(variable));
+    ctx->cols[var_index].var_type = numTypeFromMetadata(ctx->vendor, readstat_variable_get_format(variable),
+        readstat_variable_get_informat(variable));
     if (val_labels != NULL) {
         ctx->cols[var_index].val_labels_name = str_dup(val_labels);
     }
@@ -436,19 +496,9 @@ static int reader_variable(int index, readstat_variable_t *variable, const char 
     }
 
     var_format = readstat_variable_get_format(variable);
-    if (var_format != NULL && strcmp(var_format, "") != 0) {
-        Rf_setAttrib(col, Rf_install(formatAttribute(ctx->vendor)), Rf_mkString(var_format));
-    }
-
-    if ((readstat_variable_get_type(variable) == READSTAT_TYPE_STRING ||
-         readstat_variable_get_type(variable) == READSTAT_TYPE_STRING_REF) &&
-        readstat_variable_get_storage_width(variable) > 0) {
-        Rf_setAttrib(col, Rf_install("width"), Rf_ScalarInteger((int) readstat_variable_get_storage_width(variable)));
-    }
-
-    if (ctx->vendor == DECLARED_SPSS && readstat_variable_get_display_width(variable) != 8) {
-        Rf_setAttrib(col, Rf_install("display_width"), Rf_ScalarInteger(readstat_variable_get_display_width(variable)));
-    }
+    SEXP vendor_metadata = PROTECT(ddiwr_column_metadata(variable, ctx->vendor));
+    Rf_setAttrib(col, Rf_install(ddiwr_metadata_attribute(ctx->vendor)), vendor_metadata);
+    UNPROTECT(1);
 
     if (ctx->cols[var_index].var_type != DECLARED_DEFAULT &&
         readstat_variable_get_type_class(variable) == READSTAT_TYPE_CLASS_STRING) {
@@ -560,6 +610,9 @@ static int reader_value(int obs_index, readstat_variable_t *variable, readstat_v
             } else if ((!ctx->user_na && readstat_value_is_defined_missing(value, variable)) ||
                        readstat_value_is_system_missing(value)) {
                 REAL(col)[obs_index] = NA_REAL;
+            } else if (readstat_value_is_defined_missing(value, variable)) {
+                /* User-missing codes are not calendar values. */
+                REAL(col)[obs_index] = readstat_double_value(value);
             } else {
                 REAL(col)[obs_index] = adjustDatetimeToR(
                     ctx->vendor,
@@ -571,6 +624,79 @@ static int reader_value(int obs_index, readstat_variable_t *variable, readstat_v
         }
     }
     return READSTAT_HANDLER_OK;
+}
+
+static char *sas_rule_endpoint(readstat_value_t value) {
+    if (value.type == READSTAT_TYPE_STRING)
+        return str_dup(value.v.string_value ? value.v.string_value : "");
+    char buffer[64];
+    if (value.is_system_missing || value.is_tagged_missing || ISNAN(value.v.double_value)) {
+        if (value.tag) snprintf(buffer, sizeof(buffer), ".%c", value.tag);
+        else strcpy(buffer, ".");
+    } else {
+        snprintf(buffer, sizeof(buffer), "%.17g", value.v.double_value);
+    }
+    return str_dup(buffer);
+}
+
+static int reader_catalog_rule(const char *name, readstat_value_t start,
+        readstat_value_t end, unsigned flags, int width, double fuzz, const char *label, void *ctx_) {
+    ReaderCtx *ctx = ctx_;
+    LabelSet *set = find_or_create_labelset(ctx, name,
+            name[0] == '$' ? LABELSET_STRING : LABELSET_DOUBLE);
+    if (set->rules_n == set->rules_cap) {
+        set->rules_cap = set->rules_cap ? set->rules_cap*2 : 8;
+        set->rules = R_Realloc(set->rules, set->rules_cap, SASRule);
+    }
+    SASRule *rule = &set->rules[set->rules_n++];
+    rule->start = str_dup(flags & 16 ? "" : flags & 1 ? "LOW" : "");
+    rule->end = str_dup(flags & 16 ? "" : flags & 2 ? "HIGH" : "");
+    if (!(flags & (16|1))) { R_Free(rule->start); rule->start = sas_rule_endpoint(start); }
+    if (!(flags & (16|2))) { R_Free(rule->end); rule->end = sas_rule_endpoint(end); }
+    rule->label = str_dup(label);
+    rule->flags = flags;
+    rule->default_width = width;
+    rule->fuzz = fuzz;
+    return READSTAT_HANDLER_OK;
+}
+
+static void attach_sas_rules(LabelSet *set, SEXP column) {
+    if (!set->rules_n) return;
+    int rich = 0;
+    size_t max_label = 0;
+    for (size_t i=0; i<set->rules_n; i++) {
+        SASRule *rule = &set->rules[i];
+        if (rule->flags || strcmp(rule->start, rule->end)) rich = 1;
+        if (strlen(rule->label) > max_label) max_label = strlen(rule->label);
+    }
+    if (!rich && (set->rules[0].default_width <= 0 ||
+            set->rules[0].default_width == max_label)) return;
+    const char *fields[] = { "start", "end", "label", "hlo", "sexcl", "eexcl", "default", "fuzz" };
+    SEXP rules = PROTECT(ddiwr_metadata_list(8, fields));
+    for (int field=0; field<8; field++) {
+        SEXP values = PROTECT(Rf_allocVector(field == 7 ? REALSXP : field == 6 ? INTSXP : STRSXP, set->rules_n));
+        for (size_t i=0; i<set->rules_n; i++) {
+            SASRule *rule = &set->rules[i];
+            char hlo[4] = { 0 }; int n=0;
+            if (rule->flags & 1) hlo[n++] = 'L';
+            if (rule->flags & 2) hlo[n++] = 'H';
+            if (rule->flags & 16) hlo[n++] = 'O';
+            if (field == 7) REAL(values)[i] = rule->fuzz;
+            else if (field == 6) INTEGER(values)[i] = rule->default_width;
+            else SET_STRING_ELT(values, i, Rf_mkCharCE(field == 0 ? rule->start :
+                    field == 1 ? rule->end : field == 2 ? rule->label : field == 3 ? hlo :
+                    field == 4 ? (rule->flags & 4 ? "Y" : "N") :
+                    (rule->flags & 8 ? "Y" : "N"), CE_UTF8));
+        }
+        SET_VECTOR_ELT(rules, field, values);
+        UNPROTECT(1);
+    }
+    SEXP rows = PROTECT(Rf_allocVector(INTSXP, 2));
+    INTEGER(rows)[0] = NA_INTEGER; INTEGER(rows)[1] = -(int)set->rules_n;
+    Rf_setAttrib(rules, R_RowNamesSymbol, rows);
+    Rf_setAttrib(rules, R_ClassSymbol, Rf_mkString("data.frame"));
+    ddiwr_metadata_set_field(column, DECLARED_SAS, "catalog_rules", rules);
+    UNPROTECT(2);
 }
 
 static int reader_value_label(const char *val_labels, readstat_value_t value, const char *label, void *ctx_) {
@@ -594,6 +720,8 @@ static int reader_value_label(const char *val_labels, readstat_value_t value, co
             set->labels[set->n] = str_dup(label);
             if (readstat_value_is_tagged_missing(value)) {
                 set->dvalues[set->n] = make_tagged_na((char) tolower((unsigned char) readstat_value_tag(value)));
+            } else if (readstat_value_is_system_missing(value)) {
+                set->dvalues[set->n] = NA_REAL;
             } else {
                 set->dvalues[set->n] = readstat_double_value(value);
             }
@@ -636,7 +764,8 @@ static SEXP labelset_to_sexp(LabelSet *set) {
     for (i = 0; i < set->n; ++i) {
         char tag = tagged_na_value(set->dvalues[i]);
         if (ISNAN(set->dvalues[i]) && tag != '\0') {
-            REAL(out)[i] = tag_code_value(tag);
+            /* Keep SAS ._ distinguishable from an untagged NA label key. */
+            REAL(out)[i] = tag == '_' ? set->dvalues[i] : tag_code_value(tag);
         } else {
             REAL(out)[i] = set->dvalues[i];
         }
@@ -712,12 +841,53 @@ static SEXP finalize_output(ReaderCtx *ctx) {
     for (i = 0; i < ctx->ncols; ++i) {
         SEXP col = VECTOR_ELT(ctx->output, i);
         LabelSet *set = find_labelset(ctx, ctx->cols[i].val_labels_name);
-        if (set != NULL) {
+        if (ctx->vendor == DECLARED_SAS && set != NULL) attach_sas_rules(set, col);
+        if (set != NULL && set->n > 0) {
             SEXP labels = PROTECT(labelset_to_sexp(set));
+            if (ctx->vendor == DECLARED_SAS && set->type == LABELSET_DOUBLE) {
+                /* Convert ordinary keys per column, never the missing-code surrogates. */
+                for (size_t j=0; j<set->n; j++) {
+                    if (!ISNAN(set->dvalues[j]))
+                        REAL(labels)[j] = adjustDatetimeToR(ctx->vendor,
+                                ctx->cols[i].var_type, set->dvalues[j]);
+                }
+            }
             Rf_setAttrib(col, Rf_install("labels"), labels);
             UNPROTECT(1);
         }
         finalize_tagged_missing_attrs(&ctx->cols[i], col);
+
+        /* Preserve label-key identity independently of observed missing rows. */
+        if (ctx->vendor == DECLARED_SAS && set != NULL && set->type == LABELSET_DOUBLE) {
+            int has_missing = 0;
+            SEXP tags = PROTECT(Rf_allocVector(STRSXP, set->n));
+            for (size_t j=0; j<set->n; j++) {
+                char tag[2] = { 0, 0 };
+                if (ISNAN(set->dvalues[j])) {
+                    tag[0] = tagged_na_value(set->dvalues[j]);
+                    tag[0] = tag[0] ? toupper((unsigned char)tag[0]) : '.';
+                    has_missing = 1;
+                }
+                SET_STRING_ELT(tags, j, Rf_mkChar(tag));
+            }
+            if (has_missing) {
+                SEXP previous = Rf_getAttrib(col, Rf_install("sas_metadata"));
+                SEXP old_names = Rf_getAttrib(previous, R_NamesSymbol);
+                R_xlen_t count = previous == R_NilValue ? 0 : XLENGTH(previous);
+                SEXP metadata = PROTECT(Rf_allocVector(VECSXP, count + 1));
+                SEXP names = PROTECT(Rf_allocVector(STRSXP, count + 1));
+                for (R_xlen_t j=0; j<count; j++) {
+                    SET_VECTOR_ELT(metadata, j, VECTOR_ELT(previous, j));
+                    SET_STRING_ELT(names, j, STRING_ELT(old_names, j));
+                }
+                SET_VECTOR_ELT(metadata, count, tags);
+                SET_STRING_ELT(names, count, Rf_mkChar("label_tags"));
+                Rf_setAttrib(metadata, R_NamesSymbol, names);
+                Rf_setAttrib(col, Rf_install("sas_metadata"), metadata);
+                UNPROTECT(2);
+            }
+            UNPROTECT(1);
+        }
     }
 
     if (ctx->notes_n > 0) {
@@ -725,11 +895,13 @@ static SEXP finalize_output(ReaderCtx *ctx) {
         for (i = 0; i < (int) ctx->notes_n; ++i) {
             SET_STRING_ELT(notes, i, Rf_mkCharCE(ctx->notes[i], CE_UTF8));
         }
-        Rf_setAttrib(ctx->output, Rf_install("notes"), notes);
+        ddiwr_metadata_set_field(ctx->output, ctx->vendor, "notes", notes);
         UNPROTECT(1);
     }
 
     Rf_setAttrib(ctx->output, R_NamesSymbol, ctx->names);
+    ddiwr_attach_spss_attributes(ctx->output, ctx->names, ctx->spss_attributes);
+    ddiwr_attach_stata_characteristics(ctx->output, ctx->names, ctx->stata_characteristics);
     PROTECT(row_names = Rf_allocVector(INTSXP, 2));
     INTEGER(row_names)[0] = NA_INTEGER;
     INTEGER(row_names)[1] = -(int) ctx->nrows;
@@ -745,30 +917,80 @@ static readstat_parser_t *init_parser(void) {
     readstat_parser_t *parser = readstat_parser_init();
     readstat_set_metadata_handler(parser, reader_metadata);
     readstat_set_note_handler(parser, reader_note);
+    readstat_set_characteristic_handler(parser, reader_characteristic);
     readstat_set_variable_handler(parser, reader_variable);
     readstat_set_value_handler(parser, reader_value);
     readstat_set_value_label_handler(parser, reader_value_label);
+    parser->handlers.catalog_rule = reader_catalog_rule;
     return parser;
 }
 
-static SEXP parse_file(FileExt ext, SEXP spec, SEXP encoding, SEXP user_na, SEXP cols_skip, SEXP n_max, SEXP rows_skip, SEXP spec_cat, SEXP catalog_encoding) {
+typedef struct {
+    char name[128];
+} SasFileEncoding;
+
+static int sas_encoding_metadata(readstat_metadata_t *metadata, void *ctx) {
+    SasFileEncoding *encoding = (SasFileEncoding *) ctx;
+    const char *name = readstat_get_file_encoding(metadata);
+    if (name != NULL) {
+        snprintf(encoding->name, sizeof(encoding->name), "%s", name);
+    }
+    return READSTAT_HANDLER_ABORT;
+}
+
+static int sas_data_file_encoding(const char *path, SasFileEncoding *encoding) {
+    readstat_parser_t *parser = readstat_parser_init();
+    readstat_error_t result;
+    if (parser == NULL) {
+        return 0;
+    }
+
+    readstat_set_metadata_handler(parser, sas_encoding_metadata);
+    result = readstat_parse_sas7bdat(parser, path, encoding);
+    readstat_parser_free(parser);
+    return result == READSTAT_ERROR_USER_ABORT && encoding->name[0] != '\0';
+}
+
+static int sas_catalog_encoding_unspecified(readstat_parser_t *parser, const char *path) {
+    readstat_io_t *io = parser->io;
+    unsigned char code = 1;
+    int success;
+    if (io->open(path, io->io_ctx) < 0) {
+        return 0;
+    }
+
+    /* The SAS header stores its character encoding at byte offset 70. */
+    success = io->seek(70, READSTAT_SEEK_SET, io->io_ctx) == 70 &&
+        io->read(&code, 1, io->io_ctx) == 1;
+    io->close(io->io_ctx);
+    return success && code == 0;
+}
+
+static SEXP parse_file(FileExt ext, SEXP spec, SEXP encoding, SEXP user_na, SEXP cols_skip, SEXP n_max, SEXP rows_skip, SEXP spec_cat, SEXP catalog_encoding, int metadata_only) {
     ReaderCtx ctx;
     readstat_parser_t *parser;
     readstat_error_t result = READSTAT_OK;
     const char *path;
+    const char *failed_path;
     const char *cat_path = NULL;
     long nmax = -1;
     long skip = 0;
     const char *enc = NULL;
     const char *cat_enc = NULL;
+    SasFileEncoding data_encoding = {{0}};
     SEXP out;
 
     reader_ctx_init(&ctx, ext, Rf_asLogical(user_na), cols_skip);
+    ctx.metadata_only = metadata_only;
 
     parser = init_parser();
     if (parser == NULL) {
         reader_ctx_free(&ctx);
         Rf_error("Failed to initialize ReadStat parser.");
+    }
+
+    if (metadata_only) {
+        readstat_set_value_handler(parser, NULL);
     }
 
     if (!Rf_isNull(encoding)) {
@@ -788,19 +1010,29 @@ static SEXP parse_file(FileExt ext, SEXP spec, SEXP encoding, SEXP user_na, SEXP
     }
 
     path = spec_path_cstr(spec);
+    failed_path = path;
 
     if (ext == DECLARED_SAS7BDAT && Rf_isNewList(spec_cat) && Rf_length(spec_cat) > 0) {
         cat_path = spec_path_cstr(spec_cat);
         if (!Rf_isNull(catalog_encoding)) {
             cat_enc = CHAR(STRING_ELT(catalog_encoding, 0));
-            if (cat_enc != NULL && *cat_enc != '\0') {
-                readstat_set_file_character_encoding(parser, cat_enc);
+        }
+        if ((cat_enc == NULL || *cat_enc == '\0') &&
+                sas_catalog_encoding_unspecified(parser, cat_path)) {
+            if (enc != NULL && *enc != '\0') {
+                cat_enc = enc;
+            } else if (sas_data_file_encoding(path, &data_encoding)) {
+                cat_enc = data_encoding.name;
             }
         }
+        readstat_set_file_character_encoding(parser,
+            cat_enc != NULL && *cat_enc != '\0' ? cat_enc : NULL);
         result = readstat_parse_sas7bcat(parser, cat_path, &ctx);
-        if (!Rf_isNull(encoding) && enc != NULL && *enc != '\0') {
-            readstat_set_file_character_encoding(parser, enc);
+        if (result != READSTAT_OK) {
+            failed_path = cat_path;
         }
+        readstat_set_file_character_encoding(parser,
+            enc != NULL && *enc != '\0' ? enc : NULL);
     }
 
     if (result == READSTAT_OK) {
@@ -829,7 +1061,7 @@ static SEXP parse_file(FileExt ext, SEXP spec, SEXP encoding, SEXP user_na, SEXP
     readstat_parser_free(parser);
     if (result != READSTAT_OK) {
         reader_ctx_free(&ctx);
-        Rf_error("Failed to parse %s: %s", path, readstat_error_message(result));
+        Rf_error("Failed to parse %s: %s", failed_path, readstat_error_message(result));
     }
 
     if (nmax == 0) {
@@ -839,26 +1071,51 @@ static SEXP parse_file(FileExt ext, SEXP spec, SEXP encoding, SEXP user_na, SEXP
     }
 
     out = finalize_output(&ctx);
+
+    if (metadata_only) {
+        PROTECT(out);
+        PROTECT(ctx.storage_types);
+        PROTECT(ctx.storage_widths);
+        SEXP inspection = PROTECT(Rf_allocVector(VECSXP, 4));
+        SEXP names = PROTECT(Rf_allocVector(STRSXP, 4));
+        const char *fields[] = { "row_count", "data", "types", "widths" };
+        for (int i = 0; i < 4; i++) {
+            SET_STRING_ELT(names, i, Rf_mkChar(fields[i]));
+        }
+        Rf_setAttrib(inspection, R_NamesSymbol, names);
+        SET_VECTOR_ELT(inspection, 0, Rf_ScalarReal(ctx.source_row_count));
+        SET_VECTOR_ELT(inspection, 1, out);
+        SET_VECTOR_ELT(inspection, 2, ctx.storage_types);
+        SET_VECTOR_ELT(inspection, 3, ctx.storage_widths);
+        reader_ctx_free(&ctx);
+        UNPROTECT(5);
+        return inspection;
+    }
     reader_ctx_free(&ctx);
     return out;
 }
 
 SEXP declared_df_parse_sav_file(SEXP spec, SEXP encoding, SEXP user_na, SEXP cols_skip, SEXP n_max, SEXP rows_skip) {
-    return parse_file(DECLARED_SAV, spec, encoding, user_na, cols_skip, n_max, rows_skip, R_NilValue, R_NilValue);
+    return parse_file(DECLARED_SAV, spec, encoding, user_na, cols_skip, n_max, rows_skip, R_NilValue, R_NilValue, 0);
 }
 
 SEXP declared_df_parse_por_file(SEXP spec, SEXP encoding, SEXP user_na, SEXP cols_skip, SEXP n_max, SEXP rows_skip) {
-    return parse_file(DECLARED_POR, spec, encoding, user_na, cols_skip, n_max, rows_skip, R_NilValue, R_NilValue);
+    return parse_file(DECLARED_POR, spec, encoding, user_na, cols_skip, n_max, rows_skip, R_NilValue, R_NilValue, 0);
 }
 
 SEXP declared_df_parse_dta_file(SEXP spec, SEXP encoding, SEXP cols_skip, SEXP n_max, SEXP rows_skip) {
-    return parse_file(DECLARED_DTA, spec, encoding, ScalarLogical(1), cols_skip, n_max, rows_skip, R_NilValue, R_NilValue);
+    return parse_file(DECLARED_DTA, spec, encoding, ScalarLogical(1), cols_skip, n_max, rows_skip, R_NilValue, R_NilValue, 0);
 }
 
 SEXP declared_df_parse_sas_file(SEXP spec_b7dat, SEXP spec_b7cat, SEXP encoding, SEXP catalog_encoding, SEXP cols_skip, SEXP n_max, SEXP rows_skip) {
-    return parse_file(DECLARED_SAS7BDAT, spec_b7dat, encoding, ScalarLogical(0), cols_skip, n_max, rows_skip, spec_b7cat, catalog_encoding);
+    return parse_file(DECLARED_SAS7BDAT, spec_b7dat, encoding, ScalarLogical(0), cols_skip, n_max, rows_skip, spec_b7cat, catalog_encoding, 0);
 }
 
 SEXP declared_df_parse_xpt_file(SEXP spec, SEXP cols_skip, SEXP n_max, SEXP rows_skip) {
-    return parse_file(DECLARED_XPT, spec, R_NilValue, ScalarLogical(0), cols_skip, n_max, rows_skip, R_NilValue, R_NilValue);
+    return parse_file(DECLARED_XPT, spec, R_NilValue, ScalarLogical(0), cols_skip, n_max, rows_skip, R_NilValue, R_NilValue, 0);
+}
+
+SEXP ddiwr_inspect_file(SEXP spec, SEXP ext, SEXP encoding, SEXP spec_cat, SEXP catalog_encoding) {
+    return parse_file((FileExt)Rf_asInteger(ext), spec, encoding, ScalarLogical(1),
+            R_NilValue, R_NilValue, R_NilValue, spec_cat, catalog_encoding, 1);
 }
