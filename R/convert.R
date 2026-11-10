@@ -53,7 +53,9 @@
 #'
 #' SAS transport exports (`.xpt` or `to = "SAS"`) accept data frames without
 #' labels. A companion SAS setup script is generated only when the data has
-#' variable or value labels.
+#' variable or value labels. Value labels alone are enough. The script uses
+#' the XPT output's base name and directory and targets the SAS dataset with
+#' that name in that directory.
 #'
 #' SPSS system files (`.sav` and `.zsav`) preserve custom dataset and variable
 #' attributes. They are stored in the R attribute `spss.attributes` on the data
@@ -319,10 +321,11 @@
 #' converting to another statistical software. This will likely be replaced with
 #' a time insensitive text version.
 #'
-#' Native SAS import uses ReadStat directly. SAS value-label definitions are
-#' read from a companion format catalog. Supply its path via **`catalog_file`**,
-#' or place it alongside the `.sas7bdat` file with the same base name and the
-#' extension `.sas7bcat` for automatic discovery.
+#' Native SAS import uses ReadStat directly. When reading a `.sas7bdat` file
+#' into R or another format, `catalog` gives the path to its input format
+#' catalog. Omit `catalog` to look for a companion `.sas7bcat` file with the
+#' same base name in the same directory, or set `catalog = NULL` to read only
+#' the dataset.
 #' When a catalog does not declare an encoding, it inherits the effective
 #' data-file encoding. Use **`encoding`** and **`catalog_encoding`** to override
 #' their encodings independently; a catalog override does not affect data-file
@@ -334,17 +337,21 @@
 #' apply to dates and timestamps and are preserved in RDS storage.
 #'
 #' Standalone SAS7BDAT and XPT output does not contain value-label definitions.
-#' Native SAS7BDAT output supports an optional paired value-label catalog:
-#' `convert(data, "data.sas7bdat", catalog_to = "data.sas7bcat")`.
-#' `catalog_file` and `catalog_encoding` apply only to the input catalog;
-#' `catalog_to` is the output catalog path and is supported only with a
-#' `.sas7bdat` destination. Omitting `catalog_to`, or setting it to NULL,
-#' writes only the data file and leaves existing catalog files unchanged.
-#' An input catalog is never reused as an output
-#' destination implicitly. For example, this reads one catalog and writes another:
+#' When writing a `.sas7bdat` file, `catalog` gives the output catalog path.
+#' Omit it to write a companion `.sas7bcat` file with the same base name in
+#' the same directory whenever the exported columns have value labels
+#' (including factor levels) or SAS catalog rules. Set `catalog = NULL` to
+#' write only the dataset.
+#'
+#' **Export replaces any existing file at the output catalog path, including
+#' when the path is chosen automatically.**
+#'
+#' When both paths are `.sas7bdat` files, `catalog` controls the output and
+#' the input catalog is discovered by its matching name. To use an input
+#' catalog with a different name or location, read the dataset into R first.
 #' ```
-#' convert("input.sas7bdat", "output.sas7bdat",
-#'     catalog_file = "input.sas7bcat", catalog_to = "output.sas7bcat")
+#' data <- convert("input.sas7bdat", catalog = "input-labels.sas7bcat", recode = FALSE)
+#' convert(data, "output.sas7bdat", catalog = "output-labels.sas7bcat")
 #' ```
 #' Native SAS7BDAT output preserves system missing, `._` and existing letter
 #' missing tags using SAS's native ordinal encoding at every numeric storage
@@ -430,9 +437,9 @@
 #'
 #' Paired export writes both files to temporary siblings before replacing the
 #' destinations. Publication retains backups and attempts to restore both
-#' originals if either rename fails. The two renames are not a single atomic
-#' operation. Input objects are not modified. SAS value-label catalogs can
-#' also be supplied as setup commands; see \bold{\code{\link{setupfile}()}}.
+#' originals if publication fails. Another process may observe the files
+#' between publication steps. SAS value-label catalogs can also be supplied
+#' as setup commands. See \bold{\code{\link{setupfile}()}}.
 #'
 #' The argument **`recode`** controls how missing values are treated. If the
 #' input file has SPSS like numeric codes, they will be recoded to extended
@@ -519,15 +526,21 @@
 #' @param skip Integer, number of rows to skip when importing from SPSS, Stata
 #' or SAS files
 #' @param ... Additional options specific to the source or destination format,
-#' including `language` when importing translated DDI labels, `catalog_file`
-#' and `catalog_encoding` for SAS catalog input, and `catalog_to` for paired
-#' SAS value-label catalog output; see the Details section
+#' including `language` when importing translated DDI labels and
+#' `catalog_encoding` when reading a SAS catalog. See the Details section.
+#' @param catalog Path to a SAS format catalog. For `.sas7bdat` output this
+#'   is the destination catalog. For other conversions from `.sas7bdat` it
+#'   is the input catalog. Omit to use the matching filename convention or
+#'   pass `NULL` to skip the catalog for that operation.
+#' @param setup Logical, write the companion SAS setup script for labelled
+#'   XPT output. Defaults to `TRUE`.
 #'
 #' @export
 
 `convert` <- function(
     from, to = NULL, declared = TRUE, chartonum = FALSE, recode = TRUE,
-    encoding = "UTF-8", csv = NULL, n_max = -1L, skip = 0L, ...
+    encoding = "UTF-8", csv = NULL, n_max = -1L, skip = 0L, ...,
+    catalog = NULL, setup = TRUE
 ) {
 
     if (missing(from)) {
@@ -544,10 +557,14 @@
     # }
 
     dots <- list(...)
+    auto_catalog <- missing(catalog)
+
+    if (any(is.element(c("catalog_file", "catalog_to"), names(dots)))) {
+        stop("Use the 'catalog' argument to specify the SAS catalog.", call. = FALSE)
+    }
+
     language <- dots[["language", exact = TRUE]]
     dots[["language"]] <- NULL
-    catalog_to <- dots[["catalog_to", exact = TRUE]]
-    dots[["catalog_to"]] <- NULL
 
     embed <- !isFALSE(dots$embed)
 
@@ -693,14 +710,16 @@
         }
     }
 
-    if (!is.null(catalog_to)) {
-        if (!is.character(catalog_to) || length(catalog_to) != 1L ||
-            is.na(catalog_to) || !nzchar(catalog_to)) {
-            stop("catalog_to must be one non-missing, nonempty file path.", call. = FALSE)
+    sas_output <- identical(tp_to$fileext, "SAS7BDAT")
+
+    if (!is.null(catalog)) {
+        if (!is.character(catalog) || length(catalog) != 1L ||
+            is.na(catalog) || !nzchar(catalog)) {
+            stop("catalog must be one non-missing, nonempty file path.", call. = FALSE)
         }
 
-        if (is.null(to) || !identical(tp_to$fileext, "SAS7BDAT")) {
-            stop("catalog_to is supported only for SAS7BDAT output.", call. = FALSE)
+        if (!sas_output && !identical(tp_from$fileext, "SAS7BDAT")) {
+            stop("catalog requires SAS7BDAT input or output.", call. = FALSE)
         }
     }
 
@@ -932,7 +951,7 @@
         arglist$n_max <- n_max
         arglist$skip <- skip
 
-        if (is.null(arglist$catalog_file)) {
+        if (auto_catalog || sas_output) {
             cats <- treatPath(tp_from$completePath, type = "sas7bcat")
             if (is.list(cats) && any(is.element(cats$filenames, tp_from$filenames))) {
                 arglist$catalog_file <- file.path(
@@ -941,9 +960,12 @@
                 )
             }
         }
+        else {
+            arglist$catalog_file <- catalog
+        }
 
         data <- do.call(read_sas, arglist)
-        if (recode && !identical(tp_to$fileext, "SAS7BDAT")) {
+        if (recode && !sas_output && any(vapply(data, inherits, logical(1), "declared"))) {
             data <- recodeMissings(
                 dataset = data,
                 to = "SPSS",
@@ -1311,17 +1333,16 @@
 
         writexl::write_xlsx(excel, path = to)
     }
-    else if (identical(tp_to$fileext, "SAS7BDAT")) {
+    else if (sas_output) {
         dictionary <- maybe_build_dictionary(data, to = "SAS", preserve_sas_tags = TRUE)
-        arglist <- list(data = data, path = to, catalog_file = catalog_to)
-
-        if (!is.null(dictionary)) {
-            arglist$dictionary <- dictionary
-        }
-
-        do.call(write_sas, arglist)
+        write_sas(data, to, dictionary = dictionary, catalog_file = catalog,
+            auto_catalog = auto_catalog)
     }
     else {
+        if (!is.logical(setup) || length(setup) != 1L || is.na(setup)) {
+            stop("'setup' must be TRUE or FALSE.", call. = FALSE)
+        }
+
         lnms <- nchar(colnames(data))
         if (any(lnms > 8)) {
             admisc::stopError("SAS .xpt files do not allow more than 8 characters for column names.")
@@ -1344,15 +1365,12 @@
         }
         do.call(write_xpt, arglist)
 
-        if (hasLabels(arglist$data)) {
-            to <- file.path(
-                tp_from$completePath,
-                paste(tp_from$filenames, "sas", sep = ".")
-            )
+        if (setup && hasLabels(arglist$data)) {
+            setup_path <- paste0(tools::file_path_sans_ext(to), ".sas")
 
             setupfile(
                 obj = getCodebook(arglist$data),
-                file = to,
+                file = setup_path,
                 type = "SAS",
                 csv = arglist$data,
                 recode = recode,
